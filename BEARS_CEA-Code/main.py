@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import cea
 import json
 import numpy as np
@@ -8,7 +10,7 @@ Weitere Aufgaben:
 """
 
 # Inputs
-paraffin = cea.Reactant(                                                            
+paraffin = cea.Reactant(
 	name="Paraffin",
 	formula={"C": 25.0, "H": 52.0},
 	# Enthalpie angeben sinnvoll?
@@ -18,10 +20,10 @@ paraffin = cea.Reactant(
 
 abs = cea.Reactant(
 	name="ABS",
-	formula={"C": 8, "H": 8, "C":4, "H":6, "C":3, "H":3, "N": 1},      
+	formula={"C": 8, "H": 8, "C":4, "H":6, "C":3, "H":3, "N": 1},
 )
 
-reac_names = [paraffin, abs, "N2O"]                                                     
+reac_names = [paraffin, abs, "N2O"]
 T_reactant = np.array([298.15, 298.15, 298.15])
 
 fuel_volumes = np.array([0.9, 0.1, 0.0])
@@ -49,10 +51,10 @@ with open("cea_values.json", "r") as retrieved:
 
 	# Supersonic area ratio
 	supar = data["supar"]
-    
-pc = 30# Tank Pressure: 60 bar
-pi_p = [30]# Pressure Ratio
-subar = [1.58]# Subsonic area ratio                                                       
+
+pc = 30 # Tank Pressure: 60 bar
+pi_p = [30] # Pressure Ratio
+subar = [1.58] # Subsonic area ratio
 
 # Program
 reac = cea.Mixture(reac_names)
@@ -62,9 +64,6 @@ solution = cea.RocketSolution(solver)
 weights = reac.of_ratio_to_weights(oxidant_weights, fuel_weights, of_ratio)
 hc = reac.calc_property(cea.ENTHALPY, weights, T_reactant)/cea.R
 solver.solve(solution, weights, pc, pi_p, subar=subar, supar=supar, hc=hc, iac=True)
-
-
-
 
 # Solution Print
 num_pts = solution.num_pts
