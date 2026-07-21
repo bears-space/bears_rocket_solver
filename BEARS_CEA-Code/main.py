@@ -1,8 +1,20 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import cea
 import json
 import numpy as np
+
+"""
+Optimizer class idea:
+
+  class opt:
+      ...
+
+  from Optimizer import opt
+
+  class.
+
+"""
 
 """
 Weitere Aufgaben:
@@ -29,9 +41,9 @@ T_reactant = np.array([298.15, 298.15, 298.15])
 fuel_volumes = np.array([0.9, 0.1, 0.0])
 oxidant_volumes = np.array([0.0, 0.0, 1.0])
 
-density_parrafin = 0.9  # g/cm^3
-density_abs = 1.04  # g/cm^3
-density_n2o = 1.2  # g/cm^3
+density_parrafin = 0.9 # g/cm^3
+density_abs = 1.04 # g/cm^3
+density_n2o = 1.2 # g/cm^3
 
 fuel_weights = np.array([
 	fuel_volumes[0]*density_parrafin,
@@ -63,7 +75,9 @@ solver = cea.RocketSolver(prod, reactants=reac)
 solution = cea.RocketSolution(solver)
 weights = reac.of_ratio_to_weights(oxidant_weights, fuel_weights, of_ratio)
 hc = reac.calc_property(cea.ENTHALPY, weights, T_reactant)/cea.R
-solver.solve(solution, weights, pc, pi_p, subar=subar, supar=supar, hc=hc, iac=True)
+
+solver.solve(solution, weights, pc, pi_p,
+	subar=subar, supar=supar, hc=hc, iac=True)
 
 # Solution Print
 num_pts = solution.num_pts

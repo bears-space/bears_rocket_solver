@@ -80,7 +80,9 @@ massFlowRate = targetThrust/Isp
 # 8314.46 ist die universelle Gaskonstante
 GasConstant = 8314.46/molecularWeightExhaustGas
 
+# TODO: rewrite to accept `solution.T`
 ChamberTemp = 3000 # in °K, approximation, von paraffin brenn-temp
+
 ChamberPressure = 3 # 30 bar in N/mm^2
 HeatRatio = 1.24 # exhaust gas heat ratio
 

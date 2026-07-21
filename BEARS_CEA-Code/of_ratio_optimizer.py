@@ -71,7 +71,9 @@ solver = cea.RocketSolver(prod, reactants=reac)
 solution = cea.RocketSolution(solver)
 weights = reac.of_ratio_to_weights(oxidant_weights, fuel_weights, of_ratio)
 hc = reac.calc_property(cea.ENTHALPY, weights, T_reactant)/cea.R
-solver.solve(solution, weights, pc, pi_p, subar=subar, supar=supar, hc=hc, iac=True)
+
+solver.solve(solution, weights, pc, pi_p,
+	subar=subar, supar=supar, hc=hc, iac=True)
 
 # Solution Print
 Cf = solution.coefficient_of_thrust

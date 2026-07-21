@@ -1,0 +1,43 @@
+{
+	"reactants": [
+		{
+			"name": "Paraffin",
+			"formula_parts": [
+				{ "C": 25, "H": 52 }
+			],
+			"temperature": 298.15,
+			"fuel_volume": 0.9,
+			"oxidant_volume": 0.0,
+			"density": 0.9,
+			"density_units": "g/cm^3",
+
+			"enthalpy": -681.7,
+			"enthalpy_units": "kJ/mol"
+		},
+		{
+			"name": "ABS",
+			"formula_parts": [
+				{ "C": 8, "H": 8 },
+				{ "C": 4, "H": 6 },
+				{ "C": 3, "H": 3, "N": 1 }
+			],
+			"temperature": 298.15,
+			"fuel_volume": 0.1,
+			"oxidant_volume": 0.0,
+			"density": 1.04,
+			"density_units": "g/cm^3"
+		},
+		{
+			"name": "N2O",
+			"formula_parts": [
+				{ "N": 2, "O": 1 }
+			],
+			"temperature": 298.15,
+			"fuel_volume": 0.0,
+			"oxidant_volume": 1.0,
+			"density": 1.2,
+			"density_units": "g/cm^3"
+		}
+	]
+}
+
