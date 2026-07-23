@@ -1,0 +1,22 @@
+{
+	"tank_pressure": 30.0,
+	"pressure_units": "bar",
+	"tank_pressure_min": 30.0,
+	"tank_pressure_max": 30.0,
+
+	"pressure_ratio": 30.0,
+	"pressure_ratio_min": 30.0,
+	"pressure_ratio_max": 30.0,
+
+	"subar": 1.58,
+	"subar_min": 1.58,
+	"subar_max": 1.58,
+
+	"supar": 4.0,
+	"supar_min": 3.0,
+	"supar_max": 5.0,
+
+	"of_ratio": 7.603599999999998,
+	"of_ratio_min": 7.603599999999998,
+	"of_ratio_max": 7.603599999999998
+}
