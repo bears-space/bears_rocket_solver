@@ -14,10 +14,38 @@ import numpy as np
 from dataclasses import dataclass, replace
 from typing import Tuple, List, Dict, Any
 
+"""
+From: Andrii
+
+There is no reason to reinvent the wheel with custom optimizers here given the
+wide availability of SciPy and its library of optimization functions. In our
+case of multi-dimensional optimization with a complex cost landscape, we need a
+global optimization function. SciPy's ``differential_evolution`` is a
+stochastic global optimizer that should work nicely here
+"""
 from scipy.optimize import differential_evolution
 #endregion
 
 #region Dataclasses
+"""
+From: Andrii
+
+In this section, I wanted to group together all the arguments required for
+computing the Isp. The most reasonable way to do this was to break them down
+into three classes:
+
+- Since the ambition is to be able to "turn on/off" the optimization of
+  particular rocket variables, such as the supersonic area ratio ``supar`` in
+  the case of this file, the optimizable variables are grouped into the
+  ``ModelParams`` class.
+
+- Some variables are computed from the input reactant mixture and will not be
+  optimized for. These are grouped into ``FixedParams``.
+
+- Purely technical variables like the ``RocketSolver`` instance are conained
+  into the ``SolverParams`` class.
+"""
+
 @dataclass(frozen=True)
 class ModelParams:
 	"""
@@ -60,6 +88,36 @@ class SolverParams:
 #endregion
 
 #region Optimization setup
+"""
+From: Andrii
+
+This is a replacement for Robert's custom optimization function intended to be
+used with SciPy's standard "off-the-shelf" global optimization functions.
+
+We are optimizing some set of input parameters (supersonic area ratio
+``supar``, oxidizer-fuel ratio ``of_ratio, etc.) with respect to a target value
+that is computed from those parameters, in this case the specific impulse
+``I_sp``. Consider these as a "coordinate" space and a "target" space of some
+"cost" function:
+
+  f_cost : C -> T
+
+  f_cost(supar, ...) = I_sp
+
+in this case being ``C = (supar: float, ...)``, and ``T = I_sp: float``. Our
+actual cost function also requires parameters that are not to be optimized (as
+mentioned in the previous section), so it looks more like this:
+
+  f_cost : (C, P) -> T
+
+where ``C`` is as before and ``P = (hc: float, ...)`` is the tuple of
+non-optimized constants that our function takes.
+
+The ``OptimizationAdater`` class wraps our true cost function of the three
+container classes and turns it into a function of only our optimizable
+parameters
+"""
+
 def f_cost(
 	params_M: ModelParams,
 	params_F: FixedParams,
@@ -68,15 +126,19 @@ def f_cost(
 	"""
 	The cost function for the global optimization algorithm
 	"""
+
+	# The internal CEA solver routine that we unpack all the packaged
+	# parameters into
 	params_S.solver.solve(
 		params_S.solution,
 		params_F.weights,
 		params_M.tank_pressure,
 		params_M.pressure_ratio,
 		subar = params_M.subar,
+		# Sometimes the solver breaks if ``supar`` isn't forced to a ``float``
 		supar = float(params_M.supar),
-		hc = params_F.hc,
-		iac = True
+		hc    = params_F.hc,
+		iac   = True
 	)
 
 	# We return the _negative_ specific impulse because the optimization
@@ -112,10 +174,13 @@ class OptimizationAdapter:
 		self.params_F = params_F
 		self.params_S = params_S
 		self.active_keys = active_keys
+
+		# Select bounds for only the parameters to be optimized
 		self.bounds = [bounds_map[k] for k in active_keys]
 	
 	def __call__(self, x):
 		updates = {key: val for key, val in zip(self.active_keys, x)}
+		print(updates)
 		params_current = replace(self.params_M, **updates)
 
 		return f_cost(params_current, self.params_F, self.params_S)
