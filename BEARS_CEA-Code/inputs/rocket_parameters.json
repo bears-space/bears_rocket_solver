@@ -13,8 +13,8 @@
 	"subar_max": 1.58,
 
 	"supar": 4.0,
-	"supar_min": 3.0,
-	"supar_max": 5.0,
+	"supar_min": 1.0,
+	"supar_max": 8.0,
 
 	"of_ratio": 7.603599999999998,
 	"of_ratio_min": 7.603599999999998,
