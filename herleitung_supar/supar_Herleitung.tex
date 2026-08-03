@@ -1,0 +1,86 @@
+\documentclass{scrartcl}
+\usepackage{amsmath}
+\usepackage[ngerman]{babel}
+
+\begin{document}
+Der spezifische Impuls $(I_{sp})$ ist direkt proportional zum Gesamtschub (F) des Triebwerks
+\begin{equation*}
+I_{sp} = \frac{F}{\dot{m} \cdot g_0}
+\end{equation*}
+Der Gesamtschub berechnet sich aus zwei Komponenten:
+\begin{enumerate}
+    \item eq1
+    \begin{equation}
+        F=\dot{m}\cdot v_{e}+(p_{e}-p_{a})\cdot A_{e}
+    \end{equation}
+\end{enumerate}
+
+Dabei gilt:
+\begin{itemize}
+    \item $\dot{m}$: Massenstrom (kg/s)
+    \item $v_{e}$: Austrittsgeschwindigkeit des Gases (m/s)
+    \item $p_{e}$: Druck am Düsenaustritt (Pa)
+    \item $p_{a}$: Umgebungsdruck der Atmosphäre (Pa)
+    \item $A_{e}$: Querschnittsfläche am Düsenaustritt ($\mathrm{m}^{2}$)
+\end{itemize}
+
+Wenn man das Flächenverhältnis $\epsilon = A_e / A_t$ verändert, ändern sich $v_{e}$, $p_{e}$ und $A_{e}$ gleichzeitig. Leitet man die Schubgleichung mathematisch nach der Fläche ab und setzt sie null, um das Maximum zu finden, stellt man fest: Der maximale Schub (und damit der maximale $I_{sp}$) wird exakt dann erreicht, wenn $p_e = p_a$.
+
+\begin{itemize}
+    \item Ist $p_e < p_a$ (überexpansion), wird der Term $(p_e - p_a)$ negativ -- die Atmosphäre bremst den Schub ab.
+    \item Ist $p_e > p_a$ (Unterexpansion), wird kinetische Energie verschenkt, da das Gas nach Verlassen der Düse weiter expandiert.
+\end{itemize}
+
+Um das optimale Flächenverhältnis zu berechnen, nutzt man die Flächen--Mach-Zahl-Beziehung (Area-Mach-Relation) für isentrope Strömungen:
+\begin{equation}
+\epsilon = \frac{A_{e}}{A_{t}}=\frac{1}{M_{e}}\left[\frac{2}{\gamma +1}\left(1+\frac{\gamma -1}{2}M_{e}^{2}\right)\right]^{\frac{\gamma +1}{2(\gamma -1)}}
+\end{equation}
+
+Dabei gilt: $M_{e}$ ist die Mach-Zahl am Düsenaustritt und $\gamma$ der Isentropenexponent (für Paraffin/N$_2$O ca. $1{,}24$).
+
+Da für das Optimum $p_e = p_a$ gelten muss, bestimmen wir zuerst die benötigte Austritts-Mach-Zahl $M_{e}$ aus dem Druckverhältnis zwischen Kammerdruck $p_{c}$ und Außendruck $p_{e}$.
+
+Dafür nutzen wir die Druck-Beziehung für ideale Gase:
+\begin{equation}
+\frac{p_{c}}{p_{e}}=\left(1+\frac{\gamma -1}{2}M_{e}^{2}\right)^{\frac{\gamma }{\gamma -1}}
+\end{equation}
+
+Umgestellt nach $M_{e}$:
+\begin{equation}
+M_{e}=\sqrt{\frac{2}{\gamma -1}\left[\left(\frac{p_{c}}{p_{e}}\right)^{\frac{\gamma -1}{\gamma }}-1\right]}
+\end{equation}
+
+Wir nutzen $\gamma = 1{,}24$ und $p_c = 30\,\text{bar}$ ($3\,000\,000\,\text{Pa}$).
+
+Am Startplatz ($0\,\text{km}$, $p_e = p_a = 1{,}013\,\text{bar}$):
+\begin{equation*}
+M_{e}=\sqrt{\frac{2}{1{,}24-1}\left[\left(\frac{30}{1{,}013}\right)^{\frac{1{,}24-1}{1{,}24}}-1\right]}\approx \mathbf{2{,}78}
+\end{equation*}
+
+In Zielhöhe ($3\,\text{km}$, $p_e = p_a = 0{,}70\,\text{bar}$):
+\begin{equation*}
+M_{e}=\sqrt{\frac{2}{1{,}24-1}\left[\left(\frac{30}{0{,}70}\right)^{\frac{1{,}24-1}{1{,}24}}-1\right]}\approx \mathbf{2{,}99}
+\end{equation*}
+
+Für den Start ($M_e = 2{,}78$):
+\begin{equation*}
+\epsilon =\frac{1}{2{,}78}\left[\frac{2}{2{,}24}\left(1+\frac{0{,}24}{2}\cdot 2{,}78^{2}\right)\right]^{\frac{2{,}24}{0{,}48}}\approx \mathbf{4{,}52}
+\end{equation*}
+
+Für $3\,\text{km}$ Höhe ($M_e = 2{,}99$):
+\begin{equation*}
+\epsilon =\frac{1}{2{,}99}\left[\frac{2}{2{,}24}\left(1+\frac{0{,}24}{2}\cdot 2{,}99^{2}\right)\right]^{\frac{2{,}24}{0{,}48}}\approx \mathbf{5{,}88}
+\end{equation*}
+
+Da Düsen rund sind, hängt das Flächenverhältnis quadratisch mit dem Durchmesserverhältnis zusammen ($A = \frac{\pi}{4} D^2$):
+\begin{equation}
+\epsilon =\frac{A_{e}}{A_{t}}=\left(\frac{D_{e}}{D_{t}}\right)^{2}\implies \frac{D_{e}}{D_{t}}=\sqrt{\epsilon }
+\end{equation}
+
+Für das Startoptimum ($\epsilon = 4{,}52$): $D_e / D_t = \sqrt{4{,}52} \approx \mathbf{2{,}13}$.
+
+Für das $3\,\text{km}$-Optimum ($\epsilon = 5{,}88$): $D_e / D_t = \sqrt{5{,}88} \approx \mathbf{2{,}42}$.
+
+Würdest du nun fälschlicherweise eine Vakuumdüse mit $\epsilon = 40$ bauen ($D_e / D_t = 6{,}3$), würde der Austrittsdruck $p_{e}$ rechnerisch auf ca. $0{,}05\,\text{bar}$ fallen. Da die Außenluft aber mit $1\,\text{bar}$ drückt, kollabiert die Strömung komplett.
+
+\end{document}

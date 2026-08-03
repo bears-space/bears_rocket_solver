@@ -18,10 +18,11 @@ from typing import Tuple, List, Dict, Any
 From: Andrii
 
 There is no reason to reinvent the wheel with custom optimizers here given the
-wide availability of SciPy and its library of optimization functions. In our
-case of multi-dimensional optimization with a complex cost landscape, we need a
-global optimization function. SciPy's ``differential_evolution`` is a
-stochastic global optimizer that should work nicely here
+wide availability of SciPy and its library of optimization functions, and
+performance should improve since those have long been polished and refined. In
+our case of multi-dimensional optimization with a complex cost landscape, we
+need a global optimization function. SciPy's ``differential_evolution`` is a
+stochastic global optimizer that should work well enough here
 """
 from scipy.optimize import differential_evolution
 #endregion
@@ -115,7 +116,12 @@ non-optimized constants that our function takes.
 
 The ``OptimizationAdater`` class wraps our true cost function of the three
 container classes and turns it into a function of only our optimizable
-parameters
+parameters.
+
+This class setup is not very intuitive, but the advantage of this is that we
+can easily turn optimization of specific variables on and off, and can even
+optimize multiple variables at once, so with minor changes we can replace
+``of_optimizer.py`` as well
 """
 
 def f_cost(
@@ -309,8 +315,8 @@ def main():
 	# Prepare the adapter with the selected keys
 	bridge = OptimizationAdapter(mdl, fix, slv, dynamic_keys, bounds)
 
-	# This is the crux of the algorithm, we use the SciPy
-	# ``differential_evolution`` global optimizer with the selected paramters
+	# This is the crux of the algorithm, we use the ``differential_evolution``
+	# global optimizer with the selected paramters
 	result = differential_evolution(
 		bridge,
 		bridge.bounds,
@@ -323,6 +329,7 @@ def main():
 	final_updates = {k: v for k, v in zip(dynamic_keys, result.x)}
 	mdl_optimized = replace(mdl, **final_updates)
 
+	print("")
 	print(f"{result}")
 	print("")
 	print(f"{mdl_optimized}")
@@ -330,3 +337,37 @@ def main():
 #endregion
 
 if __name__=="__main__": main()
+
+"""
+From: Andrii
+Date: 23.07.2026
+
+IMPORTANT: Replacing the custom optimizer has somewhat solved the performance
+issue (the execution time is not instant but definitely faster than 2s), but
+there seems to be a big issue with the actual optimized value of ``supar``.
+Specifically, the algorithm optimizes to the maximum allowed value of
+``supar``, to the maximum bound of the parameter passed to the optimizer. So,
+if you specify
+
+  "supar_max": 10.0
+
+in ``inputs/rocket_parameters.json``, the algorithm will find that the optimal
+value of ``supar`` is 10. I have tested this with maximum area ratio values as
+high as 100.
+
+This is not just an issue with the new implementation: in the old version of
+this file if you allow a wider range of ``supar``s in the optimization
+function, the algorithm will select the largest possible value. In my testing,
+epxanding the candidate array inside the old ``suparOptimizer`` function
+
+  candidates = [                                                              
+    (BaseSupar - 2 * deviationValue, solve_for_supar(BaseSupar - 2 * deviationValue)),
+    (BaseSupar -     deviationValue, solve_for_supar(BaseSupar -     deviationValue)),
+    (BaseSupar +     deviationValue, solve_for_supar(BaseSupar +     deviationValue)),
+    (BaseSupar + 2 * deviationValue, solve_for_supar(BaseSupar + 2 * deviationValue)),
+    (BaseSupar + 3 * deviationValue, solve_for_supar(BaseSupar + 3 * deviationValue)),
+    ...
+  ]
+
+the algorithm always maximizes "to the right"
+"""
