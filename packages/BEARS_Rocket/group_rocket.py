@@ -7,7 +7,8 @@
 from openmdao.api import Group
 from rocketcea.cea_obj import CEA_Obj
 
-from .comp_of import OFComponent
+from .comp_of   import OFComponent
+from .comp_mass import MassComponent
 #endregion
 
 class RocketGroup(Group):
@@ -22,4 +23,10 @@ class RocketGroup(Group):
 			'prop',
 			OFComponent(cea=cea),
 			promotes_inputs=['mixture_ratio']
+		)
+
+		self.add_subsystem(
+			'mass',
+			MassComponent(),
+			promotes_inputs=['propellant_mass', 'payload_mass']
 		)
