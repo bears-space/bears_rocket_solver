@@ -1,0 +1,45 @@
+{
+	"fuel": [
+		{
+			"name": "Paraffin",
+			"reactype": "fuel",
+			"mass_fraction": 5.0,
+			"formula_parts": [
+				{ "C": 25, "H": 52 }
+			],
+			"temperature": 298.15,
+			"enthalpy": -681.7,
+			"enthalpy_units": "kj/mol",
+			"density": 0.9,
+			"density_units": "g/cm^3"
+		},
+		{
+			"name": "ABS",
+			"reactype": "fuel",
+			"mass_fraction": 1.0,
+			"formula_parts": [
+				{ "C": 8, "H": 8 },
+				{ "C": 4, "H": 6 },
+				{ "C": 3, "H": 3, "N": 1 }
+			],
+			"temperature": 298.15,
+			"enthalpy": -586.0,
+			"enthalpy_units": "kj/mol",
+			"density": 1.04,
+			"density_units": "g/cm^3"
+		}
+	],
+	"oxid": [
+		{
+			"name": "N2O",
+			"reactype": "oxid",
+			"formula_parts": [
+				{ "N": 2, "O": 1 }
+			],
+			"temperature": 298.15,
+			"density": 1.2,
+			"density_units": "g/cm^3"
+		}
+	]
+}
+
