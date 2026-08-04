@@ -6,14 +6,13 @@ class MassComponent(ExplicitComponent):
 
 	def setup(self):
 		# Inputs
-		self.add_input('payload_mass', val=2.0)
-
-		self.add_input('propellant_mass', val=10.0)
+		self.add_input('payload_mass',    val=2.0,  units='kg')
+		self.add_input('propellant_mass', val=10.0, units='kg')
 
 		self.add_input('structural_coefficient', val=0.2)
 
-		self.add_output('initial_mass', val=14.0)
-		self.add_output('dry_mass', val=4.0)
+		self.add_output('initial_mass', val=14.0, units='kg')
+		self.add_output('dry_mass',     val=4.0,  units='kg')
 
 	def setup_partials(self):
 		self.declare_partials('*', '*', method='fd')
