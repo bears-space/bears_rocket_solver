@@ -72,15 +72,6 @@ def reactant_card(reactant: Reactant, fraction: float = None) -> str:
 	fraction
 
 	See <https://rocketcea.readthedocs.io/en/latest/std_examples.html>
-
-	:param reactant: `Reactant` object to be parsed
-	:type reactant: Reactant
-
-	:param fraction: Percentage mixture fraction
-	:type fraction: float, optional
-
-	:return: CEA propellant card string
-	:rtype: str
 	"""
 
 	f = reactant.mass_fraction
@@ -114,13 +105,9 @@ def gencard(components: list[Reactant]) -> str:
 	Generate a CEA propellant card from a list of reactants, weighing each
 	reactant appropriately according to its `mass_fraction` field
 
+	Same thing as `reactant_card` but for lists
+
 	See <https://rocketcea.readthedocs.io/en/latest/std_examples.html>
-
-	:param components: List of Reactant classes
-	:type components: list
-
-	:return: CEA propellant card string
-	:rtype: str
 	"""
 
 	rt = components[0].reactype
@@ -148,14 +135,10 @@ def parse_reactants(data: dict[str, list[dict]]) -> tuple[str, str]:
 	Parse a dictionary of fuel and oxidizer mixtures to the corresponding
 	reactant names
 
-	If a reactant or mixture does not exist in the CEA library, it is created
-	with the appropriate card
+	If a reactant or mixture does not exist in the RocketCEA propellant
+	database, it is created with the appropriate card
 
-	:param data: The JSON-parsed dict containing oxidizer and fuel mixture data
-	:type data: dict
-
-	:return: The oxidizer and fuel names
-	:rtype: tuple[str, str]
+	Returns the oxidizer and fuel names for passing to `CEA_Obj`
 	"""
 
 	reac_cards = { 'oxid': oxCards, 'fuel': fuelCards }
