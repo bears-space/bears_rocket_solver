@@ -36,7 +36,7 @@ multi-disciplinary optimization for the whole rocket assembly
 > Programs must be written for people to read, and only incidentally for
 > machines to execute
 >
-> - Harold Abelson
+> -- Harold Abelson
 
 This program aims for generality, and general programs must be understandable to
 be reusable. The hope of organizing the code into MDAO class structure is that
@@ -60,12 +60,17 @@ directory be the input interface, with the entire solver program reading only
 from JSON files in this directory without having to modify the `solver.py`
 script itself
 
+`packages/`: This directory contains the components for the central `solver.py`
+script, organized into
+[Python packages](https://pythonpackaging.info/02-Package-Structure.html#Package-layout)
+
 `packages/BEARS_Chem/`: The [CEA](#cea) parser module. Contains functions to
 read the reactant data from input JSONs and parse it into a CEA object to be
 passed to the propulsion subsystem
 
 `packages/BEARS_Rocket/`: Classes for the [OpenMDAO](#openmdao) rocket assembly
-structure
+structure. Each file defines one component class, and each file is prefixed with
+the component type it defines: `group_`, `comp_`, etc
 
 ## MDAO class structure
 
