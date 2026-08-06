@@ -1,8 +1,3 @@
-"""
-@author: Andrii
-@date:   03.08.2026
-"""
-
 #region Imports
 import json
 
@@ -24,7 +19,7 @@ class Reactant:
 	density_units  : str
 
 	def __init__(self, reacdict: dict):
-		"""Construct a Reactant from a dictionary"""
+		"""Construct a Reactant object from a JSON-parsed dictionary"""
 
 		# Required reactant parameters
 		self.reactype       = reacdict['reactype']
@@ -42,12 +37,19 @@ class Reactant:
 		self.compile_formula()
 
 	def compile_formula(self):
+		"""
+		Compile the formula components as specified in the JSON input into a
+		complete formula
+		"""
 		self.formula: dict[str, float] = {}
 		for part in self.formula_parts:
 			for k, v in part.items():
 				self.formula[k] = self.formula.get(k, 0) + v
 
 	def convert_enth_units(self, eu_out: str):
+
+		# TODO complete the list of conversions/add a better conversion method
+
 		j_to_cal = 0.2390057361 # 1 J = 0.239006 cal
 		match (self.enthalpy_units, eu_out):
 			case ("j/mol", "cal/mol"):
@@ -65,6 +67,22 @@ class Reactant:
 
 #region Helper functions
 def reactant_card(reactant: Reactant, fraction: float = None) -> str:
+	"""
+	Generate a CEA propellant card for a Reactant object, specifying the `wt%`
+	fraction
+
+	See <https://rocketcea.readthedocs.io/en/latest/std_examples.html>
+
+	:param reactant: `Reactant` object to be parsed
+	:type reactant: Reactant
+
+	:param fraction: Percentage mixture fraction
+	:type fraction: float, optional
+
+	:return: CEA propellant card string
+	:rtype: str
+	"""
+
 	f = reactant.mass_fraction
 	if fraction: f = fraction
 
@@ -92,13 +110,23 @@ def reactant_card(reactant: Reactant, fraction: float = None) -> str:
 	return "\n".join(lines)
 
 def gencard(components: list[Reactant]) -> str:
-	"""Generate the appropriate reactant card from a list"""
+	"""
+	Generate a CEA propellant card from a list of reactants, weighing each
+	reactant appropriately according to its `mass_fraction` field
+
+	See <https://rocketcea.readthedocs.io/en/latest/std_examples.html>
+
+	:param components: List of Reactant classes
+	:type components: list
+
+	:return: CEA propellant card string
+	:rtype: str
+	"""
 
 	rt = components[0].reactype
 	if not all(r.reactype == rt for r in components):
-		raise ValueError("""
-			Can only generate a composite card for reactants of the same type
-		""")
+		raise ValueError("Can only generate a composite card " +
+		                 "for reactants of the same type")
 
 	wt_total = sum(comp.mass_fraction for comp in components)
 
@@ -117,11 +145,17 @@ def gencard(components: list[Reactant]) -> str:
 
 def parse_reactants(data: dict[str, list[dict]]) -> tuple[str, str]:
 	"""
-	Parse the dictionary of fuel and oxidizer mixtures to the corresponding
-	reactant names.
+	Parse a dictionary of fuel and oxidizer mixtures to the corresponding
+	reactant names
 
 	If a reactant or mixture does not exist in the CEA library, it is created
-	with the appropriate card.
+	with the appropriate card
+
+	:param data: The JSON-parsed dict containing oxidizer and fuel mixture data
+	:type data: dict
+
+	:return: The oxidizer and fuel names
+	:rtype: tuple[str, str]
 	"""
 
 	reac_cards = { 'oxid': oxCards, 'fuel': fuelCards }
