@@ -1,8 +1,3 @@
-"""
-@author: Andrii
-@date:   03.08.2026
-"""
-
 #region Imports
 from openmdao.api import Group
 from rocketcea.cea_obj import CEA_Obj
@@ -20,25 +15,29 @@ class RocketGroup(Group):
 	def setup(self):
 		cea = self.options['cea']
 
+		#region Subsystems
 		self.add_subsystem(
-			'prop',
-			ChemComponent(cea=cea)
-			#promotes_inputs=['mixture_ratio']
+			'Propulsion',
+			ChemComponent(cea=cea),
+			promotes_inputs=['mixture_ratio']
 		)
 
 		self.add_subsystem(
-			'mass',
+			'Mass',
 			MassComponent(),
 			promotes_inputs=['propellant_mass', 'payload_mass']
 		)
 
 		self.add_subsystem(
-			'traj',
+			'Trajectory',
 			TrajectoryComponent(),
 			promotes_outputs=['apogee']
 		)
+		#endregion
 
-		self.connect('prop.isp', 'traj.isp')
-		self.connect('prop.thrust', 'traj.thrust')
-		self.connect('mass.initial_mass', 'traj.initial_mass')
-		self.connect('mass.dry_mass', 'traj.dry_mass')
+		#region Connections
+		self.connect('Propulsion.isp', 'Trajectory.isp')
+		self.connect('Propulsion.thrust', 'Trajectory.thrust')
+		self.connect('Mass.initial_mass', 'Trajectory.initial_mass')
+		self.connect('Mass.dry_mass', 'Trajectory.dry_mass')
+		#endregion
