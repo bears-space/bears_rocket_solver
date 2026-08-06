@@ -8,7 +8,8 @@
   read the reactant data from input JSONs and parse it into a CEA object to be
   passed to the propulsion subsystem
 
-- `packages/BEARS_Rocket/`: The [OpenMDAO](#openmdao) rocket assembly structure.
+- `packages/BEARS_Rocket/`: Classes for the [OpenMDAO](#openmdao) rocket
+  assembly structure.
 
 # Packages
 
@@ -27,22 +28,23 @@ Ininitalize a Python virtual environment:
 
 ``` bash
 python -m venv env
+
+# for Bash shells; use appropriate activation method on your system
 source env/bin/activate
+
 pip install openmdao rocketcea
 ```
-
-Or execute the `recreate-env` Bash script
 
 ## Package notes
 
 ### OpenMDAO
 
-[OpenMDAO](https://openmdao.org/) (Open Muldi-Disciplinary Analysis and
-Optimization) is the multidisciplinary optimizer that will tie the whole solver
+[OpenMDAO](https://openmdao.org/) (Muldi-Disciplinary Analysis and
+Optimization) is the multidisciplinary optimizer that ties the whole solver
 program together. OpenMDAO works by organizing large calculations into groups
 and subsystems with corresponding Python classes
 
-| Module              | Component type    | Inputs | Outputs        |
+| Class               | Component type    | Inputs | Outputs        |
 | ------------------- | ----------------- | ------ | -------------- |
 | RocketGroup         | Group             | -      | -              |
 | TrajectoryComponent | ExplicitComponent | `thrust`<br>`isp`<br>`initial_mass`<br>`dry_mass` | `apogee` |
