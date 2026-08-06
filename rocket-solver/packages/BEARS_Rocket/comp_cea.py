@@ -17,7 +17,7 @@ class ChemComponent(ExplicitComponent):
 
 		self.add_output('cstar',  val=1500.0, units='m/s') # characteristic velocity
 		self.add_output('isp',    val=120.0,  units='s')
-		self.add_output('thrust', val=120.0, units='N')
+		self.add_output('thrust', val=120.0,  units='N')
 
 	def setup_partials(self):
 		# Declare partial derivatives
