@@ -46,9 +46,11 @@ central, clearly defined function mapping one to the other
 When documenting Python code, please use the
 [Sphinx documentation format](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html)
 
-When writing Markdown documentation, please use the
+When writing Markdown documentation, please use
 [GitHub-Flavored Markdown](https://github.github.com/gfm/)
-spec
+
+The use of `#region <Name>` and `#endregion` comments with descriptive `<Name>`s
+for code folding and organization is optional but recommended
 
 ## Code structure
 
@@ -115,7 +117,7 @@ pip install rocketcea openmdao pydot graphviz
 <a name="rocketcea-note"></a>
 **Note:** When the program is run, RocketCEA will create some temporary garbage
 folders like `solver_out` in the project directory and `RocketCEA` in your home
-directory. TODO figure out how to instruct RocketCEA to put it in an
+directory. **TODO** figure out how to instruct RocketCEA to put those in an
 appropriate manageable location
 
 ## Package notes
