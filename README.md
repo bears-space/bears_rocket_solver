@@ -14,11 +14,11 @@
 
 ## Required packages
 
-```
+``` bash
 openmdao
 rocketcea
 
-# For visualization
+# For structure visualization
 pydot
 graphviz
 ```
