@@ -1,45 +1,44 @@
-#region Imports
-from openmdao.api      import ExplicitComponent
+# region Imports
+from openmdao.api import ExplicitComponent
 from rocketcea.cea_obj import CEA_Obj
-#endregion
+
+# endregion
+
 
 class ChemComponent(ExplicitComponent):
 
-	def __init__(self, cea: CEA_Obj, **kwargs):
-		super().__init__(**kwargs)
+    def __init__(self, cea: CEA_Obj, **kwargs):
+        super().__init__(**kwargs)
 
-		self.cea = cea
+        self.cea = cea
 
-	def setup(self):
-		self.add_input('chamber_pressure', val=35.0)
-		self.add_input('mixture_ratio',    val=6.0)
-		self.add_input('expansion_ratio',  val=40.0) # expansion area ratio
+    def setup(self):
+        self.add_input("chamber_pressure", val=35.0)
+        self.add_input("mixture_ratio", val=6.0)
+        self.add_input("expansion_ratio", val=40.0)  # expansion area ratio
 
-		self.add_output('cstar',  val=1500.0, units='m/s') # characteristic velocity
-		self.add_output('isp',    val=120.0,  units='s')
-		self.add_output('thrust', val=120.0,  units='N')
+        self.add_output(
+            "cstar", val=1500.0, units="m/s"
+        )  # characteristic velocity
+        self.add_output("isp", val=120.0, units="s")
+        self.add_output("thrust", val=120.0, units="N")
 
-	def setup_partials(self):
-		# Declare partial derivatives
-		# 'method=fd' tells OpenMDAO to use FiniteDifference
-		self.declare_partials('*', '*', method='fd')
+    def setup_partials(self):
+        # Declare partial derivatives
+        # 'method=fd' tells OpenMDAO to use FiniteDifference
+        self.declare_partials("*", "*", method="fd")
 
-	def compute(self, inputs, outputs):
-		chamber_pressure = inputs['chamber_pressure'][0]
-		mixture_ratio    = inputs['mixture_ratio'][0]
-		expansion_ratio  = inputs['expansion_ratio'][0]
+    def compute(self, inputs, outputs):
+        chamber_pressure = inputs["chamber_pressure"][0]
+        mixture_ratio = inputs["mixture_ratio"][0]
+        expansion_ratio = inputs["expansion_ratio"][0]
 
-		cstar = self.cea.get_Cstar(
-			Pc=chamber_pressure,
-			MR=mixture_ratio
-		)
+        cstar = self.cea.get_Cstar(Pc=chamber_pressure, MR=mixture_ratio)
 
-		isp = self.cea.get_Isp(
-			Pc=chamber_pressure,
-			MR=mixture_ratio,
-			eps=expansion_ratio
-		)
+        isp = self.cea.get_Isp(
+            Pc=chamber_pressure, MR=mixture_ratio, eps=expansion_ratio
+        )
 
-		outputs['cstar']  = cstar
-		outputs['isp']    = isp
-		#outputs['thrust'] = 1200.0 # placeholder
+        outputs["cstar"] = cstar
+        outputs["isp"] = isp
+        # outputs['thrust'] = 1200.0 # placeholder
