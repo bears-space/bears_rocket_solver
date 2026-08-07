@@ -43,8 +43,6 @@ be reusable. The hope of organizing the code into MDAO class structure is that
 each layer of assembly may be understood from its inputs and outputs, with one
 central, clearly defined function mapping one to the other
 
-See [contributing style guide](CONTRIBUTING.md)
-
 ## Code structure
 
 `solver.py`: Main problem setup and optimization script that loads modules from
