@@ -108,7 +108,8 @@ python -m venv env
 # for Bash shells; use appropriate activation method on your system
 source env/bin/activate
 
-pip install rocketcea openmdao pydot graphviz black mdformat mdformat-gfm
+# should automatically pull required dependencies
+pip install .
 ```
 
 <a name="rocketcea-note"></a>

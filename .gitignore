@@ -1,3 +1,4 @@
-recreate-env
 notes.md
 stubs/*
+build/*
+*.egg-info

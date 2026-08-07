@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bears_rocket_solver"
+version = "2026.08.03"
+license = "GPL-3.0-or-later"
+readme = "README.md"
+dependencies = [
+	"rocketcea",
+	"openmdao",
+	"pydot",
+	"graphviz"
+]
+authors = [
+	{name = "Andrii Kozytskyi", email = "kozytskyi.andrii.d@gmail.com"}
+]
+
+[project.optional-dependencies]
+formatting = [
+	"black",
+	"mdformat",
+	"mdformat-gfm"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["packages*"]
+
+[tool.mypy]
+mypy_path = ["./stubs"]
