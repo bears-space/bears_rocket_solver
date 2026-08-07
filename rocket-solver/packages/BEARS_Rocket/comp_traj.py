@@ -1,160 +1,158 @@
-#region Imports
+# region Imports
 import numpy as np
 
-from numpy.typing      import NDArray
-from scipy.integrate   import solve_ivp
+from numpy.typing import NDArray
+from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
-from scipy.constants   import g
-from openmdao.api      import ExplicitComponent
-#endregion
+from scipy.constants import g
+from openmdao.api import ExplicitComponent
 
-#region Ballistic functions
+# endregion
+
+
+# region Ballistic functions
 def ballistic_apogee(
-	thrust: float,
-	isp: float,
-	m_i: float,
-	m_dry: float
+    thrust: float, isp: float, m_i: float, m_dry: float
 ) -> float:
-	"""
-	Simple ballistic apogee calculator.
+    """
+    Simple ballistic apogee calculator.
 
-	We use a two-step boost+coast process with separate dynamics and integrators
-	in order to avoid a sharp discontinuity in the integrator.
-	"""
-	mdot = thrust / (isp * g)
-	t_burn = (m_i - m_dry) / mdot
+    We use a two-step boost+coast process with separate dynamics and integrators
+    in order to avoid a sharp discontinuity in the integrator.
+    """
+    mdot = thrust / (isp * g)
+    t_burn = (m_i - m_dry) / mdot
 
-	def dynamics_boost(t, y):
-		h, v = y
-		m = m_i - mdot * t
+    def dynamics_boost(t, y):
+        h, v = y
+        m = m_i - mdot * t
 
-		dh_dt = v
-		dv_dt = (thrust / m) - g
-		return [dh_dt, dv_dt]
+        dh_dt = v
+        dv_dt = (thrust / m) - g
+        return [dh_dt, dv_dt]
 
-	def dynamics_coast(t, y):
-		h, v = y
+    def dynamics_coast(t, y):
+        h, v = y
 
-		dh_dt = v
-		dv_dt = -g
-		return [dh_dt, dv_dt]
+        dh_dt = v
+        dv_dt = -g
+        return [dh_dt, dv_dt]
 
-	# A SciPy integration event that captures the moment when velocity reaches 0
-	def apogee_event(t, y): return y[1]
-	apogee_event.terminal = True
-	apogee_event.direction = -1
+    # A SciPy integration event that captures the moment when velocity reaches 0
+    def apogee_event(t, y):
+        return y[1]
 
-	# Integration steps
-	sol_boost = solve_ivp(
-		dynamics_boost,
-		t_span=(0.0, t_burn),
-		y0=[0.0, 0.0],
-		method='RK45'
-	)
+    apogee_event.terminal = True
+    apogee_event.direction = -1
 
-	h_burnout = sol_boost.y[0][-1]
-	v_burnout = sol_boost.y[1][-1]
+    # Integration steps
+    sol_boost = solve_ivp(
+        dynamics_boost, t_span=(0.0, t_burn), y0=[0.0, 0.0], method="RK45"
+    )
 
-	sol_coast = solve_ivp(
-		dynamics_coast,
-		t_span=(0, 1000),
-		y0=[h_burnout, v_burnout],
-		method='RK45',
-		events=apogee_event
-	)
+    h_burnout = sol_boost.y[0][-1]
+    v_burnout = sol_boost.y[1][-1]
 
-	apogee = sol_coast.y[0][-1]
-	return apogee
+    sol_coast = solve_ivp(
+        dynamics_coast,
+        t_span=(0, 1000),
+        y0=[h_burnout, v_burnout],
+        method="RK45",
+        events=apogee_event,
+    )
+
+    apogee = sol_coast.y[0][-1]
+    return apogee
+
 
 def ballistic_apogee_var(
-	time_steps: NDArray,
-	thrust_profile: NDArray,
-	isp_profile: NDArray,
-	m_i: float,
-	m_dry: float
+    time_steps: NDArray,
+    thrust_profile: NDArray,
+    isp_profile: NDArray,
+    m_i: float,
+    m_dry: float,
 ) -> float:
-	"""
-	A more complicated ballistic function that calculates the trajectory apogee
-	based on a variable thrust and Isp profile, passed in as an array of
-	measured values relative to the time series
-	"""
+    """
+    A more complicated ballistic function that calculates the trajectory apogee
+    based on a variable thrust and Isp profile, passed in as an array of
+    measured values relative to the time series
+    """
 
-	f_thrust = interp1d(
-		time_steps,
-		thrust_profile,
-		bounds_error=False,
-		fill_value=0.0
-	)
+    f_thrust = interp1d(
+        time_steps, thrust_profile, bounds_error=False, fill_value=0.0
+    )
 
-	f_isp = interp1d(
-		time_steps,
-		isp_profile,
-		bounds_error=False,
-		fill_value=0.0
-	)
+    f_isp = interp1d(
+        time_steps, isp_profile, bounds_error=False, fill_value=0.0
+    )
 
-	def dynamics(t, y):
-		h, v, m = y
+    def dynamics(t, y):
+        h, v, m = y
 
-		thrust = f_thrust(t)
-		isp = f_isp(t)
+        thrust = f_thrust(t)
+        isp = f_isp(t)
 
-		if isp > 0 and m > m_dry:
-			mdot = thrust / (isp * g)
-		else:
-			mdot = 0
-			thrust = 0.0
+        if isp > 0 and m > m_dry:
+            mdot = thrust / (isp * g)
+        else:
+            mdot = 0
+            thrust = 0.0
 
-		dh_dt = v
-		dv_dt = (thrust / m) - g
-		dm_dt = -mdot
+        dh_dt = v
+        dv_dt = (thrust / m) - g
+        dm_dt = -mdot
 
-		return [dh_dt, dv_dt, dm_dt]
+        return [dh_dt, dv_dt, dm_dt]
 
-	def apogee_event(t, y): return y[1]
-	apogee_event.terminal = True
-	apogee_event.direction = -1
+    def apogee_event(t, y):
+        return y[1]
 
-	sol = solve_ivp(
-		dynamics,
-		t_span=(0, 1000),
-		y0=[0.0, 0.0, m_i],
-		method='RK45',
-		events=apogee_event,
-		rtol=1e-6
-	)
+    apogee_event.terminal = True
+    apogee_event.direction = -1
 
-	apogee = sol.y[0][-1]
-	return apogee
-#endregion
+    sol = solve_ivp(
+        dynamics,
+        t_span=(0, 1000),
+        y0=[0.0, 0.0, m_i],
+        method="RK45",
+        events=apogee_event,
+        rtol=1e-6,
+    )
+
+    apogee = sol.y[0][-1]
+    return apogee
+
+
+# endregion
+
 
 class TrajectoryComponent(ExplicitComponent):
 
-	def setup(self):
-		#t = np.linspace(0, 10, 1000)
-		#thrust_profile = np.where((t < 5.0), 1200, 0)
-		#isp_profile = np.where((t < 5.0), 180, 0)
+    def setup(self):
+        # t = np.linspace(0, 10, 1000)
+        # thrust_profile = np.where((t < 5.0), 1200, 0)
+        # isp_profile = np.where((t < 5.0), 180, 0)
 
-		#self.add_input('time_steps',     val=t,              units='s')
-		#self.add_input('thrust_profile', val=thrust_profile, units='N')
-		#self.add_input('isp_profile',    val=isp_profile,    units='s')
+        # self.add_input('time_steps',     val=t,              units='s')
+        # self.add_input('thrust_profile', val=thrust_profile, units='N')
+        # self.add_input('isp_profile',    val=isp_profile,    units='s')
 
-		self.add_input('thrust',       val=1000.0, units='N')
-		self.add_input('isp',          val=200.0,  units='s')
-		self.add_input('initial_mass', val=15.0,   units='kg')
-		self.add_input('dry_mass',     val=5.0,    units='kg')
+        self.add_input("thrust", val=1000.0, units="N")
+        self.add_input("isp", val=200.0, units="s")
+        self.add_input("initial_mass", val=15.0, units="kg")
+        self.add_input("dry_mass", val=5.0, units="kg")
 
-		self.add_output('apogee', val=3000.0, units='m')
+        self.add_output("apogee", val=3000.0, units="m")
 
-	def setup_partials(self):
-		self.declare_partials('*', '*', method='fd')
+    def setup_partials(self):
+        self.declare_partials("*", "*", method="fd")
 
-	def compute(self, inputs, outputs):
-		thrust = inputs['thrust'][0]
-		isp    = inputs['isp'][0]
-		m_i    = inputs['initial_mass'][0]
-		m_dry  = inputs['dry_mass'][0]
+    def compute(self, inputs, outputs):
+        thrust = inputs["thrust"][0]
+        isp = inputs["isp"][0]
+        m_i = inputs["initial_mass"][0]
+        m_dry = inputs["dry_mass"][0]
 
-		apogee = ballistic_apogee(thrust, isp, m_i, m_dry)
+        apogee = ballistic_apogee(thrust, isp, m_i, m_dry)
 
-		outputs['apogee'] = apogee
+        outputs["apogee"] = apogee

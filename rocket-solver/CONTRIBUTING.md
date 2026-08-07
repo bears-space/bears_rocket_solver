@@ -7,4 +7,3 @@ When writing Markdown documentation, use
 Delimit code regions with `#region <Name>` and `#endregion` comments with
 descriptive names for code folding and organization. Code sections that should
 be delimited into regions:
-
