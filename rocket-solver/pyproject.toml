@@ -18,15 +18,17 @@ authors = [
 ]
 
 [project.optional-dependencies]
-formatting = [
-	"black",
-	"mdformat",
-	"mdformat-gfm"
+verification = [
+	"mypy",
+	"scipy-stubs"
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["packages*"]
+
+[tool.distutils.egg_info]
+egg_base = "build"
 
 [tool.mypy]
 mypy_path = ["./stubs"]
