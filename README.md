@@ -70,12 +70,12 @@ the MDAO component type it defines: `group_`, `comp_`, etc
 
 The current class structure of the rocket assembly looks as follows:
 
-| Class               | OpenMDAO Component type | Inputs                                                          | Outputs                      | Comments                                                                                                                                       |
-| ------------------- | ----------------------- | --------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| RocketGroup         | Group                   | -                                                               | -                            | The top-level rocket assembly group. This is where the inputs and outputs of individual subsystems are connected together                      |
-| TrajectoryComponent | ExplicitComponent       | `thrust`<br>`isp`<br>`initial_mass`<br>`dry_mass`               | `apogee`                     | The trajectory calculator component. In the future, this component may also contain the encoding of the flight plan for >1D trajectories       |
-| MassComponent       | ExplicitComponent       | `payload_mass`<br>`propellant_mass`<br>`structural_coefficient` | `initial_mass`<br>`dry_mass` | Mass profile of the rocket. Preliminary and will probably be superseded by better calculation methods                                          |
-| ChemComponent       | ExplicitComponent       | `chamber_pressure`<br>`mixture_ratio`<br>`expansion_ratio`      | `cstar`<br>`isp`<br>`thrust` | Propulsion chemistry subsystem using the CEA solver. This is to be broken up into further subassemblies: nozzle, fuel stack, tank(, injector?) |
+| Class | OpenMDAO Component type | Inputs | Outputs | Comments |
+| ----- | ----------------------- | ------ | ------- | -------- |
+| RocketGroup | Group | - | - | The top-level rocket assembly group. This is where the inputs and outputs of individual subsystems are connected together |
+| TrajectoryComponent | ExplicitComponent | `thrust`<br>`isp`<br>`initial_mass`<br>`dry_mass` | `apogee` | The trajectory calculator component. In the future, this component may also contain the encoding of the flight plan for >1D trajectories |
+| MassComponent | ExplicitComponent | `payload_mass`<br>`propellant_mass`<br>`structural_coefficient` | `initial_mass`<br>`dry_mass` | Mass profile of the rocket. Preliminary and will probably be superseded by better calculation methods |
+| ChemComponent | ExplicitComponent | `chamber_pressure`<br>`mixture_ratio`<br>`expansion_ratio` | `cstar`<br>`isp`<br>`thrust` | Propulsion chemistry subsystem using the CEA solver. This is to be broken up into further subassemblies: nozzle, fuel stack, tank(, injector?) |
 
 This structure is in very early development and is subject to drastic
 change. This table will evolve as sub-assemblies are refined
