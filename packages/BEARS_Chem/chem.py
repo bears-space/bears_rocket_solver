@@ -1,7 +1,9 @@
 #region Imports
 import json
 
-from dataclasses           import dataclass
+from dataclasses import dataclass
+from typing      import Optional
+
 from rocketcea.input_cards import oxCards, fuelCards
 from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
 #endregion
@@ -11,12 +13,12 @@ class Reactant:
 	name           : str
 	mass_fraction  : float
 	formula_parts  : list[dict[str, float]]
-	formula        : dict[str, float]
-	temperature    : float
-	enthalpy       : float
-	enthalpy_units : str
-	density        : float
-	density_units  : str
+	formula        : Optional[dict[str, float]]
+	temperature    : Optional[float]
+	enthalpy       : Optional[float]
+	enthalpy_units : Optional[str]
+	density        : Optional[float]
+	density_units  : Optional[str]
 
 	def __init__(self, reacdict: dict):
 		"""Construct a Reactant object from a JSON-parsed dictionary"""
@@ -50,23 +52,27 @@ class Reactant:
 
 		# TODO complete the list of conversions/add a better conversion method
 
-		j_to_cal = 0.2390057361 # 1 J = 0.239006 cal
-		match (self.enthalpy_units, eu_out):
-			case ("j/mol", "cal/mol"):
-				self.enthalpy = self.enthalpy * j_to_cal
-				self.enthalpy_units = "cal/mol"
-			case ("kj/mol", "cal/mol"):
-				self.enthalpy = self.enthalpy * 1e3 * j_to_cal
-				self.enthalpy_units = "cal/mol"
-			case ("cal/mol", "j/mol"):
-				self.enthalpy = self.enthalpy / j_to_cal
-				self.enthalpy_units = "j/mol"
-			case ("cal/mol", "kj/mol"):
-				self.enthalpy = self.enthalpy / 1e3 / j_to_cal
-				self.enthalpy_units = "kj/mol"
+		if self.enthalpy is not None:
+			j_to_cal = 0.2390057361 # 1 J = 0.239006 cal
+			match (self.enthalpy_units, eu_out):
+				case ("j/mol", "cal/mol"):
+					self.enthalpy = self.enthalpy * j_to_cal
+					self.enthalpy_units = "cal/mol"
+				case ("kj/mol", "cal/mol"):
+					self.enthalpy = self.enthalpy * 1e3 * j_to_cal
+					self.enthalpy_units = "cal/mol"
+				case ("cal/mol", "j/mol"):
+					self.enthalpy = self.enthalpy / j_to_cal
+					self.enthalpy_units = "j/mol"
+				case ("cal/mol", "kj/mol"):
+					self.enthalpy = self.enthalpy / 1e3 / j_to_cal
+					self.enthalpy_units = "kj/mol"
 
 #region Helper functions
-def reactant_card(reactant: Reactant, fraction: float = None) -> str:
+def reactant_card(
+	reactant: Reactant,
+	fraction: Optional[float] = None
+) -> str:
 	"""
 	Generate a CEA propellant card for a Reactant object, specifying the `wt%`
 	fraction
@@ -76,6 +82,8 @@ def reactant_card(reactant: Reactant, fraction: float = None) -> str:
 
 	f = reactant.mass_fraction
 	if fraction: f = fraction
+
+	assert reactant.formula is not None
 
 	formula_comp = [ f"{atom} {float(count)}"
 		             for atom, count in reactant.formula.items() ]
@@ -118,8 +126,8 @@ def gencard(components: list[Reactant]) -> str:
 	wt_total = sum(comp.mass_fraction for comp in components)
 
 	if len(components) == 1:
-		return reactant_card(component[0], fraction=100.0)
-	elif len(components) > 1:
+		return reactant_card(components[0], fraction=100.0)
+	else:
 		cards = []
 		for comp in components:
 			wt = (comp.mass_fraction / wt_total) * 100.0
