@@ -1,0 +1,14 @@
+bears_rocket_solver
+├── inputs
+|   └── reactants.json
+├── solver.py
+└── packages
+    ├── BEARS_Chem
+    |   ├── __init__.py
+    |   └── chem.py
+    └── BEARS_Rocket
+        ├── __init__.py
+        ├── group_rocket.py
+        ├── comp_cea.py
+        ├── comp_mass.py
+        └── comp_traj.py
