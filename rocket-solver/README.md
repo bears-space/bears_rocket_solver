@@ -93,11 +93,6 @@ rocketcea
 # Structure visualization
 pydot
 graphviz
-
-# Code formatting
-black
-mdformat
-mdformat-gfm
 ```
 
 Ininitalize a Python virtual environment:
