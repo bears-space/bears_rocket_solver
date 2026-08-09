@@ -5,13 +5,11 @@ from rocketcea.cea_obj import CEA_Obj
 
 class ChemComponent(ExplicitComponent):
 
-	def __init__(self, cea: CEA_Obj, **kwargs):
-		super().__init__(**kwargs)
-
-		self.cea = cea
+	def initialize(self):
+		self.options.declare("cea", types=CEA_Obj)
 
 	def setup(self):
-		self.add_input("chamber_pressure", val=35.0)
+		self.add_input("chamber_pressure", val=35.0, units="bar")
 		self.add_input("mixture_ratio",    val=6.0)
 		self.add_input("expansion_ratio",  val=40.0) # expansion area ratio
 
@@ -29,12 +27,14 @@ class ChemComponent(ExplicitComponent):
 		mixture_ratio    = inputs["mixture_ratio"][0]
 		expansion_ratio  = inputs["expansion_ratio"][0]
 
-		cstar = self.cea.get_Cstar(
+		cea = self.options["cea"]
+
+		cstar = cea.get_Cstar(
 			Pc=chamber_pressure,
 			MR=mixture_ratio
 		)
 
-		isp = self.cea.get_Isp(
+		isp = cea.get_Isp(
 			Pc=chamber_pressure,
 			MR=mixture_ratio,
 			eps=expansion_ratio

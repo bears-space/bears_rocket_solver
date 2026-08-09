@@ -29,13 +29,15 @@ class RocketGroup(Group):
 		)
 
 		self.add_subsystem(
-			"Trajectory", TrajectoryComponent(), promotes_outputs=["apogee"]
+			"Trajectory",
+			TrajectoryComponent(),
+			promotes_outputs=["burn_time", "apogee"],
 		)
 		# endregion
 
 		# region Connections
-		self.connect("Propulsion.isp", "Trajectory.isp")
+		self.connect("Propulsion.isp",    "Trajectory.isp")
 		self.connect("Propulsion.thrust", "Trajectory.thrust")
 		self.connect("Mass.initial_mass", "Trajectory.initial_mass")
-		self.connect("Mass.dry_mass", "Trajectory.dry_mass")
+		self.connect("Mass.dry_mass",     "Trajectory.dry_mass")
 		# endregion

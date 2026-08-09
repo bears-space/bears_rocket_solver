@@ -1,1 +1,1 @@
-from .group_rocket import RocketGroup
+from .group_model import ModelGroup

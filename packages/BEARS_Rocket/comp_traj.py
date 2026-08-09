@@ -11,7 +11,7 @@ from openmdao.api      import ExplicitComponent
 # region Ballistic functions
 def ballistic_apogee(
 	thrust: float, isp: float, m_i: float, m_dry: float
-) -> float:
+) -> tuple[float, float]:
 	"""
 	Simple ballistic apogee calculator.
 
@@ -61,7 +61,7 @@ def ballistic_apogee(
 	)
 
 	apogee = sol_coast.y[0][-1]
-	return apogee
+	return t_burn, apogee
 
 def ballistic_apogee_var(
 	time_steps: NDArray,
@@ -135,7 +135,8 @@ class TrajectoryComponent(ExplicitComponent):
 		self.add_input("initial_mass", val=15.0,   units="kg")
 		self.add_input("dry_mass",     val=5.0,    units="kg")
 
-		self.add_output("apogee", val=3000.0, units="m")
+		self.add_output("apogee",    val=3000.0, units="m")
+		self.add_output("burn_time", val=3.0,    units="s")
 
 	def setup_partials(self):
 		self.declare_partials("*", "*", method="fd")
@@ -146,6 +147,7 @@ class TrajectoryComponent(ExplicitComponent):
 		m_i    = inputs["initial_mass"][0]
 		m_dry  = inputs["dry_mass"][0]
 
-		apogee = ballistic_apogee(thrust, isp, m_i, m_dry)
+		burn_time, apogee = ballistic_apogee(thrust, isp, m_i, m_dry)
 
-		outputs["apogee"] = apogee
+		outputs["burn_time"] = burn_time
+		outputs["apogee"]    = apogee
