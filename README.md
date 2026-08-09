@@ -16,7 +16,7 @@ In descending order of importance:
   - [ ] Refine the propulsion class/component to include subgroups within the
     propulsion assembly
 
-  - ~~[ ] Aerodynamics component~~ Necessary for apogee calculator
+  - [ ] ~~Aerodynamics component~~ Necessary for apogee calculator
 
   - [ ] Implement an MDAO `Problem` class that abstracts optimization problems
 
