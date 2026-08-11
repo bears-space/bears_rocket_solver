@@ -23,6 +23,9 @@ In descending order of importance:
 
   - [ ] Implement an MDAO `Problem` class that abstracts optimization problems
 
+- [ ] Implement proper mass calculations to replace the rudimentary structural
+      coefficient model
+
 - [ ] Figure out the correct chemistry of CEA reactants, specifically reactant
       temperatures and enthalpies of formation
 
