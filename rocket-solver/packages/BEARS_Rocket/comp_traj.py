@@ -6,11 +6,41 @@ from scipy.integrate   import solve_ivp
 from scipy.interpolate import interp1d
 from scipy.constants   import g
 from openmdao.api      import ExplicitComponent
+
+from ..BEARS_Atmo import BEARS_Atm
 # endregion
 
 # region Ballistic functions
+def F_d(v: float, diam: float, rho: float, a: float) -> float:
+	area = np.pi * (diam / 2.0)**2.0
+	mach = abs(v) / a
+
+	# TODO: Better-founded C_d model, currently AI-generated
+	if mach < 0.8:
+		# Subsonic: skin friction and base drag
+		cd = 0.40
+	elif mach < 1.2:
+		# Transonic: drag increase due to shock wave
+		# Linear interpolation (mach = 0.8, cd = 0.4) -- (mach = 1.2, cd = 0.8)
+		cd = 0.4 + (mach - 0.8) * ( (0.8 - 0.4) / (1.2 - 0.8) )
+	elif mach < 2.0:
+		# Supersonic: drag decreases as Mach number increases
+		# Linear interpolation (1.2, 0.8) -- (2.0, 0.6)
+		cd = 0.4 + (mach - 1.2) * ( (0.8 - 0.6) / (2.0 - 1.2) )
+	else:
+		# High supersonic
+		cd = 0.6
+
+	drag = 0.5 * rho * v**2 * cd * area
+	return drag
+
 def ballistic_apogee(
-	thrust: float, isp: float, m_i: float, m_dry: float
+	thrust: float,
+	isp: float,
+	m_i: float,
+	m_dry: float,
+	diam: float,
+	atm: BEARS_Atm
 ) -> tuple[float, float]:
 	"""
 	Simple ballistic apogee calculator.
@@ -25,15 +55,19 @@ def ballistic_apogee(
 		h, v = y
 		m = m_i - mdot * t
 
+		_, _, rho, a = atm(h)
+
 		dh_dt = v
-		dv_dt = (thrust / m) - g
+		dv_dt = (thrust - F_d(v, diam, rho, a)) / m - g
 		return [dh_dt, dv_dt]
 
 	def dynamics_coast(t, y):
 		h, v = y
 
+		_, _, rho, a = atm(h)
+
 		dh_dt = v
-		dv_dt = -g
+		dv_dt = -F_d(v, diam, rho, a) / m_dry - g 
 		return [dh_dt, dv_dt]
 
 	# A SciPy integration event that captures the moment when velocity reaches 0
@@ -121,6 +155,9 @@ def ballistic_apogee_var(
 
 class TrajectoryComponent(ExplicitComponent):
 
+	def initialize(self):
+		self.options.declare("atm", types=BEARS_Atm)
+
 	def setup(self):
 		# t = np.linspace(0, 10, 1000)
 		# thrust_profile = np.where((t < 5.0), 1200, 0)
@@ -130,10 +167,14 @@ class TrajectoryComponent(ExplicitComponent):
 		# self.add_input('thrust_profile', val=thrust_profile, units='N')
 		# self.add_input('isp_profile',    val=isp_profile,    units='s')
 
+		# Propulsion profile
 		self.add_input("thrust",       val=1000.0, units="N")
 		self.add_input("isp",          val=200.0,  units="s")
-		self.add_input("initial_mass", val=15.0,   units="kg")
-		self.add_input("dry_mass",     val=5.0,    units="kg")
+
+		# Rocket parameters
+		self.add_input("initial_mass", val=15.0, units="kg")
+		self.add_input("dry_mass",     val=5.0,  units="kg")
+		self.add_input("diameter",     val=0.5,  units="m")
 
 		self.add_output("apogee",    val=3000.0, units="m")
 		self.add_output("burn_time", val=3.0,    units="s")
@@ -142,12 +183,15 @@ class TrajectoryComponent(ExplicitComponent):
 		self.declare_partials("*", "*", method="fd")
 
 	def compute(self, inputs, outputs):
+		atm = self.options["atm"]
+
 		thrust = inputs["thrust"][0]
 		isp    = inputs["isp"][0]
 		m_i    = inputs["initial_mass"][0]
 		m_dry  = inputs["dry_mass"][0]
+		diam   = inputs["diameter"][0]
 
-		burn_time, apogee = ballistic_apogee(thrust, isp, m_i, m_dry)
+		burn_time, apogee = ballistic_apogee(thrust, isp, m_i, m_dry, diam, atm)
 
 		outputs["burn_time"] = burn_time
 		outputs["apogee"]    = apogee

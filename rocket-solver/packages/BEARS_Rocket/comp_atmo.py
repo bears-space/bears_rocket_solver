@@ -21,9 +21,9 @@ class AtmoComponent(ExplicitComponent):
 		self.declare_partials("*", "altitude", method="fd")
 
 	def compute(self, inputs, outputs):
-		h = inputs["altitude"][0]
-
 		atm = self.options["atm"]
+
+		h = inputs["altitude"][0]
 
 		T, P, rho, a = atm(h)
 

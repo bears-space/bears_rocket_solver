@@ -28,7 +28,7 @@ class ModelGroup(Group):
 
 		self.add_subsystem(
 			"Rocket",
-			RocketGroup(cea=cea),
+			RocketGroup(cea=cea, atm=atm),
 			promotes_inputs=[
 				"propellant_mass", "payload_mass", "mixture_ratio"
 			],
