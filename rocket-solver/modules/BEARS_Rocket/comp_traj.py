@@ -12,6 +12,8 @@ from ..BEARS_Atmo import BEARS_Atm
 
 # region Ballistic functions
 def F_d(v: float, diam: float, rho: float, a: float) -> float:
+	"""Drag force calculator"""
+
 	area = np.pi * (diam / 2.0)**2.0
 	mach = abs(v) / a
 
@@ -67,7 +69,7 @@ def ballistic_apogee(
 		_, _, rho, a = atm(h)
 
 		dh_dt = v
-		dv_dt = -F_d(v, diam, rho, a) / m_dry - g 
+		dv_dt = -F_d(v, diam, rho, a) / m_dry - g
 		return [dh_dt, dv_dt]
 
 	# A SciPy integration event that captures the moment when velocity reaches 0

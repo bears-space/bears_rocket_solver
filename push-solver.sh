@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-SUBMOD_NAME="bears_rocket_solver"
-
-git subtree split -P rocket-solver/ -b ${SUBMOD_NAME}
-git push newrepo ${SUBMOD_NAME}:master
+git subtree split -P rocket-solver/ -b bears_rocket_solver
+git push newrepo bears_rocket_solver:master
+git push bears-github bears_rocket_solver:master

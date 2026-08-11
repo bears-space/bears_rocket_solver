@@ -17,15 +17,15 @@ from scipy.constants   import g
 from rocketcea.cea_obj import CEA_Obj
 from openmdao.visualization.graph_viewer import GraphViewer
 
-from packages.BEARS_Atmo   import BEARS_Atm
-from packages.BEARS_Chem   import Reactant, parse_reactants
-from packages.BEARS_Rocket import ModelGroup
+from modules.BEARS_Atmo   import BEARS_Atm
+from modules.BEARS_Chem   import Reactant, parse_reactants
+from modules.BEARS_Rocket import RocketGroup
 # endregion
 
 # region Main
 def main():
 
-	opt_mr = True
+	opt_mr = False
 
 	# region Inputs
 	with open("inputs/reactants.json", "r") as retrieved:
@@ -38,8 +38,7 @@ def main():
 
 	prob = om.Problem()
 
-	model = ModelGroup(atm=atm, cea=cea)
-	prob.model = model
+	prob.model = RocketGroup(atm=atm, cea=cea)
 
 	#prob.model.add_subsystem("BEARS_Rocket", rocket, promotes=["*"])
 
@@ -53,7 +52,7 @@ def main():
 	# Constraints
 	#prob.model.add_constraint("burn_time", lower=1.0, upper=3.0)
 	#prob.model.add_constraint("burn_time", equals=5.0)
-	prob.model.add_constraint("apogee", equals=3100.0, ref=3100.0)
+	prob.model.add_constraint("apogee", equals=3100.0)
 
 	# Objectives
 	prob.model.add_objective("propellant_mass")
@@ -63,13 +62,13 @@ def main():
 	# Dynamic variables
 	prob.set_val("payload_mass", 1.0)
 
-	prob.set_val("Rocket.Mass.structural_coefficient", 0.01 * 20)  # percentages
+	prob.set_val("Mass.structural_coefficient", 0.01 * 30)  # percentages
 
-	prob.set_val("Rocket.Trajectory.diameter", 0.4)
+	prob.set_val("Trajectory.diameter", 0.4)
 
-	prob.set_val("Rocket.Propulsion.chamber_pressure", 35.0)
-	prob.set_val("Rocket.Propulsion.expansion_ratio", 40.0)
-	prob.set_val("Rocket.Propulsion.thrust", 4000.0)
+	prob.set_val("Propulsion.chamber_pressure", 35.0)
+	prob.set_val("Propulsion.expansion_ratio", 40.0)
+	prob.set_val("Propulsion.thrust", 3000.0)
 
 	# Optimization initial values
 	prob.set_val("mixture_ratio", 6.0)
@@ -87,7 +86,7 @@ def main():
 	print("\nResults:")
 	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")
 	print(f"h_max:\t{prob.get_val('apogee')[0]} m")
-	print(f"Isp:\t{prob.get_val('Rocket.Propulsion.isp')[0]} s")
+	print(f"Isp:\t{prob.get_val('Propulsion.isp')[0]} m/s")
 
 	viewer = GraphViewer(prob.model)
 	for graph_type in ["dataflow", "tree", "cycle"]:
