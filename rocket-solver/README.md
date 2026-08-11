@@ -6,7 +6,7 @@ In descending order of importance:
 
   - [x] Basic setup
 
-  - [ ] Fix trajectory calculator and unrealistic optimization outputs -- caused
+  - [x] Fix trajectory calculator and unrealistic optimization outputs -- caused
         by lack of a drag model
 
     - [x] Implement an atmospheric model
@@ -14,22 +14,25 @@ In descending order of importance:
     - [x] Implement a drag model
 
   - [ ] Refine the propulsion class/component to include subgroups within the
-    propulsion assembly
+        propulsion assembly
 
-  - [ ] ~~Aerodynamics component~~ Necessary for apogee calculator
+  - [x] ~~Aerodynamics component~~ Necessary for apogee calculator
+
+  - [ ] Figure out a reasonable class structure for rocket form factor
+        parameters (diameter etc.)
 
   - [ ] Implement an MDAO `Problem` class that abstracts optimization problems
 
 - [ ] Figure out the correct chemistry of CEA reactants, specifically reactant
-  temperatures and enthalpies of formation
+      temperatures and enthalpies of formation
 
 - [ ] Move optimization options and inputs from `solver.py` to JSON files in
-  `inputs/`
+      `inputs/`
 
 - [ ] Fix RocketCEA's garbage folders (see [note](#rocketcea-note))
 
 - [ ] Move to a JSON5 parsing library to allow for C++-style comments in inputs
-  files
+      files
 
 # BEARS Rocket Solver
 
