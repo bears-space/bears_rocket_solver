@@ -11,7 +11,7 @@ In descending order of importance:
 
     - [x] Implement an atmospheric model
 
-    - [ ] Implement a drag model
+    - [x] Implement a drag model
 
   - [ ] Refine the propulsion class/component to include subgroups within the
     propulsion assembly
@@ -102,9 +102,11 @@ Model components in detail:
 This structure is in very early development and is subject to drastic
 change. This table will evolve as sub-assemblies are refined
 
-## Setting up the environment
+## Running the program
 
-Install the following required Python packages:
+### Setting up the environment
+
+The following Python packages are required:
 
 ```bash
 openmdao
@@ -116,7 +118,7 @@ pydot
 graphviz
 ```
 
-Ininitalize a Python virtual environment:
+To initialize a Python virtual environment and install the required packages:
 
 ```bash
 python -m venv env
@@ -130,6 +132,15 @@ pip install .
 
 (You may need to install `graphviz` on your system, I haven't tested if it works
 with plain Python)
+
+### Running the solver
+
+`solver.py` is the main entry point:
+
+```bash
+source env/bin/activate
+./solver.py # or python3 solver.py on Windows
+```
 
 <a name="rocketcea-note"></a>
 **Note:** When the program is run, RocketCEA will create some runtime
