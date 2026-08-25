@@ -127,6 +127,12 @@ References:
 
 [[https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/]]
 
+*** Plumbing/injector
+
+~30 bar pressure loss between tank and fuel grain
+
+Either pressure drop or mass flow rate across the injector
+
 *** Chamber/nozzle
 
 In the following, let the asterisk superscript denote the value of a function of

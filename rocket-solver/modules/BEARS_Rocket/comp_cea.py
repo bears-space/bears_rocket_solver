@@ -37,7 +37,7 @@ class ChemComponent(ExplicitComponent):
 		isp = cea.get_Isp(
 			Pc=chamber_pressure,
 			MR=mixture_ratio,
-			eps=expansion_ratio
+			eps=expansion_ratio # == supar
 		)
 
 		outputs["cstar"] = cstar
