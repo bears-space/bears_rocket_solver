@@ -170,8 +170,8 @@ class TrajectoryComponent(ExplicitComponent):
 		# self.add_input('isp_profile',    val=isp_profile,    units='s')
 
 		# Propulsion profile
-		self.add_input("thrust",       val=1000.0, units="N")
-		self.add_input("isp",          val=200.0,  units="s")
+		self.add_input("thrust", val=1000.0, units="N")
+		self.add_input("isp",    val=200.0,  units="s")
 
 		# Rocket parameters
 		self.add_input("initial_mass", val=15.0, units="kg")

@@ -1,4 +1,5 @@
 # region Imports
+from typing import override
 from openmdao.api import ExplicitComponent
 # endregion
 
@@ -15,7 +16,7 @@ class MassComponent(ExplicitComponent):
 		self.add_output("dry_mass",     val=4.0,  units="kg")
 
 	def setup_partials(self):
-		self.declare_partials("*", "*", method="fd")
+		self.declare_partials("*", "*", method="cs")
 
 	def compute(self, inputs, outputs):
 		m_prop    = inputs["propellant_mass"]

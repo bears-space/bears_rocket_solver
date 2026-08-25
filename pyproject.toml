@@ -11,7 +11,8 @@ dependencies = [
 	"rocketcea",
 	"openmdao",
 	"pydot",
-	"graphviz"
+	"graphviz",
+	"isacalc"
 ]
 authors = [
 	{name = "Andrii Kozytskyi", email = "kozytskyi.andrii.d@gmail.com"}

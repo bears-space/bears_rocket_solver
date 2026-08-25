@@ -25,7 +25,7 @@ from modules.BEARS_Rocket import RocketGroup
 # region Main
 def main():
 
-	opt_mr = False
+	opt_mr = True
 
 	# region Inputs
 	with open("inputs/reactants.json", "r") as retrieved:
@@ -46,21 +46,26 @@ def main():
 	prob.driver.options["optimizer"] = "SLSQP"
 
 	# Design variables
-	if opt_mr: prob.model.add_design_var("mixture_ratio", lower=1.0, upper=10.0, ref=2.0)
-	prob.model.add_design_var("propellant_mass", lower=1.0, upper=100.0, ref=30.0)
+	if opt_mr:
+		prob.model.add_design_var(
+			"OptimizationVars.propellant_mixture_ratio",
+			lower=1.0, upper=10.0, ref=2.0
+		)
+
+	prob.model.add_design_var(
+		"OptimizationVars.propellant_mass", lower=1.0, upper=100.0, ref=30.0
+	)
 
 	# Constraints
-	#prob.model.add_constraint("burn_time", lower=1.0, upper=3.0)
-	#prob.model.add_constraint("burn_time", equals=5.0)
 	prob.model.add_constraint("apogee", equals=3100.0)
 
 	# Objectives
-	prob.model.add_objective("propellant_mass")
+	prob.model.add_objective("OptimizationVars.propellant_mass")
 
 	prob.setup()
 
 	# Dynamic variables
-	prob.set_val("payload_mass", 1.0)
+	prob.set_val("DesignVars.payload_mass", 1.0)
 
 	prob.set_val("Mass.structural_coefficient", 0.01 * 30)  # percentages
 
@@ -71,17 +76,17 @@ def main():
 	prob.set_val("Propulsion.thrust", 3000.0)
 
 	# Optimization initial values
-	prob.set_val("mixture_ratio", 6.0)
-	prob.set_val("propellant_mass", 30.0)
+	prob.set_val("OptimizationVars.propellant_mixture_ratio", 6.0)
+	prob.set_val("OptimizationVars.propellant_mass", 30.0)
 
 	prob.run_driver()
 
 	# region Output
 	print("Optimized parameters:")
-	print(f"m_prop:\t{prob.get_val('propellant_mass')[0]} kg")
+	print(f"m_prop:\t{prob.get_val('OptimizationVars.propellant_mass')[0]} kg")
 
 	if opt_mr:
-		print(f"MR:\t{prob.get_val('mixture_ratio')[0]}")
+		print(f"MR:\t{prob.get_val('OptimizationVars.propellant_mixture_ratio')[0]}")
 
 	print("\nResults:")
 	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")

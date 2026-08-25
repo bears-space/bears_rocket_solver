@@ -53,30 +53,30 @@ This program aims for generality, and general programs must be understandable to
 be reusable. Code clarity and readability is top priority
 
 The hope of organizing the code into MDAO class structure is that each layer of
-assembly may be understood from its inputs and outputs, with one central,
-clearly defined function mapping between the two
+assembly may be understood from its inputs and outputs independent from the
+others, with one central, clearly defined function mapping between the two
 
 ## Code structure
 
 ```
 bears_rocket_solver
-├── solver.py               # Central calculation script
-├── inputs                  # Solver configuration JSON files
+├── solver.py                   # Central calculation script
+├── inputs                      # Solver configuration JSON files
 │   └── ...
 ├── modules
-│   ├── BEARS_Atmo          # Atmospheric model package
+│   ├── BEARS_Atmo              # Atmospheric model package
 │   │   ├── atmo.py
 │   │   └── ...
-│   ├── BEARS_Chem          # CEA propellant chemistry module
+│   ├── BEARS_Chem              # CEA propellant chemistry module
 │   │   ├── chem.py
 │   │   └── ...
-│   └── BEARS_Rocket        # MDAO class structure module
-│       ├── comp_cea.py     # - Propulsion component
-│       ├── comp_mass.py    # - Mass profile component
-│       ├── comp_traj.py    # - Trajectory component
-│       ├── group_rocket.py # - Rocket assembly group
+│   └── BEARS_Rocket            # MDAO class structure module
+│       ├── comp_cea.py         # - Propulsion component
+│       ├── comp_mass.py        # - Mass profile component
+│       ├── comp_traj.py        # - Trajectory component
+│       ├── group_rocket.py     # - Rocket assembly group
 │       └── ...
-├── figures                 # Figure outputs
+├── figures                     # Figure outputs
 │   └── ...
 └ ...
 ```
@@ -104,10 +104,10 @@ The current dataflow structure of our model looks as follows:
 
 ![rocket-structure](figures/dataflow.png "Automatically generated data flow diagram of the current class structure")
 
-Each input variable (coming out of `_auto_ivc`) can be either fixed or optimized
-for. More than one variable can be optimized at once. In the current `solver.py`
-script, one can switch between minimizing the propellant mass, or additionally
-calculating the optimal oxidizer-to-fuel ratio with CEA
+Each global input variable (coming out of `_auto_ivc`) can be either fixed or
+optimized for. More than one variable can be optimized at once. In the current
+`solver.py` script, one can switch between minimizing the propellant mass, or
+additionally calculating the optimal oxidizer-to-fuel ratio with CEA
 
 Model components in detail:
 
@@ -118,8 +118,8 @@ Model components in detail:
 | MassComponent | ExplicitComponent | `payload_mass`<br>`propellant_mass`<br>`structural_coefficient` | `initial_mass`<br>`dry_mass` | Mass profile of the rocket. Preliminary and will probably be superseded by better calculation methods |
 | ChemComponent | ExplicitComponent | `chamber_pressure`<br>`mixture_ratio`<br>`expansion_ratio` | `cstar`<br>`isp`<br>`thrust` | Propulsion chemistry subsystem using the CEA solver. This is to be broken up into further subassemblies: nozzle, fuel stack, tank(, injector?) |
 
-This structure is in very early development and is subject to drastic
-change. This table will evolve as sub-assemblies are refined
+This structure is in early development and is subject to drastic change. This
+table will evolve as sub-assemblies are refined
 
 ## Running the program
 
