@@ -8,7 +8,6 @@ from rocketcea.input_cards import oxCards, fuelCards
 from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
 # endregion
 
-
 class Reactant:
 	reactype       : str
 	name           : str
@@ -70,7 +69,6 @@ class Reactant:
 					self.enthalpy = self.enthalpy / 1e3 / j_to_cal
 					self.enthalpy_units = "kj/mol"
 
-
 # region Helper functions
 def reactant_card(reactant: Reactant, fraction: Optional[float] = None) -> str:
 	"""
@@ -107,7 +105,6 @@ def reactant_card(reactant: Reactant, fraction: Optional[float] = None) -> str:
 	lines.append(" ".join(line2))
 
 	return "\n".join(lines)
-
 
 def gencard(components: list[Reactant]) -> str:
 	"""
