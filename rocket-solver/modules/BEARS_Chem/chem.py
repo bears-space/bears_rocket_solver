@@ -48,6 +48,14 @@ class Reactant:
 			for k, v in part.items():
 				self.formula[k] = self.formula.get(k, 0) + v
 
+	def get_density_si(self) -> float:
+		"""Return density in kg/m^3"""
+		if self.density is None:
+			return 1000.0
+		if self.density_units in ["g/cm^3", "g/cc", "g/cm3"]:
+			return self.density * 1000.0
+		return self.density
+
 	def convert_enth_units(self, eu_out: str):
 
 		# TODO complete the list of conversions/add a better conversion method
@@ -169,3 +177,18 @@ def parse_reactants(data: dict[str, list[dict]]) -> tuple[str, str]:
 		rnames[rtype] = rname
 
 	return rnames["oxid"], rnames["fuel"]
+
+def parse_densities(data: dict[str, list[dict]]) -> tuple[float, float]:
+	"""
+	Calculate effective bulk densities for oxidizer and fuel in kg/m^3.
+	"""
+	densities: dict[str, float] = {}
+	for rtype in ["oxid", "fuel"]:
+		reactants = list(map(Reactant, data[rtype]))
+		wt_total = sum(r.mass_fraction for r in reactants)
+		inv_rho = sum(
+			(r.mass_fraction / wt_total) / r.get_density_si() for r in reactants
+		)
+		densities[rtype] = 1.0 / inv_rho
+
+	return densities["oxid"], densities["fuel"]

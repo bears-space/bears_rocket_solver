@@ -6,10 +6,12 @@ from openmdao.api import ExplicitComponent
 
 class InjectorComponent(ExplicitComponent):
 
+	def initialize(self):
+		self.options.declare("rho_ox", default=1200.0, types=float)
+
 	def setup(self):
 		self.add_input("p_tank",    val=30e5,   units="Pa")
 		self.add_input("p_chamber", val=20e5,   units="Pa")
-		self.add_input("rho_ox",    val=1200.0, units="kg/m**3")
 		self.add_input("a_inj",     val=4.5e-5, units="m**2")
 		self.add_input("cd",        val=0.7) # Discharge coefficient (efficiency)
 
@@ -21,7 +23,7 @@ class InjectorComponent(ExplicitComponent):
 	def compute(self, inputs, outputs):
 		p_up   = inputs["p_tank"]
 		p_down = inputs["p_chamber"]
-		rho    = inputs["rho_ox"]
+		rho    = self.options["rho_ox"]
 		area   = inputs["a_inj"]
 		cd     = inputs["cd"]
 

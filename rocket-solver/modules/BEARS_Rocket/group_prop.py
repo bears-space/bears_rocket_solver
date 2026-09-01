@@ -13,15 +13,17 @@ from .comp_nozzle   import NozzleComponent
 class PropulsionGroup(Group):
 
 	def initialize(self):
-		self.options.declare("cea", types=CEA_Obj)
+		self.options.declare("cea",    types=CEA_Obj)
+		self.options.declare("rho_ox", default=1200.0, types=float)
 
 	def setup(self):
-		cea = self.options["cea"]
+		cea    = self.options["cea"]
+		rho_ox = self.options["rho_ox"]
 
 		#region Subsystems
 		self.add_subsystem(
 			"Tank",
-			TankComponent(),
+			TankComponent(rho_ox=rho_ox),
 			promotes_inputs=[
 				"diam_out", "m_prop_i", "mixture_ratio",
 				("p_tank_max", "p_tank"),
@@ -35,8 +37,8 @@ class PropulsionGroup(Group):
 
 		self.add_subsystem(
 			"Injector",
-			InjectorComponent(),
-			promotes_inputs=["p_tank", "rho_ox"],
+			InjectorComponent(rho_ox=rho_ox),
+			promotes_inputs=["p_tank", "a_inj", "cd"],
 		)
 
 		self.add_subsystem(
@@ -49,7 +51,7 @@ class PropulsionGroup(Group):
 		self.add_subsystem(
 			"Nozzle",
 			NozzleComponent(),
-			promotes_inputs=["mixture_ratio", "isp"],
+			promotes_inputs=["mixture_ratio", "isp", "a_throat"],
 			promotes_outputs=["thrust"],
 		)
 		#endregion
