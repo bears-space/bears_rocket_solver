@@ -164,8 +164,8 @@ To initialize a Python virtual environment and install the required packages:
 ```powershell
 python -m venv env
 
-.\env\Scripts\activate  # Windows, or
-source env/bin/activate # Linux/WSL
+.\env\Scripts\Activate.ps1 # Windows, or
+source env/bin/activate    # Linux/WSL
 
 pip install --upgrade pip
 
@@ -183,7 +183,7 @@ works with plain Python)
 On Windows, activate the environment and execute the solver:
 
 ```powershell
-.\env\Scripts\activate
+.\env\Scripts\Activate.ps1
 python3 solver.py
 ```
 
