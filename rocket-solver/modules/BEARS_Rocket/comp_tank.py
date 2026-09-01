@@ -7,8 +7,9 @@ from openmdao.api import ExplicitComponent
 class TankComponent(ExplicitComponent):
 
 	def setup(self):
-		self.add_input("m_prop_i", val=10.0,   units="kg")
-		self.add_input("rho_prop", val=1200.0, units="kg/m**3")
+		self.add_input("m_prop_i",      val=10.0,   units="kg")
+		self.add_input("mixture_ratio", val=6.0)
+		self.add_input("rho_ox",        val=1200.0, units="kg/m**3")
 
 		self.add_input("p_tank_max",  val=60e5, units="Pa")
 		self.add_input("diam_out",    val=0.5,  units="m")
@@ -27,14 +28,18 @@ class TankComponent(ExplicitComponent):
 		self.declare_partials("*", "*", method="fd")
 
 	def compute(self, inputs, outputs):
-		m_p     = inputs["m_prop_i"]
-		rho_p   = inputs["rho_prop"]
+		m_prop  = inputs["m_prop_i"]
+		f_prop  = inputs["mixture_ratio"]
+		rho_ox  = inputs["rho_ox"]
 		p_max   = inputs["p_tank_max"]
 		d_out   = inputs["diam_out"]
 		uf      = inputs["ullage_frac"]
 		sigma_y = inputs["sigma_y"]
 		sf      = inputs["safety_factor"]
 		rho_w   = inputs["rho_wall"]
+
+		# Extract oxidizer mass from the propellant mass and mixture ratio
+		m_ox = (m_prop * f_prop) / (f_prop + 1)
 
 		# Hoop stress
 		# https://www.engineersedge.com/material_science/hoop-stress.htm
@@ -46,7 +51,7 @@ class TankComponent(ExplicitComponent):
 		d_in = 2.0 * r_in
 
 		# Volumes and lengths
-		v_prop = m_p / rho_p
+		v_prop = m_ox / rho_ox
 		v_int = v_prop / (1.0 - uf)
 		v_caps = (4.0 / 3.0) * pi * r_in**3 # Hemispherical caps
 		v_cyl = max(0.0, v_int - v_caps)

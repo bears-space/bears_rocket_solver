@@ -62,7 +62,7 @@ class RocketGroup(Group):
 		self.connect("DesignVars.tank_ullage_fraction",   "Propulsion.Tank.ullage_frac")
 		self.connect("DesignVars.tank_wall_yield_factor", "Propulsion.Tank.sigma_y")
 		self.connect("DesignVars.tank_wall_density",      "Propulsion.Tank.rho_wall")
-		self.connect("DesignVars.propellant_density",     "Propulsion.Tank.rho_prop")
+		self.connect("DesignVars.propellant_density",     "Propulsion.Tank.rho_ox")
 		self.connect("DesignVars.nozzle_expansion_ratio", "Propulsion.expansion_ratio")
 		self.connect("DesignVars.chamber_pressure",       "Propulsion.chamber_pressure")
 

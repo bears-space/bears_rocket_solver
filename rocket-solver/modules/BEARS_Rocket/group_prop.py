@@ -18,7 +18,8 @@ class PropulsionGroup(Group):
 		self.add_subsystem(
 			"Tank",
 			TankComponent(),
-			promotes_inputs=["diam_out", "m_prop_i"]
+			promotes_inputs=["diam_out", "m_prop_i", "mixture_ratio"],
+			promotes_outputs=["m_tank_dry"],
 		)
 
 		# Between tank and injector we have a ~30bar pressure loss
