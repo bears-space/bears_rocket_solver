@@ -29,12 +29,12 @@ class RocketGroup(Group):
 		ivc.add_output("pressure_safety_factor", val=2.0)
 
 		ivc.add_output("tank_ullage_fraction",   val=0.1)
-		ivc.add_output("tank_wall_yield_factor", units="Pa")
-		ivc.add_output("tank_wall_density",      units="kg/m**3")
-		ivc.add_output("propellant_density",     units="kg/m**3")
-		ivc.add_output("nozzle_expansion_ratio")
-		ivc.add_output("chamber_pressure",       units="Pa")
-		ivc.add_output("structural_mass",        units="kg")
+		ivc.add_output("tank_wall_yield_factor", val=276e6,  units="Pa")
+		ivc.add_output("tank_wall_density",      val=2700.0, units="kg/m**3")
+		ivc.add_output("propellant_density",     val=1200.0, units="kg/m**3")
+		ivc.add_output("nozzle_expansion_ratio", val=40.0)
+		ivc.add_output("chamber_pressure",       val=35.0,   units="bar")
+		ivc.add_output("structural_mass",        val=2.0,    units="kg")
 
 		# OptimizationVars: specific parameters that we wish to optimize against
 		ovc = self.add_subsystem("OptimizationVars", IndepVarComp())
