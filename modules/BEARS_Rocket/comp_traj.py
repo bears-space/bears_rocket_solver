@@ -214,7 +214,7 @@ class TrajectoryComponent(ExplicitComponent):
 		partials["burn_time", "isp"]          =  (m_i - m_dry) * g / thrust
 		partials["burn_time", "thrust"]       = -(
 			(m_i - m_dry) * isp * g
-		) * (thrust**2)
+		) / (thrust**2)
 
 	def compute(self, inputs, outputs):
 		atm = self.options["atm"]
