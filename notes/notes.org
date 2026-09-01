@@ -26,6 +26,9 @@ Propulsion:
 - Nils (WhatsApp guy, propulsion not-lead)
 - David (not-fuel grain guy)
 
+Airbreak:
+- Iheb Bouakira (CFD)
+
 Python RocketCEA
 
 * Code
