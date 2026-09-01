@@ -46,7 +46,7 @@ def main():
 	# Design variables
 	if opt_mr:
 		prob.model.add_design_var(
-			"OptimizationVars.propellant_mixture_ratio",
+			"OptimizationVars.mixture_ratio",
 			lower=1.0, upper=10.0, ref=2.0
 		)
 
@@ -74,7 +74,7 @@ def main():
 	prob.set_val("Propulsion.thrust", 3000.0)
 
 	# Optimization initial values
-	prob.set_val("OptimizationVars.propellant_mixture_ratio", 6.0)
+	prob.set_val("OptimizationVars.mixture_ratio", 6.0)
 	prob.set_val("OptimizationVars.propellant_mass", 30.0)
 
 	prob.run_driver()
@@ -84,7 +84,7 @@ def main():
 	print(f"m_prop:\t{prob.get_val('OptimizationVars.propellant_mass')[0]} kg")
 
 	if opt_mr:
-		print(f"MR:\t{prob.get_val('OptimizationVars.propellant_mixture_ratio')[0]}")
+		print(f"MR:\t{prob.get_val('OptimizationVars.mixture_ratio')[0]}")
 
 	print("\nResults:")
 	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")

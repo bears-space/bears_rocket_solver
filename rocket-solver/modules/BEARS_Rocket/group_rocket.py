@@ -38,8 +38,8 @@ class RocketGroup(Group):
 
 		# OptimizationVars: specific parameters that we wish to optimize against
 		ovc = self.add_subsystem("OptimizationVars", IndepVarComp())
-		ovc.add_output("propellant_mass",          val=10.0, units="kg")
-		ovc.add_output("propellant_mixture_ratio", val=1.0)
+		ovc.add_output("propellant_mass", val=10.0, units="kg")
+		ovc.add_output("mixture_ratio",   val=1.0)
 		#endregion
 
 		#region Subsystems
@@ -55,43 +55,31 @@ class RocketGroup(Group):
 		#endregion
 
 		#region Connections
-		self.connect("DesignVars.diameter", "Trajectory.diameter")
-		self.connect("DesignVars.payload_mass", "Mass.payload_mass")
-		self.connect("DesignVars.tank_pressure", "Propulsion.Tank.p_tank_max")
-
-		self.connect(
-			"DesignVars.pressure_safety_factor",
-			"Propulsion.Tank.safety_factor"
-		)
-
-		self.connect("DesignVars.diameter", "Propulsion.diam_out")
-
-		self.connect("DesignVars.tank_ullage_fraction", "Propulsion.Tank.ullage_frac")
-		#self.connect("DesignVars.tank_safety_factor", "Propulsion.Tank.safety_factor")
+		# - Propulsion
+		self.connect("DesignVars.tank_pressure",          "Propulsion.Tank.p_tank_max")
+		self.connect("DesignVars.pressure_safety_factor", "Propulsion.Tank.safety_factor")
+		self.connect("DesignVars.diameter",               "Propulsion.diam_out")
+		self.connect("DesignVars.tank_ullage_fraction",   "Propulsion.Tank.ullage_frac")
 		self.connect("DesignVars.tank_wall_yield_factor", "Propulsion.Tank.sigma_y")
-		self.connect("DesignVars.tank_wall_density", "Propulsion.Tank.rho_wall")
-		self.connect("DesignVars.propellant_density", "Propulsion.Tank.rho_prop")
+		self.connect("DesignVars.tank_wall_density",      "Propulsion.Tank.rho_wall")
+		self.connect("DesignVars.propellant_density",     "Propulsion.Tank.rho_prop")
 		self.connect("DesignVars.nozzle_expansion_ratio", "Propulsion.expansion_ratio")
-		self.connect("DesignVars.chamber_pressure", "Propulsion.chamber_pressure")
+		self.connect("DesignVars.chamber_pressure",       "Propulsion.chamber_pressure")
+
+		self.connect("OptimizationVars.propellant_mass",  "Propulsion.m_prop_i")
+
+		# - Mass
+		self.connect("DesignVars.payload_mass",           "Mass.payload_mass")
 		self.connect("DesignVars.structural_coefficient", "Mass.structural_coefficient")
 
-		self.connect(
-			"OptimizationVars.propellant_mass",
-			"Mass.propellant_mass"
-		)
+		self.connect("OptimizationVars.propellant_mass",  "Mass.propellant_mass")
+		self.connect("OptimizationVars.mixture_ratio",    "Propulsion.mixture_ratio")
 
-		self.connect(
-			"OptimizationVars.propellant_mass",
-			"Propulsion.m_prop_i"
-		)
+		# - Trajectory
+		self.connect("DesignVars.diameter", "Trajectory.diameter")
 
-		self.connect(
-			"OptimizationVars.propellant_mixture_ratio",
-			"Propulsion.mixture_ratio"
-		)
-
-		self.connect("Propulsion.isp",    "Trajectory.isp")
-		self.connect("Propulsion.thrust", "Trajectory.thrust")
-		self.connect("Mass.initial_mass", "Trajectory.initial_mass")
-		self.connect("Mass.dry_mass",     "Trajectory.dry_mass")
+		self.connect("Propulsion.isp",      "Trajectory.isp")
+		self.connect("Propulsion.thrust",   "Trajectory.thrust")
+		self.connect("Mass.initial_mass",   "Trajectory.initial_mass")
+		self.connect("Mass.dry_mass",       "Trajectory.dry_mass")
 		#endregion
