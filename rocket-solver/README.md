@@ -2,7 +2,7 @@
 
 In descending order of importance:
 
-- [ ] Update documentation!
+- [ ] Bring the docs up to speed
 
 - [ ] MDAO class structure
 
@@ -129,6 +129,9 @@ optimized for. More than one variable can be optimized at once. In the current
 additionally calculating the optimal oxidizer-to-fuel ratio with CEA
 
 Model components in detail:
+
+> [!WARNING]
+> This table is currently out of date **TODO**
 
 | Component | OpenMDAO Class | Inputs | Outputs | Comments |
 | --------- | -------------- | ------ | ------- | -------- |
