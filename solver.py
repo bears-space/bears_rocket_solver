@@ -94,26 +94,14 @@ def main():
 	print(f"t_wall:  \t{prob.get_val('Propulsion.Tank.t_wall')[0]} m")
 	print(f"l_tank:  \t{prob.get_val('Propulsion.Tank.l_tank')[0]} m")
 
-	# Dump all computed component outputs to a file
+	# Dump all computed variables to an output file
 	with open("outputs/outputs.txt", mode="wt") as f:
-		f.write("\nTank\n")
-		f.write(f"m_struct:\t{prob.get_val('Propulsion.Tank.m_tank_dry')[0]} kg\n")
-		f.write(f"t_wall:\t{prob.get_val('Propulsion.Tank.t_wall')[0]} m\n")
-		f.write(f"l_tank:\t{prob.get_val('Propulsion.Tank.l_tank')[0]} m\n")
-		f.write(f"v_internal:\t{prob.get_val('Propulsion.Tank.v_internal')[0]} m**3\n")
-
-		f.write("\nChemistry\n")
-		f.write(f"thrust:\t{prob.get_val('Propulsion.Chemistry.thrust')[0]} N\n")
-		f.write(f"cstar:\t{prob.get_val('Propulsion.Chemistry.cstar')[0]} m/s\n")
-		f.write(f"isp:\t{prob.get_val('Propulsion.Chemistry.isp')[0]} s\n")
-
-		f.write("\nMass\n")
-		f.write(f"initial_mass:\t{prob.get_val('Mass.initial_mass')[0]} kg\n")
-		f.write(f"dry_mass:\t{prob.get_val('Mass.dry_mass')[0]} kg\n")
-
-		f.write("\nTrajectory\n")
-		f.write(f"burn_time:\t{prob.get_val('Trajectory.burn_time')[0]} s\n")
-		f.write(f"apogee:\t{prob.get_val('Trajectory.apogee')[0]} m\n")
+		prob.model.list_outputs(
+			val=True,
+			units=True,
+			hierarchical=True,
+			out_stream=f,
+		)
 
 	# Draw all the connectivity graphs
 	viewer = GraphViewer(prob.model)
