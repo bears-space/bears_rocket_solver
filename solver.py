@@ -20,7 +20,7 @@ from rocketcea.cea_obj import CEA_Obj
 from openmdao.visualization.graph_viewer import GraphViewer
 
 from modules.BEARS_Atmo   import BEARS_Atm
-from modules.BEARS_Chem   import Reactant, parse_reactants
+from modules.BEARS_Chem   import Reactant, parse_reactants, parse_densities
 from modules.BEARS_Rocket import RocketGroup
 # endregion
 
@@ -39,6 +39,7 @@ def main():
 	with open("inputs/reactants.json", "r") as retrieved:
 		data = json.load(retrieved)
 		oname, fname = parse_reactants(data)
+		rho_ox, rho_fuel = parse_densities(data)
 	# endregion
 
 	atm = BEARS_Atm("isacalc")
@@ -46,7 +47,12 @@ def main():
 
 	prob = om.Problem(reports=True, work_dir=work_dir)
 
-	prob.model = RocketGroup(atm=atm, cea=cea)
+	prob.model = RocketGroup(
+		atm=atm,
+		cea=cea,
+		rho_ox=rho_ox,
+		rho_fuel=rho_fuel,
+	)
 
 	prob.driver = om.ScipyOptimizeDriver()
 	prob.driver.options["optimizer"] = "SLSQP"
@@ -75,6 +81,9 @@ def main():
 	prob.set_val("DesignVars.diameter", 0.4)
 	prob.set_val("DesignVars.tank_pressure", 30e5)
 	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
+	prob.set_val("DesignVars.injector_area", 4.5e-5)
+	prob.set_val("DesignVars.injector_cd", 0.7)
+	prob.set_val("DesignVars.throat_area", 5.0e-4)
 
 	# Optimization initial values
 	prob.set_val("OptimizationVars.mixture_ratio", 6.0)

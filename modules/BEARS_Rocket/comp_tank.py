@@ -6,10 +6,12 @@ from openmdao.api import ExplicitComponent
 
 class TankComponent(ExplicitComponent):
 
+	def initialize(self):
+		self.options.declare("rho_ox", default=1200.0, types=float)
+
 	def setup(self):
 		self.add_input("m_prop_i",      val=10.0,   units="kg")
 		self.add_input("mixture_ratio", val=6.0)
-		self.add_input("rho_ox",        val=1200.0, units="kg/m**3")
 
 		self.add_input("p_tank_max",    val=60e5,   units="Pa")
 		self.add_input("diam_out",      val=0.5,    units="m")
@@ -30,7 +32,7 @@ class TankComponent(ExplicitComponent):
 	def compute(self, inputs, outputs):
 		m_prop  = inputs["m_prop_i"]
 		f_prop  = inputs["mixture_ratio"]
-		rho_ox  = inputs["rho_ox"]
+		rho_ox  = self.options["rho_ox"]
 		p_max   = inputs["p_tank_max"]
 		d_out   = inputs["diam_out"]
 		uf      = inputs["ullage_frac"]
