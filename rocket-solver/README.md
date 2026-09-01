@@ -2,7 +2,11 @@
 
 In descending order of importance:
 
-- [ ] MDAO class structure
+- [ ] Major progress on the propulsion stack but documentation is falling behind
+
+  This readme is out of date!
+
+- [-] MDAO class structure
 
   - [x] Basic setup
 
