@@ -40,8 +40,6 @@ def main():
 
 	prob.model = RocketGroup(atm=atm, cea=cea)
 
-	#prob.model.add_subsystem("BEARS_Rocket", rocket, promotes=["*"])
-
 	prob.driver = om.ScipyOptimizeDriver()
 	prob.driver.options["optimizer"] = "SLSQP"
 
