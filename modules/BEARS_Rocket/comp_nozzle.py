@@ -1,7 +1,8 @@
 #region Imports
 import numpy as np
 
-from openmdao.api import ExplicitComponent
+from scipy.constants import g
+from openmdao.api    import ExplicitComponent
 #endregion
 
 class NozzleComponent(ExplicitComponent):
@@ -29,7 +30,9 @@ class NozzleComponent(ExplicitComponent):
 
 		mdot_prop = mdot_ox * (mr + 1.0) / mr
 		p_c = (mdot_prop * cstar) / a_t
-		thrust = mdot_prop * isp * 9.80665
+
+		# Isp = F / (m * g) = v_e / g
+		thrust = mdot_prop * isp * g
 
 		outputs["mdot_prop"] = mdot_prop
 		outputs["p_chamber"] = p_c
