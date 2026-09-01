@@ -65,7 +65,7 @@ def main():
 	# Dynamic variables
 	prob.set_val("DesignVars.payload_mass", 1.0)
 
-	prob.set_val("Mass.structural_coefficient", 0.01 * 30)  # percentages
+	prob.set_val("Mass.structural_mass", 2.0)
 
 	prob.set_val("Trajectory.diameter", 0.4)
 
