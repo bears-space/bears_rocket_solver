@@ -2,11 +2,9 @@
 
 In descending order of importance:
 
-- [ ] Major progress on the propulsion stack but documentation is falling behind
+- [ ] Update documentation!
 
-  This readme is out of date!
-
-- [-] MDAO class structure
+- [ ] MDAO class structure
 
   - [x] Basic setup
 
@@ -19,6 +17,12 @@ In descending order of importance:
 
   - [ ] Refine the propulsion class/component to include subgroups within the
         propulsion assembly
+
+    - [x] Injector
+
+    - [x] Nozzle
+
+    - [ ] Fuel stack
 
   - [x] ~~Aerodynamics component~~ Necessary for apogee calculator
 
@@ -36,7 +40,7 @@ In descending order of importance:
 - [ ] Move optimization options and inputs from `solver.py` to JSON files in
       `inputs/`
 
-- [ ] Fix RocketCEA's garbage folders (see [note](#rocketcea-note))
+- [x] Fix RocketCEA's garbage folders (see [note](#rocketcea-note))
 
 - [ ] Move to a JSON5 parsing library to allow for C++-style comments in inputs
       files
@@ -75,11 +79,22 @@ bears_rocket_solver
 │   │   ├── chem.py
 │   │   └── ...
 │   └── BEARS_Rocket            # MDAO class structure module
-│       ├── comp_cea.py         # - Propulsion component
-│       ├── comp_mass.py        # - Mass profile component
-│       ├── comp_traj.py        # - Trajectory component
-│       ├── group_rocket.py     # - Rocket assembly group
+│       ├── comp_chem.py        # - Propulsion chemistry component
+│       ├── comp_tank.py        # - Tank component
+│       ├── comp_injector.py    # - Tank-to-fuel injector and plumbing comp
+│       ├── comp_nozzle.py      # - Nozzle parameters component
+│       ├── group_prop.py       # - Propulsion group, connects the tank,
+│       │                       #   injector, nozzle and reaction chemistry
+│       │                       #   components
+│       ├── comp_mass.py        # - Mass profile component, connects payload,
+│       │                       #   propellant, and structural mass
+│       │                       #   calculations
+│       ├── comp_traj.py        # - Trajectory and aerodynamics component
+│       ├── group_rocket.py     # - Rocket assembly group, assembles
+│       │                       #   everything above
 │       └── ...
+├── outputs                     # Solver output files for calculated values
+│   └── ...
 ├── figures                     # Figure outputs
 │   └── ...
 └ ...
@@ -143,33 +158,38 @@ graphviz
 
 To initialize a Python virtual environment and install the required packages:
 
-```bash
+```powershell
 python -m venv env
 
-# for Bash shells; use appropriate activation method on your system
-source env/bin/activate
+.\env\Scripts\activate  # Windows, or
+source env/bin/activate # Linux/WSL
 
-# should automatically pull required dependencies
+pip install --upgrade pip
+
+# This should automatically pull required dependencies
 pip install .
 ```
 
-(You may need to install `graphviz` on your system, I haven't tested if it works
-with plain Python)
+(You may need to install `graphviz` on your system, I haven't tested if it
+works with plain Python)
 
 ### Running the solver
 
-`solver.py` is the main entry point:
+`solver.py` is the main entry point of the program.
+
+On Windows, activate the environment and execute the solver:
+
+```powershell
+.\env\Scripts\activate
+python3 solver.py
+```
+
+On Linux/WSL:
 
 ```bash
 source env/bin/activate
-./solver.py # or python3 solver.py on Windows
+./solver.py
 ```
-
-<a name="rocketcea-note"></a>
-**Note:** When the program is run, RocketCEA will create some runtime
-directories like `solver_out` in the project directory and `RocketCEA` in your
-home directory. **TODO** figure out how to instruct RocketCEA to put those in
-an appropriate manageable location
 
 ## Package notes
 

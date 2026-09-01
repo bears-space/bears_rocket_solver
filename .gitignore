@@ -1,7 +1,7 @@
 notes.md
+*.local
 stubs/*
 build/*
 scripts/*
 outputs/*
 work/*
-tree

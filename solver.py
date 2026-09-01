@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """
-The rocket optimization script using OpenMDAO for the superstructure
+The rocket optimization script using OpenMDAO for the framework
 
 @author:  Andrii
 @license: GPL-3.0-or-later
 """
 
-# region Imports
+#region Imports
 import json
 import os
 import numpy        as np
@@ -22,25 +22,25 @@ from openmdao.visualization.graph_viewer import GraphViewer
 from modules.BEARS_Atmo   import BEARS_Atm
 from modules.BEARS_Chem   import Reactant, parse_reactants, parse_densities
 from modules.BEARS_Rocket import RocketGroup
-# endregion
+#endregion
 
-# region Main
+#region Main
 def main():
 
 	opt_mr = True
 
-	# region Working Directories
+	#region Working directories
 	work_dir = os.path.abspath("work")
 	os.makedirs(work_dir, exist_ok=True)
 	cea_obj.ROCKETCEA_DATA_DIR = os.path.join(work_dir, "RocketCEA")
-	# endregion
+	#endregion
 
-	# region Inputs
+	#region Inputs
 	with open("inputs/reactants.json", "r") as retrieved:
 		data = json.load(retrieved)
 		oname, fname = parse_reactants(data)
 		rho_ox, rho_fuel = parse_densities(data)
-	# endregion
+	#endregion
 
 	atm = BEARS_Atm("isacalc")
 	cea = CEA_Obj(oxName=oname, fuelName=fname)
@@ -91,7 +91,7 @@ def main():
 
 	prob.run_driver()
 
-	# region Outputs
+	#region Outputs
 	print("Optimized parameters:")
 	print(f"m_prop:\t{prob.get_val('OptimizationVars.propellant_mass')[0]} kg")
 
@@ -131,7 +131,7 @@ def main():
 			show_vars=True,
 			outfile=f"figures/{graph_type}.png",
 		)
-	# endregion
-# endregion
+	#endregion
+#endregion
 
 if __name__ == "__main__": main()
