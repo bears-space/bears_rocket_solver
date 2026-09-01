@@ -15,7 +15,7 @@ class TankComponent(ExplicitComponent):
 		self.add_input("diam_out",    val=0.5,  units="m")
 		self.add_input("ullage_frac", val=0.1)
 
-		self.add_input("safety_factor", val=3.0)
+		self.add_input("safety_factor", val=1.5)
 		self.add_input("sigma_y",       val=276e6,  units="Pa")
 		self.add_input("rho_wall",      val=2700.0, units="kg/m**3")
 
