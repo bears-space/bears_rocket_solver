@@ -40,7 +40,9 @@ In descending order of importance:
 - [ ] Move optimization options and inputs from `solver.py` to JSON files in
       `inputs/`
 
-- [x] Fix RocketCEA's garbage folders (see [note](#rocketcea-note))
+- [x] Fix RocketCEA's garbage folders
+
+- [ ] Better looking custom graphs
 
 - [ ] Move to a JSON5 parsing library to allow for C++-style comments in inputs
       files
