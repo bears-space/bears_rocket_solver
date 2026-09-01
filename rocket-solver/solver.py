@@ -64,13 +64,11 @@ def main():
 
 	# Dynamic variables
 	prob.set_val("DesignVars.payload_mass", 1.0)
-	prob.set_val("DesignVars.tank_pressure", 30e5)
-
-	prob.set_val("Mass.deadweight", 2.0)
-
 	prob.set_val("DesignVars.diameter", 0.4)
+	prob.set_val("DesignVars.tank_pressure", 30e5)
 	prob.set_val("DesignVars.chamber_pressure", 35.0, units="bar")
 	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
+
 	prob.set_val("Propulsion.thrust", 3000.0)
 
 	# Optimization initial values
@@ -88,14 +86,36 @@ def main():
 
 	print("\nResults:")
 	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")
-	print(f"h_max:\t{prob.get_val('apogee')[0]} m")
-	print(f"Isp:\t{prob.get_val('Propulsion.isp')[0]} m/s")
+	print(f"h_max: \t{prob.get_val('apogee')[0]} m")
+	print(f"Isp:   \t{prob.get_val('Propulsion.isp')[0]} s")
 
 	print("\nTank parameters:")
 	print(f"m_struct:\t{prob.get_val('Propulsion.m_tank_dry')[0]} kg")
 	print(f"t_wall:  \t{prob.get_val('Propulsion.Tank.t_wall')[0]} m")
 	print(f"l_tank:  \t{prob.get_val('Propulsion.Tank.l_tank')[0]} m")
 
+	# Dump all computed component outputs to a file
+	with open("outputs/outputs.txt", mode="wt") as f:
+		f.write("\nTank\n")
+		f.write(f"m_struct:\t{prob.get_val('Propulsion.Tank.m_tank_dry')[0]} kg\n")
+		f.write(f"t_wall:\t{prob.get_val('Propulsion.Tank.t_wall')[0]} m\n")
+		f.write(f"l_tank:\t{prob.get_val('Propulsion.Tank.l_tank')[0]} m\n")
+		f.write(f"v_internal:\t{prob.get_val('Propulsion.Tank.v_internal')[0]} m**3\n")
+
+		f.write("\nChemistry\n")
+		f.write(f"thrust:\t{prob.get_val('Propulsion.Chemistry.thrust')[0]} N\n")
+		f.write(f"cstar:\t{prob.get_val('Propulsion.Chemistry.cstar')[0]} m/s\n")
+		f.write(f"isp:\t{prob.get_val('Propulsion.Chemistry.isp')[0]} s\n")
+
+		f.write("\nMass\n")
+		f.write(f"initial_mass:\t{prob.get_val('Mass.initial_mass')[0]} kg\n")
+		f.write(f"dry_mass:\t{prob.get_val('Mass.dry_mass')[0]} kg\n")
+
+		f.write("\nTrajectory\n")
+		f.write(f"burn_time:\t{prob.get_val('Trajectory.burn_time')[0]} s\n")
+		f.write(f"apogee:\t{prob.get_val('Trajectory.apogee')[0]} m\n")
+
+	# Draw all the connectivity graphs
 	viewer = GraphViewer(prob.model)
 	for graph_type in ["dataflow", "tree", "cycle"]:
 		viewer.write_graph(

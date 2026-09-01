@@ -33,7 +33,7 @@ class RocketGroup(Group):
 		ivc.add_output("tank_wall_density",      val=2700.0, units="kg/m**3")
 		ivc.add_output("propellant_density",     val=1200.0, units="kg/m**3")
 		ivc.add_output("nozzle_expansion_ratio", val=40.0)
-		ivc.add_output("chamber_pressure",       val=35.0,   units="bar")
+		ivc.add_output("chamber_pressure",       val=3.5e6,  units="Pa")
 		ivc.add_output("structural_mass",        val=2.0,    units="kg")
 
 		# OptimizationVars: specific parameters that we wish to optimize against
@@ -70,7 +70,8 @@ class RocketGroup(Group):
 
 		# - Mass
 		self.connect("DesignVars.payload_mass",           "Mass.payload_mass")
-		self.connect("DesignVars.structural_mass",        "Mass.structural_mass")
+
+		self.connect("Propulsion.m_tank_dry",             "Mass.structural_mass")
 
 		self.connect("OptimizationVars.propellant_mass",  "Mass.propellant_mass")
 		self.connect("OptimizationVars.mixture_ratio",    "Propulsion.mixture_ratio")

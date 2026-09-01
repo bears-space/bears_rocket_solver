@@ -82,7 +82,9 @@ def ballistic_apogee(
 		dynamics_boost,
 		t_span=(0.0, t_burn),
 		y0=[0.0, 0.0],
-		method="RK45"
+		method="RK45",
+		rtol=1e-7,
+		atol=1e-9,
 	)
 
 	h_burnout = sol_boost.y[0][-1]
@@ -93,6 +95,8 @@ def ballistic_apogee(
 		t_span=(0, 1000),
 		y0=[h_burnout, v_burnout],
 		method="RK45",
+		rtol=1e-7,
+		atol=1e-9,
 		events=apogee_event,
 	)
 
@@ -147,8 +151,9 @@ def ballistic_apogee_var(
 		t_span=(0, 1000),
 		y0=[0.0, 0.0, m_i],
 		method="RK45",
+		rtol=1e-7,
+		atol=1e-9,
 		events=apogee_event,
-		rtol=1e-6,
 	)
 
 	apogee = sol.y[0][-1]
@@ -182,7 +187,34 @@ class TrajectoryComponent(ExplicitComponent):
 		self.add_output("burn_time", val=3.0,    units="s")
 
 	def setup_partials(self):
-		self.declare_partials("*", "*", method="fd")
+		self.declare_partials(
+			"burn_time", ["thrust", "isp", "initial_mass", "dry_mass"]
+		)
+
+		self.declare_partials(
+			"apogee",
+			["thrust", "isp", "initial_mass", "dry_mass", "diameter"],
+			method="fd",
+			step=1e-5,
+		)
+
+	def compute_partials(self, inputs, partials):
+		thrust = inputs["thrust"][0]
+		isp    = inputs["isp"][0]
+		m_i    = inputs["initial_mass"][0]
+		m_dry  = inputs["dry_mass"][0]
+
+		# Provide exact partial derivatives:
+		#
+		#   t_burn = ( (m_i - m_dry) * isp * g ) / thrust
+		#
+
+		partials["burn_time", "initial_mass"] =  (isp * g) / thrust
+		partials["burn_time", "dry_mass"]     = -(isp * g) / thrust
+		partials["burn_time", "isp"]          =  (m_i - m_dry) * g / thrust
+		partials["burn_time", "thrust"]       = -(
+			(m_i - m_dry) * isp * g
+		) * (thrust**2)
 
 	def compute(self, inputs, outputs):
 		atm = self.options["atm"]

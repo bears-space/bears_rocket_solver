@@ -18,9 +18,9 @@ class ChemComponent(ExplicitComponent):
 		self.add_output("thrust", val=120.0,  units="N")
 
 	def setup_partials(self):
-		# Declare partial derivatives
-		# 'method=fd' tells OpenMDAO to use FiniteDifference
-		self.declare_partials("*", "*", method="fd")
+		self.declare_partials(
+			["isp", "cstar"], "mixture_ratio", method="fd", step=1e-4
+		)
 
 	def compute(self, inputs, outputs):
 		chamber_pressure = inputs["chamber_pressure"][0]
@@ -29,16 +29,15 @@ class ChemComponent(ExplicitComponent):
 
 		cea = self.options["cea"]
 
-		cstar = cea.get_Cstar(
-			Pc=chamber_pressure,
-			MR=mixture_ratio
-		)
+		# 1 Pa = 1.45038e-4 psia
+		pa_to_psia = 1.450377e-4
 
-		isp = cea.get_Isp(
-			Pc=chamber_pressure,
-			MR=mixture_ratio,
-			eps=expansion_ratio # == supar
-		)
+		# 1 ft/s = 0.3048 m/s
+		fts_to_ms = 0.3048
+
+		pc_psia = chamber_pressure * pa_to_psia
+		cstar = cea.get_Cstar(Pc=pc_psia, MR=mixture_ratio) * fts_to_ms
+		isp = cea.get_Isp(Pc=pc_psia, MR=mixture_ratio, eps=expansion_ratio)
 
 		outputs["cstar"] = cstar
 		outputs["isp"]   = isp
