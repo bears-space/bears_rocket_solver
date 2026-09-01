@@ -3,7 +3,7 @@ from openmdao.api      import Group
 from rocketcea.cea_obj import CEA_Obj
 
 from .comp_tank import TankComponent
-from .comp_cea  import ChemComponent
+from .comp_chem import ChemComponent
 # endregion
 
 class PropulsionGroup(Group):
