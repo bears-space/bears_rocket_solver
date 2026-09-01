@@ -77,7 +77,7 @@ def main():
 
 	prob.run_driver()
 
-	# region Output
+	# region Outputs
 	print("Optimized parameters:")
 	print(f"m_prop:\t{prob.get_val('OptimizationVars.propellant_mass')[0]} kg")
 
