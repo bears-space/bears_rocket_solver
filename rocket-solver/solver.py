@@ -47,18 +47,18 @@ def main():
 	if opt_mr:
 		prob.model.add_design_var(
 			"OptimizationVars.mixture_ratio",
-			lower=1.0, upper=10.0, ref=2.0
+			lower=2.0, upper=10.0, ref=6.0
 		)
 
 	prob.model.add_design_var(
-		"OptimizationVars.propellant_mass", lower=1.0, upper=100.0, ref=30.0
+		"OptimizationVars.propellant_mass", lower=1.0, upper=50.0, ref=10.0
 	)
 
 	# Constraints
-	prob.model.add_constraint("apogee", equals=3100.0)
+	prob.model.add_constraint("apogee", equals=3100.0, ref=3100.0)
 
 	# Objectives
-	prob.model.add_objective("OptimizationVars.propellant_mass")
+	prob.model.add_objective("OptimizationVars.propellant_mass", ref=10.0)
 
 	prob.setup()
 
@@ -66,14 +66,11 @@ def main():
 	prob.set_val("DesignVars.payload_mass", 1.0)
 	prob.set_val("DesignVars.diameter", 0.4)
 	prob.set_val("DesignVars.tank_pressure", 30e5)
-	prob.set_val("DesignVars.chamber_pressure", 35.0, units="bar")
 	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
-
-	prob.set_val("Propulsion.thrust", 3000.0)
 
 	# Optimization initial values
 	prob.set_val("OptimizationVars.mixture_ratio", 6.0)
-	prob.set_val("OptimizationVars.propellant_mass", 30.0)
+	prob.set_val("OptimizationVars.propellant_mass", 15.0)
 
 	prob.run_driver()
 
@@ -84,9 +81,14 @@ def main():
 	if opt_mr:
 		print(f"MR:\t{prob.get_val('OptimizationVars.mixture_ratio')[0]}")
 
+	p_c = prob.get_val("Propulsion.Nozzle.p_chamber")[0]
+	thrust = prob.get_val("Propulsion.thrust")[0]
+
 	print("\nResults:")
 	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")
 	print(f"h_max: \t{prob.get_val('apogee')[0]} m")
+	print(f"P_ch:  \t{p_c / 1e5:.2f} bar")
+	print(f"Thrust:\t{thrust:.1f} N")
 	print(f"Isp:   \t{prob.get_val('Propulsion.isp')[0]} s")
 
 	print("\nTank parameters:")
