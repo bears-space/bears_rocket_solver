@@ -8,8 +8,10 @@ The rocket optimization script using OpenMDAO for the superstructure
 
 # region Imports
 import json
+import os
 import numpy        as np
 import openmdao.api as om
+import rocketcea.cea_obj as cea_obj
 
 from scipy.integrate   import solve_ivp
 from scipy.interpolate import interp1d
@@ -27,6 +29,12 @@ def main():
 
 	opt_mr = True
 
+	# region Working Directories
+	work_dir = os.path.abspath("work")
+	os.makedirs(work_dir, exist_ok=True)
+	cea_obj.ROCKETCEA_DATA_DIR = os.path.join(work_dir, "RocketCEA")
+	# endregion
+
 	# region Inputs
 	with open("inputs/reactants.json", "r") as retrieved:
 		data = json.load(retrieved)
@@ -36,7 +44,7 @@ def main():
 	atm = BEARS_Atm("isacalc")
 	cea = CEA_Obj(oxName=oname, fuelName=fname)
 
-	prob = om.Problem()
+	prob = om.Problem(reports=True, work_dir=work_dir)
 
 	prob.model = RocketGroup(atm=atm, cea=cea)
 

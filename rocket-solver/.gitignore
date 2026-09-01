@@ -3,4 +3,5 @@ stubs/*
 build/*
 scripts/*
 outputs/*
-test*
+work/*
+tree
