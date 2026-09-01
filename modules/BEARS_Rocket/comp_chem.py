@@ -9,7 +9,7 @@ class ChemComponent(ExplicitComponent):
 		self.options.declare("cea", types=CEA_Obj)
 
 	def setup(self):
-		self.add_input("chamber_pressure", val=35.0, units="bar")
+		self.add_input("chamber_pressure", val=35e5, units="Pa")
 		self.add_input("mixture_ratio",    val=6.0)
 		self.add_input("expansion_ratio",  val=40.0) # expansion area ratio
 
@@ -19,7 +19,10 @@ class ChemComponent(ExplicitComponent):
 
 	def setup_partials(self):
 		self.declare_partials(
-			["isp", "cstar"], "mixture_ratio", method="fd", step=1e-4
+			["isp", "cstar"],
+			["chamber_pressure", "mixture_ratio"],
+			method="fd",
+			step=1e-4,
 		)
 
 	def compute(self, inputs, outputs):

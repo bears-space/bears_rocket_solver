@@ -7,28 +7,26 @@ from openmdao.api import ExplicitComponent
 class InjectorComponent(ExplicitComponent):
 
 	def setup(self):
-		self.add_input('p_tank', val=50e5, units='Pa')
-		self.add_input('p_chamber', val=35e5, units='Pa')
-		self.add_input('rho_ox', val=1200.0, units='kg/m**3')
-		self.add_input('a_inj', val=1e-4, units='m**2')
-		self.add_input('cd', val=0.7) # Discharge coefficient (efficiency)
+		self.add_input("p_tank",    val=30e5,   units="Pa")
+		self.add_input("p_chamber", val=20e5,   units="Pa")
+		self.add_input("rho_ox",    val=1200.0, units="kg/m**3")
+		self.add_input("a_inj",     val=4.5e-5, units="m**2")
+		self.add_input("cd",        val=0.7) # Discharge coefficient (efficiency)
 
-		self.add_output('mdot_ox', val=1.0, units='kg/s')
+		self.add_output("mdot_ox", val=1.0, units="kg/s")
 
 	def setup_partials(self):
-		self.declare_partials('mdot_ox', '*', method='fd')
+		self.declare_partials("mdot_ox", "*", method="cs")
 
 	def compute(self, inputs, outputs):
-		p_up   = inputs['p_tank']
-		p_down = inputs['p_chamber']
-		rho    = inputs['rho_liq']
-		area   = inputs['a_inj']
-		cd     = inputs['cd']
+		p_up   = inputs["p_tank"]
+		p_down = inputs["p_chamber"]
+		rho    = inputs["rho_ox"]
+		area   = inputs["a_inj"]
+		cd     = inputs["cd"]
 
-		delta_p = p_up - p_down
-
-		if delta_p > 0:
-			outputs['mdot_ox'] = cd * area * np.sqrt(2 * rho * delta_p)
+		dp = p_up - p_down
+		if dp >= 0:
+			outputs["mdot_ox"] = cd * area * np.sqrt(2.0 * rho * dp)
 		else:
-			# Prevent backflow calculation or imaginary numbers in sqrt
-			outputs['mdot_ox'] = 0.0
+			outputs["mdot_ox"] = -cd * area * np.sqrt(2.0 * rho * (-dp))

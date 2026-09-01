@@ -33,7 +33,6 @@ class RocketGroup(Group):
 		ivc.add_output("tank_wall_density",      val=2700.0, units="kg/m**3")
 		ivc.add_output("propellant_density",     val=1200.0, units="kg/m**3")
 		ivc.add_output("nozzle_expansion_ratio", val=40.0)
-		ivc.add_output("chamber_pressure",       val=3.5e6,  units="Pa")
 		ivc.add_output("structural_mass",        val=2.0,    units="kg")
 
 		# OptimizationVars: specific parameters that we wish to optimize against
@@ -56,15 +55,14 @@ class RocketGroup(Group):
 
 		#region Connections
 		# - Propulsion
-		self.connect("DesignVars.tank_pressure",          "Propulsion.Tank.p_tank_max")
+		self.connect("DesignVars.tank_pressure",          "Propulsion.p_tank")
 		self.connect("DesignVars.pressure_safety_factor", "Propulsion.Tank.safety_factor")
 		self.connect("DesignVars.diameter",               "Propulsion.diam_out")
 		self.connect("DesignVars.tank_ullage_fraction",   "Propulsion.Tank.ullage_frac")
 		self.connect("DesignVars.tank_wall_yield_factor", "Propulsion.Tank.sigma_y")
 		self.connect("DesignVars.tank_wall_density",      "Propulsion.Tank.rho_wall")
-		self.connect("DesignVars.propellant_density",     "Propulsion.Tank.rho_ox")
+		self.connect("DesignVars.propellant_density",     "Propulsion.rho_ox")
 		self.connect("DesignVars.nozzle_expansion_ratio", "Propulsion.expansion_ratio")
-		self.connect("DesignVars.chamber_pressure",       "Propulsion.chamber_pressure")
 
 		self.connect("OptimizationVars.propellant_mass",  "Propulsion.m_prop_i")
 
