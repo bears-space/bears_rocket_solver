@@ -24,7 +24,8 @@ class RocketGroup(Group):
 		rho_fuel = self.options["rho_fuel"]
 
 		#region Independent variable components
-		# DesignVars: catch-all for free design parameters
+		# DesignVars:
+		# catch-all for free design parameters
 		ivc = self.add_subsystem("DesignVars", IndepVarComp())
 
 		# - Global
@@ -51,7 +52,8 @@ class RocketGroup(Group):
 		ivc.add_output("fuel_n_reg",             val=0.5)
 		ivc.add_output("oxy_mass_flux_ref",      val=1.0, units="kg/(m**2*s)")
 
-		# OptimizationVars: specific parameters that we wish to optimize against
+		# OptimizationVars:
+		# specific parameters that we wish to optimize against
 		ovc = self.add_subsystem("OptimizationVars", IndepVarComp())
 		ovc.add_output("propellant_mass", val=10.0, units="kg")
 		ovc.add_output("mixture_ratio",   val=6.0)
