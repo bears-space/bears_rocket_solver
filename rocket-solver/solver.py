@@ -27,8 +27,6 @@ from modules.BEARS_Rocket import RocketGroup
 #region Main
 def main():
 
-	opt_mr = True
-
 	#region Working directories
 	work_dir = os.path.abspath("work")
 	os.makedirs(work_dir, exist_ok=True)
@@ -58,12 +56,6 @@ def main():
 	prob.driver.options["optimizer"] = "SLSQP"
 
 	# Design variables
-	if opt_mr:
-		prob.model.add_design_var(
-			"OptimizationVars.mixture_ratio",
-			lower=2.0, upper=10.0, ref=6.0
-		)
-
 	prob.model.add_design_var(
 		"OptimizationVars.propellant_mass", lower=1.0, upper=50.0, ref=10.0
 	)
@@ -84,9 +76,12 @@ def main():
 	prob.set_val("DesignVars.injector_area", 4.5e-5)
 	prob.set_val("DesignVars.injector_cd", 0.7)
 	prob.set_val("DesignVars.throat_area", 5.0e-4)
+	prob.set_val("DesignVars.fuel_port_diam", 0.05)
+	prob.set_val("DesignVars.fuel_length", 0.4)
+	prob.set_val("DesignVars.fuel_a_reg", 1.0e-4)
+	prob.set_val("DesignVars.fuel_n_reg", 0.5)
 
 	# Optimization initial values
-	prob.set_val("OptimizationVars.mixture_ratio", 6.0)
 	prob.set_val("OptimizationVars.propellant_mass", 15.0)
 
 	prob.run_driver()
@@ -95,8 +90,8 @@ def main():
 	print("Optimized parameters:")
 	print(f"m_prop:\t{prob.get_val('OptimizationVars.propellant_mass')[0]} kg")
 
-	if opt_mr:
-		print(f"MR:\t{prob.get_val('OptimizationVars.mixture_ratio')[0]}")
+	mr = prob.get_val("Propulsion.mixture_ratio")[0]
+	print(f"MR:\t{mr:.2f}")
 
 	p_c = prob.get_val("Propulsion.Nozzle.p_chamber")[0]
 	thrust = prob.get_val("Propulsion.thrust")[0]

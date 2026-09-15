@@ -6,6 +6,7 @@ from rocketcea.cea_obj import CEA_Obj
 
 from .comp_tank     import TankComponent
 from .comp_injector import InjectorComponent
+from .comp_fuel     import FuelComponent
 from .comp_chem     import ChemComponent
 from .comp_nozzle   import NozzleComponent
 # endregion
@@ -13,12 +14,14 @@ from .comp_nozzle   import NozzleComponent
 class PropulsionGroup(Group):
 
 	def initialize(self):
-		self.options.declare("cea",    types=CEA_Obj)
-		self.options.declare("rho_ox", default=1200.0, types=float)
+		self.options.declare("cea",      types=CEA_Obj)
+		self.options.declare("rho_ox",   default=1200.0, types=float)
+		self.options.declare("rho_fuel", default=900.0,  types=float)
 
 	def setup(self):
-		cea    = self.options["cea"]
-		rho_ox = self.options["rho_ox"]
+		cea      = self.options["cea"]
+		rho_ox   = self.options["rho_ox"]
+		rho_fuel = self.options["rho_fuel"]
 
 		#region Subsystems
 		self.add_subsystem(
@@ -42,6 +45,13 @@ class PropulsionGroup(Group):
 		)
 
 		self.add_subsystem(
+			"Fuel",
+			FuelComponent(rho_fuel=rho_fuel),
+			promotes_inputs=["port_diam", "length", "a_reg", "n_reg"],
+			promotes_outputs=["mixture_ratio"],
+		)
+
+		self.add_subsystem(
 			"Chemistry",
 			ChemComponent(cea=cea),
 			promotes_inputs=["mixture_ratio", "expansion_ratio"],
@@ -59,6 +69,7 @@ class PropulsionGroup(Group):
 		#region Connections
 		self.connect("Nozzle.p_chamber", "Injector.p_chamber")
 		self.connect("Nozzle.p_chamber", "Chemistry.chamber_pressure")
+		self.connect("Injector.mdot_ox", "Fuel.mdot_ox")
 		self.connect("Injector.mdot_ox", "Nozzle.mdot_ox")
 		self.connect("Chemistry.cstar",  "Nozzle.cstar")
 		#endregion
