@@ -30,7 +30,12 @@ class FuelComponent(ExplicitComponent):
 
 		self.add_output("r_dot",      val=0.002, units="m/s")
 		self.add_output("length",     val=0.4,   units="m")
-		self.add_output("grain_diam", val=0.1,   units="m")
+
+		self.add_output(
+			"grain_diam", val=0.1, units="m",
+			desc="Minimum necessary fuel grain diameter"
+		)
+
 		self.add_output("m_fuel",     val=1.5,   units="kg")
 		self.add_output("mdot_fuel",  val=0.15,  units="kg/s")
 
@@ -49,15 +54,56 @@ class FuelComponent(ExplicitComponent):
 
 		rho_fuel = self.options["rho_fuel"]
 
-		# Port area and mass flux
+		"""
+		Normalized Marxman regression law:
+
+		  r_dot = a (G_ox / G_0)^n
+
+		where
+		- `a` is the regression coefficient (at reference flux) [m/s]
+		- `n` is the flux exponent [-],
+		- `G_ox` is the oxidizer mass flux [kg/(m^2*s)], and
+		- `G_0` is the reference mass flux (1.0 kg/(m^2*s))
+
+		From here we have two options for calculating the outputs:
+		- the ballistic sizing model (calculates fuel stack dimensions from
+		  mixture ratio and mass flow), and
+		- the geometric sizing model (calculates the mass flow and mixture
+		  ratio resulting from given fuel stack dimensions)
+
+		Here, we use the ballistic model:
+
+		  mdot_fuel = mdot_ox / MR
+
+		  length = mdot_fuel / (rho_fuel * pi * d_port * r_dot)
+
+		From the other variables we calculate the minimum required fuel grain
+		cylinder width:
+
+		  d_grain = d_port + 2 * r_dot * t_burn
+
+		TODO: In the current model, the entire burn chamber, including fuel
+		      stack, is considered in 0D: thermodynamic variables and fuel
+		      regression are assumed to be uniform. This is good enough for
+		      preliminaries but should be refined down the line
+		"""
+
+		# Port area
 		a_port = 0.25 * pi * d_port**2
+
+		# Mass flux
+		# We need this check to avoid Newton's method crashes
 		if np.iscomplexobj(mdot_ox):
+			# Directly eval analytic ops preserving imaginary part
 			g_ox = mdot_ox / a_port
 		else:
+			# Caused by reversed flow (P_chamber > P_tank) in Newton's searches
+			# Clamp to prevent NaN in fractional powers (g_ratio**n)
 			g_ox = np.maximum(1e-6, mdot_ox) / a_port
+
 		g_ratio = g_ox / g0
 
-		# Regression rate: r_dot = a * (G_ox / G_0)^n
+		# Regression rate
 		r_dot = a * (g_ratio**n)
 
 		# Fuel flow and dependent stack length
