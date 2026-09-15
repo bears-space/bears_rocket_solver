@@ -39,7 +39,6 @@ class RocketGroup(Group):
 		ivc.add_output("tank_wall_yield_factor", val=276e6,  units="Pa")
 		ivc.add_output("tank_wall_density",      val=2700.0, units="kg/m**3")
 		ivc.add_output("nozzle_expansion_ratio", val=40.0)
-		ivc.add_output("structural_mass",        val=2.0,    units="kg")
 
 		# - Injector
 		ivc.add_output("injector_area",          val=4.5e-5, units="m**2")

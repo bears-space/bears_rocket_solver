@@ -1,4 +1,4 @@
-39 Explicit Output(s) in 'model'
+38 Explicit Output(s) in 'model'
 
 varname                   val                 units      prom_name                        
 ------------------------  ------------------  ---------  ---------------------------------
@@ -12,7 +12,6 @@ DesignVars
   tank_wall_yield_factor  [2.76e+08]          Pa         DesignVars.tank_wall_yield_factor
   tank_wall_density       [2700.]             kg/m**3    DesignVars.tank_wall_density     
   nozzle_expansion_ratio  [40.]               None       DesignVars.nozzle_expansion_ratio
-  structural_mass         [2.]                kg         DesignVars.structural_mass       
   injector_area           [4.5e-05]           m**2       DesignVars.injector_area         
   injector_cd             [0.7]               None       DesignVars.injector_cd           
   throat_area             [0.0005]            m**2       DesignVars.throat_area           
