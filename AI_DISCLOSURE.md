@@ -6,7 +6,7 @@ providers:
   - Google
 scope: |
   Code and documentation are mostly human-written; AI-generated code was used
-  for some placeholder and is clearly declared in surrounding comments.
+  for some placeholders and is clearly declared by surrounding comments.
 last-updated: 2026-09-01
 ---
 
