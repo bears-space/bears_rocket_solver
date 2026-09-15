@@ -77,7 +77,7 @@ def main():
 	prob.set_val("DesignVars.injector_cd", 0.7)
 	prob.set_val("DesignVars.throat_area", 5.0e-4)
 	prob.set_val("DesignVars.fuel_port_diam", 0.05)
-	prob.set_val("DesignVars.fuel_length", 0.4)
+	prob.set_val("DesignVars.fuel_grain_diam", 0.1)
 	prob.set_val("DesignVars.fuel_a_reg", 1.0e-4)
 	prob.set_val("DesignVars.fuel_n_reg", 0.5)
 
@@ -107,6 +107,9 @@ def main():
 	print(f"m_struct:\t{prob.get_val('Propulsion.m_tank_dry')[0]} kg")
 	print(f"t_wall:  \t{prob.get_val('Propulsion.Tank.t_wall')[0]} m")
 	print(f"l_tank:  \t{prob.get_val('Propulsion.Tank.l_tank')[0]} m")
+
+	print("\nFuel parameters:")
+	print(f"l_fuel:  \t{prob.get_val('Propulsion.Fuel.length')[0]} m")
 
 	# Dump all computed variables to an output file
 	with open("outputs/outputs.txt", mode="wt") as f:
