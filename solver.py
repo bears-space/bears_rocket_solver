@@ -77,12 +77,12 @@ def main():
 	prob.set_val("DesignVars.injector_cd", 0.7)
 	prob.set_val("DesignVars.throat_area", 5.0e-4)
 	prob.set_val("DesignVars.fuel_port_diam", 0.05)
-	prob.set_val("DesignVars.fuel_grain_diam", 0.1)
 	prob.set_val("DesignVars.fuel_a_reg", 1.0e-4)
 	prob.set_val("DesignVars.fuel_n_reg", 0.5)
 
 	# Optimization initial values
 	prob.set_val("OptimizationVars.propellant_mass", 15.0)
+	prob.set_val("OptimizationVars.mixture_ratio", 6.618)
 
 	prob.run_driver()
 
@@ -90,7 +90,7 @@ def main():
 	print("Optimized parameters:")
 	print(f"m_prop:\t{prob.get_val('OptimizationVars.propellant_mass')[0]} kg")
 
-	mr = prob.get_val("Propulsion.mixture_ratio")[0]
+	mr = prob.get_val("OptimizationVars.mixture_ratio")[0]
 	print(f"MR:\t{mr:.2f}")
 
 	p_c = prob.get_val("Propulsion.Nozzle.p_chamber")[0]
@@ -109,7 +109,8 @@ def main():
 	print(f"l_tank:  \t{prob.get_val('Propulsion.Tank.l_tank')[0]} m")
 
 	print("\nFuel parameters:")
-	print(f"l_fuel:  \t{prob.get_val('Propulsion.Fuel.length')[0]} m")
+	print(f"l_fuel:  \t{prob.get_val('Propulsion.length')[0]:.4f} m")
+	print(f"d_grain: \t{prob.get_val('Propulsion.grain_diam')[0]*1000:.1f} mm")
 
 	# Dump all computed variables to an output file
 	with open("outputs/outputs.txt", mode="wt") as f:
