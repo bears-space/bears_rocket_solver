@@ -48,7 +48,7 @@ class RocketGroup(Group):
 
 		# - Fuel
 		ivc.add_output("fuel_port_diam",         val=0.05,   units="m")
-		ivc.add_output("fuel_length",            val=0.4,    units="m")
+		ivc.add_output("fuel_grain_diam",        val=0.1,    units="m")
 		ivc.add_output("fuel_a_reg",             val=1.0e-4, units="m/s")
 		ivc.add_output("fuel_n_reg",             val=0.5)
 
@@ -83,7 +83,7 @@ class RocketGroup(Group):
 
 		# - Fuel
 		self.connect("DesignVars.fuel_port_diam",         "Propulsion.port_diam")
-		self.connect("DesignVars.fuel_length",            "Propulsion.length")
+		self.connect("DesignVars.fuel_grain_diam",        "Propulsion.grain_diam")
 		self.connect("DesignVars.fuel_a_reg",             "Propulsion.a_reg")
 		self.connect("DesignVars.fuel_n_reg",             "Propulsion.n_reg")
 

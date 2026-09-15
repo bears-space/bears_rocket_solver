@@ -47,8 +47,10 @@ class PropulsionGroup(Group):
 		self.add_subsystem(
 			"Fuel",
 			FuelComponent(rho_fuel=rho_fuel),
-			promotes_inputs=["port_diam", "length", "a_reg", "n_reg"],
-			promotes_outputs=["mixture_ratio"],
+			promotes_inputs=[
+				"m_prop_i", "port_diam", "grain_diam", "a_reg", "n_reg"
+			],
+			promotes_outputs=["mixture_ratio", "length"],
 		)
 
 		self.add_subsystem(
