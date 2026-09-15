@@ -1,6 +1,6 @@
 notes.md
 *.local
+*.gemini*
 stubs/*
 build/*
-scripts/*
 work/*
