@@ -72,8 +72,9 @@ def main():
 	# Design parameters
 	# - Variables
 	prob.set_val("DesignVars.g_payload_mass", 1.0)
-	prob.set_val("DesignVars.g_diameter", 0.3)
+	prob.set_val("DesignVars.g_diameter", 0.12)
 	prob.set_val("DesignVars.tank_pressure", 70)
+	prob.set_val("DesignVars.tank_diam", 0.12)
 	prob.set_val("DesignVars.injector_area", 4.5e-5)
 	prob.set_val("DesignVars.injector_cd", 0.7)
 	prob.set_val("DesignVars.fuel_port_diam", 0.05)

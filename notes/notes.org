@@ -132,6 +132,87 @@ References:
 
 [[https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/]]
 
+*** Nonlinearity
+
+In OpenMDAO, each component maps its inputs to its outputs, $y = f(x)$. When
+components connect in a chain, OpenMDAO simply evaluates them
+sequentially. Components taken together in a group form a system of equations
+with the internal equations of their components.
+
+In the ~PropulsionGroup~ component group, the components form a closed loop, and
+the system of equations happens to be non-linear. Explicitly, it consists of the
+following:
+
+1. Injector flow (Bernoulli orifice)
+
+   \begin{equation*}
+   \dot{m}_\text{ox}
+   = C_\text{d} A_\text{inj}
+     \sqrt{2\rho_\text{ox} (P_\text{tank} - P_\text{c})}
+   \end{equation*}
+
+2. Chamber chemistry (Gibbs free energy equilibrium)
+
+   \begin{equation*}
+   c^* = f_\text{CEA} (P_\text{c}, \mathrm{MR})
+   \end{equation*}
+
+3. Nozzle choking (1D isentropic throat flow)
+
+   \begin{equation*}
+   P_\text{c}
+   = \frac{\dot{m}_\text{prop} \cdot c^*}{A_\text{t}}
+   = \frac{\dot{m}_\text{ox} \left(1 - \frac{1}{\mathrm{MR}}\right)c^*}
+          {A_\text{t}}
+   \end{equation*}
+
+Substituting (1) and (2) into (3) we obtain the following master equation:
+
+\begin{equation*}
+P_\text{c}
+= \left[
+    \frac{C_\mathrm{d} A_\text{inj} \left(1 + \frac{1}{\mathrm{MR}}\right)}
+         {A_\text{t}}
+  \right]
+  \cdot \sqrt{2\rho_\text{ox} (P_\text{tank} - P_\text{c})}
+  \cdot c^* (P_\text{c}, \mathrm{MR})
+\end{equation*}
+
+This system is nonlinear and cannot be solved in closed form for three reasons:
+
+1. The pressure drop $\Delta P = P_\text{tnk} - P_\text{c}$ sits inside a square
+   root
+
+2. $c^* (P_\text{c}, \mathrm{MR})$ is not constant, high pressure would suppress
+   molecular dissociation, which changes gas molecular weight and temperature
+   nonlinearly
+
+3. Chamber pressure $P_\text{c}$ appears both under the square root and inside
+   the CEA chemistry table, creating an implicit self-dependency
+
+To solve this, define the /residual function/ $R(P_\text{c}) = 0$:
+
+\begin{equation*}
+R(P_\text{c})
+= P_\text{c}
+  - \left[
+    \frac{C_\mathrm{d} A_\text{inj} \left(1 + \frac{1}{\mathrm{MR}}\right)}
+         {A_\text{t}}
+  \right]
+  \cdot \sqrt{2\rho_\text{ox} (P_\text{tank} - P_\text{c})}
+  \cdot c^* (P_\text{c}, \mathrm{MR})
+= 0
+\end{equation*}
+
+OpenMDAO's ~NewtonSolver~ solves $R(P_\text{c})=0$ using an initial guess and
+tangent lines:
+
+\begin{equation*}
+P_\text{c}^{(k+1)}
+= P_\text{c}^{(k)}
+  - \frac{R(P_\text{c}^{(k)})}{\mathrm{d} R / \mathrm{d} P_\text{c}}
+\end{equation*}
+
 *** Tank
 
 +60+ 70 bar tank pressure

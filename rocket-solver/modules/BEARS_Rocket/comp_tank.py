@@ -32,13 +32,14 @@ class TankComponent(ExplicitComponent):
 	def compute(self, inputs, outputs):
 		m_prop  = inputs["m_prop_i"]
 		f_prop  = inputs["mixture_ratio"]
-		rho_ox  = self.options["rho_ox"]
 		p_max   = inputs["p_tank_max"]
 		d_out   = inputs["diam_out"]
 		uf      = inputs["ullage_frac"]
 		sigma_y = inputs["sigma_y"]
 		sf      = inputs["safety_factor"]
 		rho_w   = inputs["rho_wall"]
+
+		rho_ox  = self.options["rho_ox"]
 
 		# Extract oxidizer mass from the propellant mass and mixture ratio
 		m_ox = (m_prop * f_prop) / (f_prop + 1)
