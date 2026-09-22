@@ -4,12 +4,13 @@ import openmdao.api as om
 from openmdao.api      import Group
 from rocketcea.cea_obj import CEA_Obj
 
-from .comp_split    import PropellantSplitComponent
-from .comp_tank_oxy import OxidizerTankComponent
-from .comp_injector import InjectorComponent
-from .comp_fuel     import FuelComponent
-from .comp_chem     import ChemComponent
-from .comp_nozzle   import NozzleComponent
+from .comp_split      import PropellantSplitComponent
+from .comp_tank_oxy   import OxidizerTankComponent
+from .comp_tank_press import PressurantTankComponent
+from .comp_injector   import InjectorComponent
+from .comp_fuel       import FuelComponent
+from .comp_chem       import ChemComponent
+from .comp_nozzle     import NozzleComponent
 # endregion
 
 class PropulsionGroup(Group):
@@ -37,15 +38,35 @@ class PropulsionGroup(Group):
 		)
 
 		self.add_subsystem(
+			"PressurantTank",
+			PressurantTankComponent(),
+			promotes_inputs=[
+				("p_tank_max",    "press_pressure"),
+				("diam_out",      "press_diam"),
+				("sigma_y",       "press_yield_factor"),
+				("safety_factor", "press_safety_factor"),
+				("rho_wall",      "press_wall_density"),
+			],
+			promotes_outputs=[
+				("m_tank_dry", "press_dry_mass"),
+				("l_tank",     "press_length"),
+				("v_internal", "press_volume"),
+				("t_wall",     "press_wall_thickness"),
+				("m_press",    "press_press_mass"),
+				("rho_press",  "press_press_density"),
+			],
+		)
+
+		self.add_subsystem(
 			"OxidizerTank",
 			OxidizerTankComponent(rho_ox=rho_ox),
 			promotes_inputs=[
+				("p_tank_max",    "tank_pressure"),
 				("diam_out",      "tank_diam"),
 				("ullage_frac",   "tank_ullage_frac"),
 				("sigma_y",       "tank_yield_factor"),
 				("safety_factor", "tank_safety_factor"),
 				("rho_wall",      "tank_wall_density"),
-				("p_tank_max",    "tank_pressure"),
 			],
 			promotes_outputs=[
 				("m_tank_dry", "tank_dry_mass"),
@@ -117,6 +138,8 @@ class PropulsionGroup(Group):
 
 		#region Connections
 		self.connect("PropSplit.m_ox",        "OxidizerTank.m_oxy")
+		self.connect("OxidizerTank.v_fluid",  "PressurantTank.v_ox_displace")
+		self.connect("tank_pressure",         "PressurantTank.p_ox")
 		self.connect("prop_chamber_pressure", "Injector.p_chamber")
 		self.connect("prop_chamber_pressure", "Chemistry.chamber_pressure")
 		self.connect("Injector.mdot_ox",      "Fuel.mdot_ox")
