@@ -15,8 +15,8 @@ class PropulsionGroup(Group):
 
 	def initialize(self):
 		self.options.declare("cea",      types=CEA_Obj)
-		self.options.declare("rho_ox",   default=1200.0, types=float)
-		self.options.declare("rho_fuel", default=900.0,  types=float)
+		self.options.declare("rho_ox",   default=700.0, types=float)
+		self.options.declare("rho_fuel", default=900.0, types=float)
 
 	def setup(self):
 		cea      = self.options["cea"]
