@@ -75,13 +75,13 @@ def main():
 	prob.set_val("DesignVars.g_diameter", 0.12)
 	prob.set_val("DesignVars.tank_pressure", 70)
 	prob.set_val("DesignVars.tank_diam", 0.12)
-	prob.set_val("DesignVars.injector_area", 4.5e-5)
+	prob.set_val("DesignVars.injector_area", 1.5e-5)
 	prob.set_val("DesignVars.injector_cd", 0.7)
 	prob.set_val("DesignVars.fuel_port_diam", 0.05)
 	prob.set_val("DesignVars.fuel_reg_exponent", 0.5)
 	prob.set_val("DesignVars.fuel_reg_ref", 1.0e-4)
 	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
-	prob.set_val("DesignVars.nozzle_throat_area", 5.0e-4)
+	prob.set_val("DesignVars.nozzle_throat_area", 2.0e-4)
 
 	# - Constraints
 	prob.model.add_constraint(

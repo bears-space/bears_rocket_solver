@@ -130,17 +130,18 @@ class RocketGroup(Group):
 
 		# - Mass
 		self.connect("DesignVars.g_payload_mass",         "Mass.payload_mass")
-
-		self.connect("Propulsion.tank_dry_mass",          "Mass.structural_mass")
+		self.connect("Propulsion.tank_dry_mass",          "Mass.ox_tank_mass")
+		self.connect("Propulsion.press_dry_mass",         "Mass.press_tank_mass")
+		self.connect("Propulsion.press_press_mass",       "Mass.pressurant_mass")
 
 		self.connect("OptimizationVars.propellant_mass",  "Propulsion.prop_prop_mass_init")
 		self.connect("OptimizationVars.propellant_mass",  "Mass.propellant_mass")
 
 		# - Trajectory
-		self.connect("DesignVars.g_diameter",    "Trajectory.diameter")
+		self.connect("DesignVars.g_diameter",             "Trajectory.diameter")
 
-		self.connect("Propulsion.chem_isp",      "Trajectory.isp")
-		self.connect("Propulsion.nozzle_thrust", "Trajectory.thrust")
-		self.connect("Mass.initial_mass",        "Trajectory.initial_mass")
-		self.connect("Mass.dry_mass",            "Trajectory.dry_mass")
+		self.connect("Propulsion.chem_isp",               "Trajectory.isp")
+		self.connect("Propulsion.nozzle_thrust",          "Trajectory.thrust")
+		self.connect("Mass.initial_mass",                 "Trajectory.initial_mass")
+		self.connect("Mass.dry_mass",                     "Trajectory.dry_mass")
 		#endregion
