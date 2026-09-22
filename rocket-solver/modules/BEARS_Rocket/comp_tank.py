@@ -7,42 +7,46 @@ from openmdao.api import ExplicitComponent
 
 class TankComponent(ExplicitComponent):
 
-	def initialize(self):
-		self.options.declare("rho_fluid", default=1000.0, types=float)
-
 	def setup(self):
-		#rho_default = self.options["rho_fluid"]
+		self.add_input("m_fluid",       val=10.0,   units="kg")
+		self.add_input("rho_fluid",     val=1000.0, units="kg/m**3")
 
-		self.add_input("m_fluid",       val=10.0,        units="kg")
-		#self.add_input("rho_fluid",     val=rho_default, units="kg/m**3")
-
-		self.add_input("p_tank_max",    val=70e5,        units="Pa")
-		self.add_input("diam_out",      val=0.15,        units="m")
+		self.add_input("p_tank_max",    val=70e5,   units="Pa")
+		self.add_input("diam_out",      val=0.15,   units="m")
 		self.add_input("ullage_frac",   val=0.1)
 
 		self.add_input("safety_factor", val=1.5)
-		self.add_input("sigma_y",       val=276e6,       units="Pa")
-		self.add_input("rho_wall",      val=2700.0,      units="kg/m**3")
+		self.add_input("sigma_y",       val=276e6,  units="Pa")
+		self.add_input("rho_wall",      val=2700.0, units="kg/m**3")
 
-		self.add_output("t_wall",       val=0.002,       units="m")
-		self.add_output("l_tank",       val=5.0,         units="m")
-		self.add_output("v_internal",   val=5.0,         units="m**3")
-		self.add_output("v_fluid",      val=4.5,         units="m**3")
-		self.add_output("m_tank_dry",   val=2.0,         units="kg")
+		self.add_output("t_wall",       val=0.002,  units="m")
+		self.add_output("l_tank",       val=5.0,    units="m")
+		self.add_output("v_internal",   val=5.0,    units="m**3")
+		self.add_output("v_fluid",      val=4.5,    units="m**3")
+		self.add_output("m_tank_dry",   val=2.0,    units="kg")
 
 	def setup_partials(self):
 		self.declare_partials("*", "*", method="cs")
 
+	def get_fluid_mass(self, inputs):
+		return inputs["m_fluid"]
+
+	def get_fluid_density(self, inputs):
+		return inputs["rho_fluid"]
+
+	def get_ullage_frac(self, inputs):
+		return inputs["ullage_frac"]
+
 	def compute(self, inputs, outputs):
-		m_fluid = inputs["m_fluid"]
+		m_fluid = self.get_fluid_mass(inputs)
+		rho_f   = self.get_fluid_density(inputs)
+		uf      = self.get_ullage_frac(inputs)
+
 		p_max   = inputs["p_tank_max"]
 		d_out   = inputs["diam_out"]
-		uf      = inputs["ullage_frac"]
 		sigma_y = inputs["sigma_y"]
 		sf      = inputs["safety_factor"]
 		rho_w   = inputs["rho_wall"]
-
-		rho_f = self.options["rho_fluid"]
 
 		# Hoop stress
 		# <https://www.engineersedge.com/material_science/hoop-stress.htm>
