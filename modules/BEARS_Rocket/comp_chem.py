@@ -11,9 +11,9 @@ class ChemComponent(ExplicitComponent):
 	def setup(self):
 		self.add_input("chamber_pressure", val=35e5, units="Pa")
 		self.add_input("mixture_ratio",    val=6.0)
-		self.add_input("expansion_ratio",  val=40.0) # expansion area ratio
+		self.add_input("expansion_ratio",  val=40.0) # Expansion area ratio
 
-		self.add_output("cstar", val=1500.0, units="m/s") # characteristic velocity
+		self.add_output("cstar", val=1500.0, units="m/s") # Characteristic velocity
 		self.add_output("isp",   val=120.0,  units="s")
 
 	def setup_partials(self):

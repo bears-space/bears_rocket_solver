@@ -74,17 +74,17 @@ def main():
 	prob.set_val("DesignVars.g_payload_mass", 1.0)
 	prob.set_val("DesignVars.g_diameter", 0.3)
 	prob.set_val("DesignVars.tank_pressure", 70)
-	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
 	prob.set_val("DesignVars.injector_area", 4.5e-5)
 	prob.set_val("DesignVars.injector_cd", 0.7)
-	prob.set_val("DesignVars.nozzle_throat_area", 5.0e-4)
 	prob.set_val("DesignVars.fuel_port_diam", 0.05)
-	prob.set_val("DesignVars.fuel_a_reg", 1.0e-4)
-	prob.set_val("DesignVars.fuel_n_reg", 0.5)
+	prob.set_val("DesignVars.fuel_reg_exponent", 0.5)
+	prob.set_val("DesignVars.fuel_reg_ref", 1.0e-4)
+	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
+	prob.set_val("DesignVars.nozzle_throat_area", 5.0e-4)
 
 	# - Constraints
 	prob.model.add_constraint(
-		"Propulsion.Tank.t_wall", lower=0.001, upper=0.1, ref=0.002
+		"Propulsion.tank_wall_thickness", lower=0.001, upper=0.1, ref=0.002
 	)
 
 	# Optimization initial values
@@ -100,24 +100,24 @@ def main():
 	mr = prob.get_val("OptimizationVars.mixture_ratio")[0]
 	print(f"MR:\t{mr:.2f}")
 
-	p_c = prob.get_val("Propulsion.Nozzle.p_chamber")[0]
-	thrust = prob.get_val("Propulsion.thrust")[0]
+	p_c = prob.get_val("Propulsion.prop_chamber_pressure")[0]
+	thrust = prob.get_val("Propulsion.nozzle_thrust")[0]
 
 	print("\nResults:")
 	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")
 	print(f"h_max: \t{prob.get_val('apogee')[0]} m")
 	print(f"P_ch:  \t{p_c / 1e5:.2f} bar")
 	print(f"Thrust:\t{thrust:.1f} N")
-	print(f"Isp:   \t{prob.get_val('Propulsion.isp')[0]} s")
+	print(f"Isp:   \t{prob.get_val('Propulsion.chem_isp')[0]} s")
 
 	print("\nTank parameters:")
-	print(f"m_struct:\t{prob.get_val('Propulsion.m_tank_dry')[0]} kg")
-	print(f"t_wall:  \t{prob.get_val('Propulsion.Tank.t_wall')[0]} m")
-	print(f"l_tank:  \t{prob.get_val('Propulsion.Tank.l_tank')[0]} m")
+	print(f"m_struct:\t{prob.get_val('Propulsion.tank_dry_mass')[0]} kg")
+	print(f"t_wall:  \t{prob.get_val('Propulsion.tank_wall_thickness')[0]} m")
+	print(f"l_tank:  \t{prob.get_val('Propulsion.tank_length')[0]} m")
 
 	print("\nFuel parameters:")
-	print(f"l_fuel:  \t{prob.get_val('Propulsion.length')[0]:.4f} m")
-	print(f"d_grain: \t{prob.get_val('Propulsion.grain_diam')[0]*1000:.1f} mm")
+	print(f"l_fuel:  \t{prob.get_val('Propulsion.fuel_length')[0]:.4f} m")
+	print(f"d_grain: \t{prob.get_val('Propulsion.fuel_grain_diam')[0]*1000:.1f} mm")
 
 	# Dump all computed variables to an output file
 	with open("outputs/outputs.txt", mode="wt") as f:

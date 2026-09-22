@@ -28,49 +28,86 @@ class PropulsionGroup(Group):
 			"Tank",
 			TankComponent(rho_ox=rho_ox),
 			promotes_inputs=[
-				"diam_out", "m_prop_i", "mixture_ratio",
-				("p_tank_max", "p_tank"),
+				("m_prop_i",      "prop_prop_mass_init"),
+				("mixture_ratio", "prop_mixture_ratio"),
+				("diam_out",      "tank_diam"),
+				("ullage_frac",   "tank_ullage_frac"),
+				("sigma_y",       "tank_yield_factor"),
+				("safety_factor", "tank_safety_factor"),
+				("rho_wall",      "tank_wall_density"),
+				("p_tank_max",    "tank_pressure"),
 			],
-			promotes_outputs=["m_tank_dry"],
+			promotes_outputs=[
+				("m_tank_dry", "tank_dry_mass"),
+				("l_tank",     "tank_length"),
+				("v_internal", "tank_volume"),
+				("t_wall",     "tank_wall_thickness"),
+			],
 		)
-
-		# Between tank and injector we have a ~30bar pressure loss
-		# -> "Plumbing component"
-		# TODO: elaborate the plumbing with the rest of the team
 
 		self.add_subsystem(
 			"Injector",
 			InjectorComponent(rho_ox=rho_ox),
-			promotes_inputs=["p_tank", "a_inj", "cd"],
+			promotes_inputs=[
+				("p_tank", "tank_pressure"),
+				("a_inj",  "injector_area"),
+				("cd",     "injector_cd"),
+			],
 		)
 
 		self.add_subsystem(
 			"Fuel",
 			FuelComponent(rho_fuel=rho_fuel),
 			promotes_inputs=[
-				"m_prop_i", "port_diam", "mixture_ratio", "a_reg", "n_reg"
+				("m_prop_i",      "prop_prop_mass_init"),
+				("mixture_ratio", "prop_mixture_ratio"),
+				("port_diam",     "fuel_port_diam"),
+				("n_reg",         "fuel_reg_exponent"),
+				("reg_ref",       "fuel_reg_ref"),
+				("g0_ref",        "fuel_oxy_mass_flux_ref"),
 			],
-			promotes_outputs=["length", "grain_diam"],
+			promotes_outputs=[
+				("length",     "fuel_length"),
+				("grain_diam", "fuel_grain_diam"),
+				("r_dot",      "fuel_regression_rate"),
+				("m_fuel",     "fuel_mass"),
+			],
 		)
 
 		self.add_subsystem(
 			"Chemistry",
 			ChemComponent(cea=cea),
-			promotes_inputs=["mixture_ratio", "expansion_ratio"],
-			promotes_outputs=["isp"],
+			promotes_inputs=[
+				("mixture_ratio",   "prop_mixture_ratio"),
+				("expansion_ratio", "nozzle_expansion_ratio"),
+			],
+			promotes_outputs=[
+				("isp",             "chem_isp"),
+			],
 		)
 
 		self.add_subsystem(
 			"Nozzle",
 			NozzleComponent(),
-			promotes_inputs=["mixture_ratio", "isp", "a_throat"],
-			promotes_outputs=["thrust"],
+			promotes_inputs=[
+				("mixture_ratio",   "prop_mixture_ratio"),
+				("a_throat",        "nozzle_throat_area"),
+				("expansion_ratio", "nozzle_expansion_ratio"),
+				("length",          "nozzle_length"),
+				("eta_friction",    "nozzle_eta_friction"),
+			],
+			promotes_outputs=[
+				("thrust",          "nozzle_thrust"),
+				("eta_nozzle",      "nozzle_efficiency"),
+				("p_chamber",       "prop_chamber_pressure"),
+				("exit_half_angle", "nozzle_exit_half_angle"),
+			],
 		)
 		#endregion
 
 		#region Connections
-		self.connect("Nozzle.p_chamber", "Injector.p_chamber")
-		self.connect("Nozzle.p_chamber", "Chemistry.chamber_pressure")
+		self.connect("prop_chamber_pressure", "Injector.p_chamber")
+		self.connect("prop_chamber_pressure", "Chemistry.chamber_pressure")
 		self.connect("Injector.mdot_ox", "Fuel.mdot_ox")
 		self.connect("Injector.mdot_ox", "Nozzle.mdot_ox")
 		self.connect("Chemistry.cstar",  "Nozzle.cstar")
