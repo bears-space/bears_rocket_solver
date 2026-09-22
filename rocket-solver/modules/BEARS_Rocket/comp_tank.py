@@ -14,7 +14,7 @@ class TankComponent(ExplicitComponent):
 		self.add_input("mixture_ratio", val=6.0)
 
 		self.add_input("p_tank_max",    val=70e5,   units="Pa")
-		self.add_input("diam_out",      val=0.5,    units="m")
+		self.add_input("diam_out",      val=0.15,   units="m")
 		self.add_input("ullage_frac",   val=0.1)
 
 		self.add_input("safety_factor", val=1.5)
@@ -61,6 +61,7 @@ class TankComponent(ExplicitComponent):
 		l_cyl = v_cyl / a_int
 		l_tot = l_cyl + d_out
 		v_ext = (pi * r_out**2 * l_cyl) + ((4.0 / 3.0) * pi * r_out**3)
+		v_cavity = v_caps + (a_int * l_cyl)
 		v_struct = v_ext - v_int
 
 		m_dry = v_struct * rho_w

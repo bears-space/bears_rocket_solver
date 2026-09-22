@@ -10,29 +10,29 @@ class FuelComponent(ExplicitComponent):
 		self.options.declare("rho_fuel", default=900.0, types=float)
 
 	def setup(self):
-		self.add_input("mdot_ox",        val=1.0,  units="kg/s")
-		self.add_input("m_prop_i",       val=10.0, units="kg")
-		self.add_input("port_diam",      val=0.05, units="m")
-		self.add_input("mixture_ratio",  val=6.0)
+		self.add_input("mdot_ox",       val=1.0,  units="kg/s")
+		self.add_input("m_prop_i",      val=10.0, units="kg")
+		self.add_input("port_diam",     val=0.05, units="m")
+		self.add_input("mixture_ratio", val=6.0)
 
 		# Regression coefficients
 
-		# Regression rate at g0_ref
-		self.add_input("a_reg",       val=1.0e-4, units="m/s")
-
 		# Mass flux exponent
-		self.add_input("n_reg",       val=0.5)
+		self.add_input("n_reg",         val=0.5)
 
-		self.add_input("g0_ref",      val=1.0, units="kg/(m**2*s)")
+		# Regression rate at g0_ref
+		self.add_input("reg_ref",       val=1.0e-4, units="m/s")
 
-		self.add_output("r_dot",      val=0.002, units="m/s")
-		self.add_output("length",     val=0.4,   units="m")
+		self.add_input("g0_ref",        val=1.0, units="kg/(m**2*s)")
+
+		self.add_output("r_dot",        val=0.002, units="m/s")
+		self.add_output("length",       val=0.4,   units="m")
 
 		# Minimum necessary grain diameter
-		self.add_output("grain_diam", val=0.1, units="m",)
+		self.add_output("grain_diam",   val=0.1, units="m",)
 
-		self.add_output("m_fuel",     val=1.5,   units="kg")
-		self.add_output("mdot_fuel",  val=0.15,  units="kg/s")
+		self.add_output("m_fuel",       val=1.5,   units="kg")
+		self.add_output("mdot_fuel",    val=0.15,  units="kg/s")
 
 	def setup_partials(self):
 		self.declare_partials("*", "*", method="cs")
@@ -43,8 +43,8 @@ class FuelComponent(ExplicitComponent):
 		d_port  = inputs["port_diam"]
 		mr      = inputs["mixture_ratio"]
 
-		a  = inputs["a_reg"]
 		n  = inputs["n_reg"]
+		a  = inputs["reg_ref"]
 		g0 = inputs["g0_ref"]
 
 		rho_fuel = self.options["rho_fuel"]
