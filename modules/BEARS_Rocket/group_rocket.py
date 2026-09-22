@@ -43,6 +43,7 @@ class RocketGroup(Group):
 		#       here we specify the pressure in units of bar used by the team
 		#       and let MDAO convert automatically on component boundary
 		ivc.add_output("tank_pressure",          val=70,     units="bar")
+		ivc.add_output("tank_diam",              val=0.15,   units="m")
 		ivc.add_output("tank_safety_factor",     val=2.0)
 		ivc.add_output("tank_ullage_fraction",   val=0.1)
 		ivc.add_output("tank_yield_factor",      val=276e6,  units="Pa")
@@ -89,6 +90,7 @@ class RocketGroup(Group):
 		#region Connections
 		# - Tank
 		self.connect("DesignVars.tank_pressure",          "Propulsion.tank_pressure")
+		self.connect("DesignVars.tank_diam",              "Propulsion.tank_diam")
 		self.connect("DesignVars.tank_safety_factor",     "Propulsion.tank_safety_factor")
 		self.connect("DesignVars.tank_ullage_fraction",   "Propulsion.tank_ullage_frac")
 		self.connect("DesignVars.tank_yield_factor",      "Propulsion.tank_yield_factor")

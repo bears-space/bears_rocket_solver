@@ -111,6 +111,7 @@ class PropulsionGroup(Group):
 		self.connect("Injector.mdot_ox", "Fuel.mdot_ox")
 		self.connect("Injector.mdot_ox", "Nozzle.mdot_ox")
 		self.connect("Chemistry.cstar",  "Nozzle.cstar")
+		self.connect("chem_isp",         "Nozzle.isp")
 		#endregion
 
 		#region Solvers
