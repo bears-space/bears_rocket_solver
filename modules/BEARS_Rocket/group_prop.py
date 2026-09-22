@@ -119,10 +119,10 @@ class PropulsionGroup(Group):
 		self.connect("PropSplit.m_ox",        "OxidizerTank.m_fluid")
 		self.connect("prop_chamber_pressure", "Injector.p_chamber")
 		self.connect("prop_chamber_pressure", "Chemistry.chamber_pressure")
-		self.connect("Injector.mdot_ox", "Fuel.mdot_ox")
-		self.connect("Injector.mdot_ox", "Nozzle.mdot_ox")
-		self.connect("Chemistry.cstar",  "Nozzle.cstar")
-		self.connect("chem_isp",         "Nozzle.isp")
+		self.connect("Injector.mdot_ox",      "Fuel.mdot_ox")
+		self.connect("Injector.mdot_ox",      "Nozzle.mdot_ox")
+		self.connect("Chemistry.cstar",       "Nozzle.cstar")
+		self.connect("chem_isp",              "Nozzle.isp")
 		#endregion
 
 		#region Solvers

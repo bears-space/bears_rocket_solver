@@ -11,10 +11,10 @@ class TankComponent(ExplicitComponent):
 		self.options.declare("rho_fluid", default=1000.0, types=float)
 
 	def setup(self):
-		rho_default = self.options["rho_fluid"]
+		#rho_default = self.options["rho_fluid"]
 
 		self.add_input("m_fluid",       val=10.0,        units="kg")
-		self.add_input("rho_fluid",     val=rho_default, units="kg/m**3")
+		#self.add_input("rho_fluid",     val=rho_default, units="kg/m**3")
 
 		self.add_input("p_tank_max",    val=70e5,        units="Pa")
 		self.add_input("diam_out",      val=0.15,        units="m")
@@ -35,13 +35,14 @@ class TankComponent(ExplicitComponent):
 
 	def compute(self, inputs, outputs):
 		m_fluid = inputs["m_fluid"]
-		rho_f   = inputs["rho_fluid"]
 		p_max   = inputs["p_tank_max"]
 		d_out   = inputs["diam_out"]
 		uf      = inputs["ullage_frac"]
 		sigma_y = inputs["sigma_y"]
 		sf      = inputs["safety_factor"]
 		rho_w   = inputs["rho_wall"]
+
+		rho_f = self.options["rho_fluid"]
 
 		# Hoop stress
 		# <https://www.engineersedge.com/material_science/hoop-stress.htm>
