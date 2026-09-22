@@ -16,25 +16,20 @@ class FuelComponent(ExplicitComponent):
 		self.add_input("mixture_ratio",  val=6.0)
 
 		# Regression coefficients
-		self.add_input(
-			"a_reg", val=1.0e-4, units="m/s",
-			desc="Fuel regression rate at reference mass flux"
-		)
 
-		self.add_input("n_reg", val=0.5, desc="Mass flux exponent")
+		# Regression rate at g0_ref
+		self.add_input("a_reg",       val=1.0e-4, units="m/s")
 
-		self.add_input(
-			"g0_ref", val=1.0, units="kg/(m**2*s)",
-			desc="Reference oxidizer mass flux"
-		)
+		# Mass flux exponent
+		self.add_input("n_reg",       val=0.5)
+
+		self.add_input("g0_ref",      val=1.0, units="kg/(m**2*s)")
 
 		self.add_output("r_dot",      val=0.002, units="m/s")
 		self.add_output("length",     val=0.4,   units="m")
 
-		self.add_output(
-			"grain_diam", val=0.1, units="m",
-			desc="Minimum necessary fuel grain diameter"
-		)
+		# Minimum necessary grain diameter
+		self.add_output("grain_diam", val=0.1, units="m",)
 
 		self.add_output("m_fuel",     val=1.5,   units="kg")
 		self.add_output("mdot_fuel",  val=0.15,  units="kg/s")

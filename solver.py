@@ -69,13 +69,13 @@ def main():
 	prob.setup()
 
 	# Dynamic variables
-	prob.set_val("DesignVars.payload_mass", 1.0)
-	prob.set_val("DesignVars.diameter", 0.4)
+	prob.set_val("DesignVars.g_payload_mass", 1.0)
+	prob.set_val("DesignVars.g_diameter", 0.4)
 	prob.set_val("DesignVars.tank_pressure", 30e5)
 	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
 	prob.set_val("DesignVars.injector_area", 4.5e-5)
 	prob.set_val("DesignVars.injector_cd", 0.7)
-	prob.set_val("DesignVars.throat_area", 5.0e-4)
+	prob.set_val("DesignVars.nozzle_throat_area", 5.0e-4)
 	prob.set_val("DesignVars.fuel_port_diam", 0.05)
 	prob.set_val("DesignVars.fuel_a_reg", 1.0e-4)
 	prob.set_val("DesignVars.fuel_n_reg", 0.5)
