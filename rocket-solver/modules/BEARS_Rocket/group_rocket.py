@@ -38,7 +38,7 @@ class RocketGroup(Group):
 		# Clearance for component mounting
 		ivc.add_output("g_clearance",            val=0.002,  units="m")
 
-		# - Tank
+		# - Oxidizer tank
 		# NOTE: the tank component expects pressure in SI Pa units,
 		#       here we specify the pressure in units of bar used by the team
 		#       and let MDAO convert automatically on component boundary
@@ -48,6 +48,13 @@ class RocketGroup(Group):
 		ivc.add_output("tank_ullage_fraction",   val=0.1)
 		ivc.add_output("tank_yield_factor",      val=276e6,  units="Pa")
 		ivc.add_output("tank_wall_density",      val=2700.0, units="kg/m**3")
+
+		# - Pressurant tank
+		ivc.add_output("press_pressure",         val=200,    units="bar")
+		ivc.add_output("press_diam",             val=0.15,   units="m")
+		ivc.add_output("press_safety_factor",    val=2.0)
+		ivc.add_output("press_yield_factor",     val=276e6,  units="Pa")
+		ivc.add_output("press_wall_density",     val=2700.0, units="kg/m**3")
 
 		# - Injector
 		ivc.add_output("injector_area",          val=4.5e-5, units="m**2")
@@ -88,13 +95,20 @@ class RocketGroup(Group):
 		#endregion
 
 		#region Connections
-		# - Tank
+		# - Oxidizer tank
 		self.connect("DesignVars.tank_pressure",          "Propulsion.tank_pressure")
 		self.connect("DesignVars.tank_diam",              "Propulsion.tank_diam")
 		self.connect("DesignVars.tank_safety_factor",     "Propulsion.tank_safety_factor")
 		self.connect("DesignVars.tank_ullage_fraction",   "Propulsion.tank_ullage_frac")
 		self.connect("DesignVars.tank_yield_factor",      "Propulsion.tank_yield_factor")
 		self.connect("DesignVars.tank_wall_density",      "Propulsion.tank_wall_density")
+
+		# - Pressurant tank
+		self.connect("DesignVars.press_pressure",         "Propulsion.press_pressure")
+		self.connect("DesignVars.press_diam",             "Propulsion.press_diam")
+		self.connect("DesignVars.press_safety_factor",    "Propulsion.press_safety_factor")
+		self.connect("DesignVars.press_yield_factor",     "Propulsion.press_yield_factor")
+		self.connect("DesignVars.press_wall_density",     "Propulsion.press_wall_density")
 
 		# - Fuel
 		self.connect("DesignVars.fuel_port_diam",         "Propulsion.fuel_port_diam")
