@@ -13,9 +13,8 @@ class ChemComponent(ExplicitComponent):
 		self.add_input("mixture_ratio",    val=6.0)
 		self.add_input("expansion_ratio",  val=40.0) # expansion area ratio
 
-		self.add_output("cstar",  val=1500.0, units="m/s") # characteristic velocity
-		self.add_output("isp",    val=120.0,  units="s")
-		self.add_output("thrust", val=120.0,  units="N")
+		self.add_output("cstar", val=1500.0, units="m/s") # characteristic velocity
+		self.add_output("isp",   val=120.0,  units="s")
 
 	def setup_partials(self):
 		self.declare_partials(
@@ -44,4 +43,3 @@ class ChemComponent(ExplicitComponent):
 
 		outputs["cstar"] = cstar
 		outputs["isp"]   = isp
-		# outputs['thrust'] = 1200.0 # placeholder
