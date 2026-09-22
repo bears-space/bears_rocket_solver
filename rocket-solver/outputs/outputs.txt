@@ -5,8 +5,8 @@ varname                   val                 units      prom_name
 DesignVars
   g_payload_mass          [1.]                kg         DesignVars.g_payload_mass        
   g_target_altitude       [3000.]             m          DesignVars.g_target_altitude     
-  g_diameter              [0.4]               m          DesignVars.g_diameter            
-  tank_pressure           [3000000.]          Pa         DesignVars.tank_pressure         
+  g_diameter              [0.3]               m          DesignVars.g_diameter            
+  tank_pressure           [70.]               bar        DesignVars.tank_pressure         
   tank_safety_factor      [2.]                None       DesignVars.tank_safety_factor    
   tank_ullage_fraction    [0.1]               None       DesignVars.tank_ullage_fraction  
   tank_wall_yield_factor  [2.76e+08]          Pa         DesignVars.tank_wall_yield_factor
@@ -22,36 +22,36 @@ DesignVars
   nozzle_eta_friction     [0.95]              None       DesignVars.nozzle_eta_friction   
   nozzle_half_angle       [15.]               deg        DesignVars.nozzle_half_angle     
 OptimizationVars
-  propellant_mass         [11.14586915]       kg         OptimizationVars.propellant_mass 
+  propellant_mass         [8.31781603]        kg         OptimizationVars.propellant_mass 
   mixture_ratio           [6.618]             None       OptimizationVars.mixture_ratio   
 Propulsion
   Tank
-    t_wall                [0.00425532]        m          Propulsion.Tank.t_wall           
-    l_tank                [0.4]               m          Propulsion.Tank.l_tank           
-    v_internal            [0.00896553]        m**3       Propulsion.Tank.v_internal       
-    m_tank_dry            [66.27093681]       kg         Propulsion.m_tank_dry            
+    t_wall                [0.00724138]        m          Propulsion.Tank.t_wall           
+    l_tank                [0.3]               m          Propulsion.Tank.l_tank           
+    v_internal            [0.0066907]         m**3       Propulsion.Tank.v_internal       
+    m_tank_dry            [20.10546938]       kg         Propulsion.m_tank_dry            
   Injector
-    mdot_ox               [0.74650943]        kg/s       Propulsion.Injector.mdot_ox      
+    mdot_ox               [1.59411944]        kg/s       Propulsion.Injector.mdot_ox      
   Fuel
-    r_dot                 [0.00194986]        m/s        Propulsion.Fuel.r_dot            
-    length                [0.40002643]        m          Propulsion.length                
-    grain_diam            [0.10058213]        m          Propulsion.grain_diam            
-    m_fuel                [1.4630965]         kg         Propulsion.Fuel.m_fuel           
-    mdot_fuel             [0.11279985]        kg/s       Propulsion.Fuel.mdot_fuel        
+    r_dot                 [0.00284935]        m/s        Propulsion.Fuel.r_dot            
+    length                [0.5845632]         m          Propulsion.length                
+    grain_diam            [0.07583151]        m          Propulsion.grain_diam            
+    m_fuel                [1.09186349]        kg         Propulsion.Fuel.m_fuel           
+    mdot_fuel             [0.24087631]        kg/s       Propulsion.Fuel.mdot_fuel        
   Chemistry
-    cstar                 [1609.42514491]     m/s        Propulsion.Chemistry.cstar       
-    isp                   [305.29137664]      s          Propulsion.isp                   
+    cstar                 [1616.59490464]     m/s        Propulsion.Chemistry.cstar       
+    isp                   [305.57589068]      s          Propulsion.isp                   
   Nozzle
-    p_chamber             [2765987.93605009]  Pa         Propulsion.Nozzle.p_chamber      
-    mdot_prop             [0.85930928]        kg/s       Propulsion.Nozzle.mdot_prop      
-    thrust                [2402.40074646]     N          Propulsion.thrust                
+    p_chamber             [5932889.56632833]  Pa         Propulsion.Nozzle.p_chamber      
+    mdot_prop             [1.83499575]        kg/s       Propulsion.Nozzle.mdot_prop      
+    thrust                [5134.94223953]     N          Propulsion.thrust                
     eta_nozzle            [0.93381477]        None       Propulsion.Nozzle.eta_nozzle     
 Mass
-  initial_mass            [78.41680595]       kg         Mass.initial_mass                
-  dry_mass                [67.27093681]       kg         Mass.dry_mass                    
+  initial_mass            [29.42328541]       kg         Mass.initial_mass                
+  dry_mass                [21.10546938]       kg         Mass.dry_mass                    
 Trajectory
-  apogee                  [3100.00000027]     m          apogee                           
-  burn_time               [13.89004647]       s          burn_time                        
+  apogee                  [3100.00040335]     m          apogee                           
+  burn_time               [4.85415355]        s          burn_time                        
 
 
 0 Implicit Output(s) in 'model'

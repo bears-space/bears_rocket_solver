@@ -34,7 +34,10 @@ class RocketGroup(Group):
 		ivc.add_output("g_diameter",             val=0.5,    units="m")
 
 		# - Tank
-		ivc.add_output("tank_pressure",          val=50e5,   units="Pa")
+		# NOTE: the tank component expects pressure in SI Pa units,
+		#       here we specify the pressure in units of bar used by the team
+		#       and let MDAO convert automatically on component boundary
+		ivc.add_output("tank_pressure",          val=70,     units="bar")
 		ivc.add_output("tank_safety_factor",     val=2.0)
 		ivc.add_output("tank_ullage_fraction",   val=0.1)
 		ivc.add_output("tank_wall_yield_factor", val=276e6,  units="Pa")

@@ -43,6 +43,7 @@ def main():
 	atm = BEARS_Atm("isacalc")
 	cea = CEA_Obj(oxName=oname, fuelName=fname)
 
+	# Problem setup
 	prob = om.Problem(reports=True, work_dir=work_dir)
 
 	prob.model = RocketGroup(
@@ -55,23 +56,24 @@ def main():
 	prob.driver = om.ScipyOptimizeDriver()
 	prob.driver.options["optimizer"] = "SLSQP"
 
-	# Design variables
+	# - Design variables
 	prob.model.add_design_var(
 		"OptimizationVars.propellant_mass", lower=1.0, upper=50.0, ref=10.0
 	)
 
-	# Constraints
+	# - Constraints
 	prob.model.add_constraint("apogee", equals=3100.0, ref=3100.0)
 
-	# Objectives
+	# - Objectives
 	prob.model.add_objective("OptimizationVars.propellant_mass", ref=10.0)
 
 	prob.setup()
 
-	# Dynamic variables
+	# Design parameters
+	# - Variables
 	prob.set_val("DesignVars.g_payload_mass", 1.0)
-	prob.set_val("DesignVars.g_diameter", 0.4)
-	prob.set_val("DesignVars.tank_pressure", 30e5)
+	prob.set_val("DesignVars.g_diameter", 0.3)
+	prob.set_val("DesignVars.tank_pressure", 70)
 	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
 	prob.set_val("DesignVars.injector_area", 4.5e-5)
 	prob.set_val("DesignVars.injector_cd", 0.7)
@@ -79,6 +81,11 @@ def main():
 	prob.set_val("DesignVars.fuel_port_diam", 0.05)
 	prob.set_val("DesignVars.fuel_a_reg", 1.0e-4)
 	prob.set_val("DesignVars.fuel_n_reg", 0.5)
+
+	# - Constraints
+	prob.model.add_constraint(
+		"Propulsion.Tank.t_wall", lower=0.001, upper=0.1, ref=0.002
+	)
 
 	# Optimization initial values
 	prob.set_val("OptimizationVars.propellant_mass", 15.0)
