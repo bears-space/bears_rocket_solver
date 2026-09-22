@@ -4,6 +4,7 @@ import openmdao.api as om
 from openmdao.api      import Group
 from rocketcea.cea_obj import CEA_Obj
 
+from .comp_split    import PropellantSplitComponent
 from .comp_tank     import TankComponent
 from .comp_injector import InjectorComponent
 from .comp_fuel     import FuelComponent
@@ -23,13 +24,22 @@ class PropulsionGroup(Group):
 		rho_ox   = self.options["rho_ox"]
 		rho_fuel = self.options["rho_fuel"]
 
+		self.set_input_defaults("tank_pressure", val=70e5, units="Pa")
+
 		#region Subsystems
 		self.add_subsystem(
-			"Tank",
-			TankComponent(rho_ox=rho_ox),
+			"PropSplit",
+			PropellantSplitComponent(),
 			promotes_inputs=[
-				("m_prop_i",      "prop_prop_mass_init"),
+				("m_prop",        "prop_prop_mass_init"),
 				("mixture_ratio", "prop_mixture_ratio"),
+			],
+		)
+
+		self.add_subsystem(
+			"OxidizerTank",
+			TankComponent(rho_fluid=rho_ox),
+			promotes_inputs=[
 				("diam_out",      "tank_diam"),
 				("ullage_frac",   "tank_ullage_frac"),
 				("sigma_y",       "tank_yield_factor"),
@@ -106,6 +116,7 @@ class PropulsionGroup(Group):
 		#endregion
 
 		#region Connections
+		self.connect("PropSplit.m_ox",        "OxidizerTank.m_fluid")
 		self.connect("prop_chamber_pressure", "Injector.p_chamber")
 		self.connect("prop_chamber_pressure", "Chemistry.chamber_pressure")
 		self.connect("Injector.mdot_ox", "Fuel.mdot_ox")
