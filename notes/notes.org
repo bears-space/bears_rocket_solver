@@ -91,6 +91,8 @@ Output variables:
 
 *** General
 
+Ballpark of the total rocket structural mass: ~60 kg
+
 2D attitude lookup table:
 $\mathcal A : \mathbb R^3, \mathbb R^3 \to \mathbb R^3 | \mathbb H$,
 $\mathcal A(\mathbf x, \mathbf v)$
@@ -129,6 +131,12 @@ References:
 [[https://www.grc.nasa.gov/WWW/k-12/airplane/rktthsum.html]]
 
 [[https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/]]
+
+*** Tank
+
++60+ 70 bar tank pressure
+
+Should be roughly 30-40 kg
 
 *** Plumbing/injector
 

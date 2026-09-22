@@ -14,6 +14,8 @@ class NozzleComponent(ExplicitComponent):
 		self.add_input("isp",           val=300.0,  units="s")
 		self.add_input("a_throat",      val=5e-4,   units="m**2")
 
+		self.add_input("eta_friction",  val=0.95) # Viscous friction efficiency
+
 		self.add_output("p_chamber",    val=20e5,   units="Pa")
 		self.add_output("mdot_prop",    val=1.16,   units="kg/s")
 		self.add_output("thrust",       val=3000.0, units="N")
@@ -27,11 +29,20 @@ class NozzleComponent(ExplicitComponent):
 		cstar   = inputs["cstar"]
 		isp     = inputs["isp"]
 		a_t     = inputs["a_throat"]
+		eta     = inputs["eta_friction"]
 
+		# Modulate the characteristic velocity
+		# with empirical nozzle efficiency
+		cstar_actual = eta * cstar
+
+		# Mass flow of the exhaust mixture
 		mdot_prop = mdot_ox * (mr + 1.0) / mr
-		p_c = (mdot_prop * cstar) / a_t
 
-		# Isp = F / (m * g) = v_e / g
+		# Choked flow equation
+		p_c = (mdot_prop * cstar_actual) / a_t
+
+		#    Isp = v_e / g = F / (mdot * g)
+		# => F = mdot * Isp * g
 		thrust = mdot_prop * isp * g
 
 		outputs["mdot_prop"] = mdot_prop

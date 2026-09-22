@@ -1,4 +1,4 @@
-38 Explicit Output(s) in 'model'
+37 Explicit Output(s) in 'model'
 
 varname                   val                 units      prom_name                        
 ------------------------  ------------------  ---------  ---------------------------------
@@ -20,36 +20,35 @@ DesignVars
   fuel_n_reg              [0.5]               None       DesignVars.fuel_n_reg            
   oxy_mass_flux_ref       [1.]                kg/m**2/s  DesignVars.oxy_mass_flux_ref     
 OptimizationVars
-  propellant_mass         [11.12620624]       kg         OptimizationVars.propellant_mass 
+  propellant_mass         [11.11898497]       kg         OptimizationVars.propellant_mass 
   mixture_ratio           [6.618]             None       OptimizationVars.mixture_ratio   
 Propulsion
   Tank
     t_wall                [0.00425532]        m          Propulsion.Tank.t_wall           
     l_tank                [0.4]               m          Propulsion.Tank.l_tank           
-    v_internal            [0.00894971]        m**3       Propulsion.Tank.v_internal       
-    m_tank_dry            [66.31364129]       kg         Propulsion.m_tank_dry            
+    v_internal            [0.00894391]        m**3       Propulsion.Tank.v_internal       
+    m_tank_dry            [66.32932467]       kg         Propulsion.m_tank_dry            
   Injector
-    mdot_ox               [0.74650943]        kg/s       Propulsion.Injector.mdot_ox      
+    mdot_ox               [0.77978014]        kg/s       Propulsion.Injector.mdot_ox      
   Fuel
-    r_dot                 [0.00194986]        m/s        Propulsion.Fuel.r_dot            
-    length                [0.40002643]        m          Propulsion.length                
-    grain_diam            [0.1004929]         m          Propulsion.grain_diam            
-    m_fuel                [1.46051539]        kg         Propulsion.Fuel.m_fuel           
-    mdot_fuel             [0.11279985]        kg/s       Propulsion.Fuel.mdot_fuel        
+    r_dot                 [0.00199283]        m/s        Propulsion.Fuel.r_dot            
+    length                [0.40884353]        m          Propulsion.length                
+    grain_diam            [0.09937191]        m          Propulsion.grain_diam            
+    m_fuel                [1.45956747]        kg         Propulsion.Fuel.m_fuel           
+    mdot_fuel             [0.11782716]        kg/s       Propulsion.Fuel.mdot_fuel        
   Chemistry
-    cstar                 [1609.42514491]     m/s        Propulsion.Chemistry.cstar       
-    isp                   [305.29137664]      s          Propulsion.isp                   
-    thrust                [120.]              N          Propulsion.Chemistry.thrust      
+    cstar                 [1609.34521913]     m/s        Propulsion.Chemistry.cstar       
+    isp                   [305.28818006]      s          Propulsion.isp                   
   Nozzle
-    p_chamber             [2765987.93605009]  Pa         Propulsion.Nozzle.p_chamber      
-    mdot_prop             [0.85930928]        kg/s       Propulsion.Nozzle.mdot_prop      
-    thrust                [2572.67375727]     N          Propulsion.thrust                
+    p_chamber             [2744664.03430704]  Pa         Propulsion.Nozzle.p_chamber      
+    mdot_prop             [0.8976073]         kg/s       Propulsion.Nozzle.mdot_prop      
+    thrust                [2687.30550476]     N          Propulsion.thrust                
 Mass
-  initial_mass            [78.43984753]       kg         Mass.initial_mass                
-  dry_mass                [67.31364129]       kg         Mass.dry_mass                    
+  initial_mass            [78.44830964]       kg         Mass.initial_mass                
+  dry_mass                [67.32932467]       kg         Mass.dry_mass                    
 Trajectory
-  apogee                  [3100.00000001]     m          apogee                           
-  burn_time               [12.9478483]        s          burn_time                        
+  apogee                  [3100.]             m          apogee                           
+  burn_time               [12.38736022]       s          burn_time                        
 
 
 0 Implicit Output(s) in 'model'
