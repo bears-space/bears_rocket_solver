@@ -13,7 +13,7 @@ class TankComponent(ExplicitComponent):
 		self.add_input("m_prop_i",      val=10.0,   units="kg")
 		self.add_input("mixture_ratio", val=6.0)
 
-		self.add_input("p_tank_max",    val=60e5,   units="Pa")
+		self.add_input("p_tank_max",    val=70e5,   units="Pa")
 		self.add_input("diam_out",      val=0.5,    units="m")
 		self.add_input("ullage_frac",   val=0.1)
 
