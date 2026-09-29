@@ -1,4 +1,4 @@
-59 Explicit Output(s) in 'model'
+60 Explicit Output(s) in 'model'
 
 varname                   val               units      prom_name                        
 ------------------------  ----------------  ---------  ---------------------------------
@@ -60,6 +60,7 @@ Propulsion
   Chemistry
     cstar                 [1616.13342426]   m/s        Propulsion.Chemistry.cstar       
     isp                   [305.55765483]    s          Propulsion.chem_isp              
+    t_chamber             [3332.64155713]   degK       Propulsion.chem_chamber_temp     
   Nozzle
     p_chamber             [5620253.874261]  Pa         Propulsion.prop_chamber_pressure 
     mdot_prop             [0.69551855]      kg/s       Propulsion.Nozzle.mdot_prop      
