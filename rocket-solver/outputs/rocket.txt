@@ -64,7 +64,7 @@ Propulsion
     Chemistry
       cstar               [1588.01264341]     m/s        Propulsion.HybridEngine.engine_cstar          
       isp                 [313.0810122]       s          Propulsion.prop_isp                           
-      t_chamber           [3353.96414192]     degK       Propulsion.HybridEngine.Chemistry.t_chamber   
+      t_chamber           [3353.96414192]     degK       Propulsion.HybridEngine.engine_chamber_temp   
     Nozzle
       p_chamber           [4811998.13000505]  Pa         Propulsion.prop_chamber_pressure              
       mdot_prop           [0.62412988]        kg/s       Propulsion.HybridEngine.engine_mdot_prop      

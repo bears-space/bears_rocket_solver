@@ -1,7 +1,7 @@
 # region Imports
 import openmdao.api as om
 
-from openmdao.api      import Group
+from openmdao.api      import Group, IndepVarComp
 from rocketcea.cea_obj import CEA_Obj
 
 from .comp_tank    import TankComponent
@@ -24,7 +24,18 @@ class TestStandGroup(Group):
 		self.set_input_defaults("run_tank_density",      val=rho_ox, units="kg/m**3")
 		self.set_input_defaults("run_tank_fluid_mass",   val=10.0,   units="kg")
 
+		#region Sensors
+		sensors = self.add_subsystem("Sensors", IndepVarComp())
+		sensors.add_output("PT1_N2O_supply_pressure", val=65.0,   units="bar")
+		sensors.add_output("TC1_N2O_supply_temp",     val=288.15, units="K")
+		sensors.add_output("PT2_run_tank_pressure",   val=60.0,   units="bar")
+		sensors.add_output("TC2_run_liquid_temp",     val=275.15, units="K")
+		sensors.add_output("PT4_N2_supply_pressure",  val=200.0,  units="bar")
+		sensors.add_output("TC4_run_dome_temp",       val=285.15, units="K")
+		#endregion
+
 		#region Subsystems
+
 		# Run tank (PT2)
 		self.add_subsystem(
 			"RunTank",
@@ -65,7 +76,12 @@ class TestStandGroup(Group):
 			promotes_outputs=[
 				("engine_thrust",           "test_thrust"),
 				("engine_chamber_pressure", "test_chamber_pressure_PT3"),
+				("engine_chamber_temp",     "test_chamber_temp_TC3"),
 				("engine_isp",              "test_isp"),
 			],
 		)
+		#endregion
+
+		#region Connections
+		self.connect("Sensors.PT2_run_tank_pressure", "run_tank_pressure_PT2")
 		#endregion
