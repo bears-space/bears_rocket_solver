@@ -136,7 +136,7 @@ def main():
 			gtype=graph_type,
 			display=False,
 			show_vars=True,
-			outfile=f"figures/{graph_type}.png",
+			outfile=f"figures/rocket_{graph_type}.png",
 		)
 	#endregion
 #endregion
