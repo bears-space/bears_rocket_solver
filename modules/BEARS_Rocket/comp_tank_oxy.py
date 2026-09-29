@@ -26,7 +26,7 @@ class OxidizerTankComponent(TankComponent):
 		self.add_input("rho_wall",      val=2700.0, units="kg/m**3")
 
 		self.add_output("t_wall",       val=0.002,  units="m")
-		self.add_output("l_tank",       val=5.0,    units="m")
-		self.add_output("v_internal",   val=5.0,    units="m**3")
-		self.add_output("v_fluid",      val=4.5,    units="m**3")
+		self.add_output("l_tank",       val=1.0,    units="m")
+		self.add_output("v_internal",   val=0.012,  units="m**3")
+		self.add_output("v_fluid",      val=0.010,  units="m**3")
 		self.add_output("m_tank_dry",   val=2.0,    units="kg")

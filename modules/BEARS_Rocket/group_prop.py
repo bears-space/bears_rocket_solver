@@ -7,10 +7,7 @@ from rocketcea.cea_obj import CEA_Obj
 from .comp_split      import PropellantSplitComponent
 from .comp_tank_oxy   import OxidizerTankComponent
 from .comp_tank_press import PressurantTankComponent
-from .comp_injector   import InjectorComponent
-from .comp_fuel       import FuelComponent
-from .comp_chem       import ChemComponent
-from .comp_nozzle     import NozzleComponent
+from .group_engine    import HybridEngineGroup
 # endregion
 
 class PropulsionGroup(Group):
@@ -37,6 +34,28 @@ class PropulsionGroup(Group):
 			],
 		)
 
+		# NOTE: we put the oxidizer tank component here first before the
+		#       pressurant tank component for it to evaluate before its
+		#       `v_fluid` for the pressurant component to use
+		self.add_subsystem(
+			"OxidizerTank",
+			OxidizerTankComponent(rho_ox=rho_ox),
+			promotes_inputs=[
+				("p_tank_max",    "tank_pressure"),
+				("diam_out",      "tank_diam"),
+				("ullage_frac",   "tank_ullage_frac"),
+				("sigma_y",       "tank_yield_factor"),
+				("safety_factor", "tank_safety_factor"),
+				("rho_wall",      "tank_wall_density"),
+			],
+			promotes_outputs=[
+				("m_tank_dry", "tank_dry_mass"),
+				("l_tank",     "tank_length"),
+				("v_internal", "tank_volume"),
+				("t_wall",     "tank_wall_thickness"),
+			],
+		)
+
 		self.add_subsystem(
 			"PressurantTank",
 			PressurantTankComponent(),
@@ -58,81 +77,31 @@ class PropulsionGroup(Group):
 		)
 
 		self.add_subsystem(
-			"OxidizerTank",
-			OxidizerTankComponent(rho_ox=rho_ox),
+			"HybridEngine",
+			HybridEngineGroup(cea=cea, rho_ox=rho_ox, rho_fuel=rho_fuel),
 			promotes_inputs=[
-				("p_tank_max",    "tank_pressure"),
-				("diam_out",      "tank_diam"),
-				("ullage_frac",   "tank_ullage_frac"),
-				("sigma_y",       "tank_yield_factor"),
-				("safety_factor", "tank_safety_factor"),
-				("rho_wall",      "tank_wall_density"),
+				("engine_feed_pressure",   "tank_pressure"),
+				("engine_prop_mass_init",  "prop_prop_mass_init"),
+				("engine_mixture_ratio",   "prop_mixture_ratio"),
+				("injector_area",          "injector_area"),
+				("injector_cd",            "injector_cd"),
+				("fuel_port_diam",         "fuel_port_diam"),
+				("fuel_reg_exponent",      "fuel_reg_exponent"),
+				("fuel_reg_ref",           "fuel_reg_ref"),
+				("fuel_oxy_mass_flux_ref", "fuel_oxy_mass_flux_ref"),
+				("nozzle_throat_area",     "nozzle_throat_area"),
+				("nozzle_expansion_ratio", "nozzle_expansion_ratio"),
+				("nozzle_length",          "nozzle_length"),
+				("nozzle_eta_friction",    "nozzle_eta_friction"),
 			],
 			promotes_outputs=[
-				("m_tank_dry", "tank_dry_mass"),
-				("l_tank",     "tank_length"),
-				("v_internal", "tank_volume"),
-				("t_wall",     "tank_wall_thickness"),
-			],
-		)
-
-		self.add_subsystem(
-			"Injector",
-			InjectorComponent(rho_ox=rho_ox),
-			promotes_inputs=[
-				("p_tank", "tank_pressure"),
-				("a_inj",  "injector_area"),
-				("cd",     "injector_cd"),
-			],
-		)
-
-		self.add_subsystem(
-			"Fuel",
-			FuelComponent(rho_fuel=rho_fuel),
-			promotes_inputs=[
-				("m_prop_i",      "prop_prop_mass_init"),
-				("mixture_ratio", "prop_mixture_ratio"),
-				("port_diam",     "fuel_port_diam"),
-				("n_reg",         "fuel_reg_exponent"),
-				("reg_ref",       "fuel_reg_ref"),
-				("g0_ref",        "fuel_oxy_mass_flux_ref"),
-			],
-			promotes_outputs=[
-				("length",     "fuel_length"),
-				("grain_diam", "fuel_grain_diam"),
-				("r_dot",      "fuel_regression_rate"),
-				("m_fuel",     "fuel_mass"),
-			],
-		)
-
-		self.add_subsystem(
-			"Chemistry",
-			ChemComponent(cea=cea),
-			promotes_inputs=[
-				("mixture_ratio",   "prop_mixture_ratio"),
-				("expansion_ratio", "nozzle_expansion_ratio"),
-			],
-			promotes_outputs=[
-				("isp",             "chem_isp"),
-				("t_chamber",       "chem_chamber_temp"),
-			],
-		)
-
-		self.add_subsystem(
-			"Nozzle",
-			NozzleComponent(),
-			promotes_inputs=[
-				("mixture_ratio",   "prop_mixture_ratio"),
-				("a_throat",        "nozzle_throat_area"),
-				("expansion_ratio", "nozzle_expansion_ratio"),
-				("length",          "nozzle_length"),
-				("eta_friction",    "nozzle_eta_friction"),
-			],
-			promotes_outputs=[
-				("thrust",          "nozzle_thrust"),
-				("eta_nozzle",      "nozzle_efficiency"),
-				("p_chamber",       "prop_chamber_pressure"),
-				("exit_half_angle", "nozzle_exit_half_angle"),
+				("engine_thrust",           "prop_thrust"),
+				("engine_chamber_pressure", "prop_chamber_pressure"),
+				("engine_isp",              "prop_isp"),
+				("fuel_length",             "fuel_length"),
+				("fuel_grain_diam",         "fuel_grain_diam"),
+				("fuel_regression_rate",    "fuel_regression_rate"),
+				("fuel_mass",               "fuel_mass"),
 			],
 		)
 		#endregion
@@ -141,21 +110,5 @@ class PropulsionGroup(Group):
 		self.connect("PropSplit.m_ox",        "OxidizerTank.m_oxy")
 		self.connect("OxidizerTank.v_fluid",  "PressurantTank.v_ox_displace")
 		self.connect("tank_pressure",         "PressurantTank.p_ox")
-		self.connect("prop_chamber_pressure", "Injector.p_chamber")
-		self.connect("prop_chamber_pressure", "Chemistry.chamber_pressure")
-		self.connect("Injector.mdot_ox",      "Fuel.mdot_ox")
-		self.connect("Injector.mdot_ox",      "Nozzle.mdot_ox")
-		self.connect("Chemistry.cstar",       "Nozzle.cstar")
-		self.connect("chem_isp",              "Nozzle.isp")
-		#endregion
-
-		#region Solvers
-		self.nonlinear_solver = om.NewtonSolver(solve_subsystems=False)
-		self.nonlinear_solver.options["maxiter"] = 25
-		self.nonlinear_solver.options["rtol"] = 1e-6
-		self.nonlinear_solver.options["iprint"] = 0
-		self.nonlinear_solver.linesearch = om.ArmijoGoldsteinLS()
-
-		self.linear_solver = om.DirectSolver()
 		#endregion
 

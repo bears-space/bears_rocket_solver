@@ -4,11 +4,8 @@ import openmdao.api as om
 from openmdao.api      import Group
 from rocketcea.cea_obj import CEA_Obj
 
-from .comp_tank     import TankComponent
-from .comp_injector import InjectorComponent
-from .comp_fuel     import FuelComponent
-from .comp_chem     import ChemComponent
-from .comp_nozzle   import NozzleComponent
+from .comp_tank    import TankComponent
+from .group_engine import HybridEngineGroup
 # endregion
 
 class TestStandGroup(Group):
@@ -48,85 +45,27 @@ class TestStandGroup(Group):
 			],
 		)
 
-		# Injector fed from run tank (PT2)
 		self.add_subsystem(
-			"Injector",
-			InjectorComponent(rho_ox=rho_ox),
+			"HybridEngine",
+			HybridEngineGroup(cea=cea, rho_ox=rho_ox, rho_fuel=rho_fuel),
 			promotes_inputs=[
-				("p_tank", "run_tank_pressure_PT2"),
-				("a_inj",  "injector_area"),
-				("cd",     "injector_cd"),
-			],
-		)
-
-		self.add_subsystem(
-			"Fuel",
-			FuelComponent(rho_fuel=rho_fuel),
-			promotes_inputs=[
-				("m_prop_i",      "test_prop_mass_init"),
-				("mixture_ratio", "test_mixture_ratio"),
-				("port_diam",     "fuel_port_diam"),
-				("n_reg",         "fuel_reg_exponent"),
-				("reg_ref",       "fuel_reg_ref"),
-				("g0_ref",        "fuel_oxy_mass_flux_ref"),
+				("engine_feed_pressure",   "run_tank_pressure_PT2"),
+				("engine_prop_mass_init",  "test_prop_mass_init"),
+				("engine_mixture_ratio",   "test_mixture_ratio"),
+				("injector_area",          "injector_area"),
+				("injector_cd",            "injector_cd"),
+				("fuel_port_diam",         "fuel_port_diam"),
+				("fuel_reg_exponent",      "fuel_reg_exponent"),
+				("fuel_reg_ref",           "fuel_reg_ref"),
+				("fuel_oxy_mass_flux_ref", "fuel_oxy_mass_flux_ref"),
+				("nozzle_throat_area",     "nozzle_throat_area"),
+				("nozzle_length",          "nozzle_length"),
+				("nozzle_eta_friction",    "nozzle_eta_friction"),
 			],
 			promotes_outputs=[
-				("length",     "fuel_length"),
-				("grain_diam", "fuel_grain_diam"),
-				("r_dot",      "fuel_regression_rate"),
-				("m_fuel",     "fuel_mass"),
+				("engine_thrust",           "test_thrust"),
+				("engine_chamber_pressure", "test_chamber_pressure_PT3"),
+				("engine_isp",              "test_isp"),
 			],
 		)
-
-		# Combustion chemistry & flame temperature (TC3)
-		self.add_subsystem(
-			"Chemistry",
-			ChemComponent(cea=cea),
-			promotes_inputs=[
-				("mixture_ratio",   "test_mixture_ratio"),
-				("expansion_ratio", "nozzle_expansion_ratio"),
-			],
-			promotes_outputs=[
-				("isp",             "chem_isp"),
-				("t_chamber",       "test_chamber_temp_TC3"),
-			],
-		)
-
-		# Nozzle performance & chamber pressure (PT3)
-		self.add_subsystem(
-			"Nozzle",
-			NozzleComponent(),
-			promotes_inputs=[
-				("mixture_ratio",   "test_mixture_ratio"),
-				("a_throat",        "nozzle_throat_area"),
-				("expansion_ratio", "nozzle_expansion_ratio"),
-				("length",          "nozzle_length"),
-				("eta_friction",    "nozzle_eta_friction"),
-			],
-			promotes_outputs=[
-				("thrust",          "test_thrust"),
-				("eta_nozzle",      "nozzle_efficiency"),
-				("exit_half_angle", "nozzle_exit_half_angle"),
-				("p_chamber",       "test_chamber_pressure_PT3"),
-			],
-		)
-		#endregion
-
-		#region Connections
-		self.connect("test_chamber_pressure_PT3", "Injector.p_chamber")
-		self.connect("test_chamber_pressure_PT3", "Chemistry.chamber_pressure")
-		self.connect("Injector.mdot_ox", "Fuel.mdot_ox")
-		self.connect("Injector.mdot_ox", "Nozzle.mdot_ox")
-		self.connect("Chemistry.cstar",  "Nozzle.cstar")
-		self.connect("chem_isp",         "Nozzle.isp")
-		#endregion
-
-		#region Solvers
-		self.nonlinear_solver = om.NewtonSolver(solve_subsystems=False)
-		self.nonlinear_solver.options["maxiter"] = 30
-		self.nonlinear_solver.options["rtol"]    = 1e-6
-		self.nonlinear_solver.options["iprint"]  = 0
-		self.nonlinear_solver.linesearch = om.ArmijoGoldsteinLS()
-
-		self.linear_solver = om.DirectSolver()
 		#endregion
