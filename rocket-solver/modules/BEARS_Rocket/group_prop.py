@@ -114,6 +114,7 @@ class PropulsionGroup(Group):
 			],
 			promotes_outputs=[
 				("isp",             "chem_isp"),
+				("t_chamber",       "chem_chamber_temp"),
 			],
 		)
 
