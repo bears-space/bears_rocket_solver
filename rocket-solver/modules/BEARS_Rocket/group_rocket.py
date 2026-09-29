@@ -140,8 +140,8 @@ class RocketGroup(Group):
 		# - Trajectory
 		self.connect("DesignVars.g_diameter",             "Trajectory.diameter")
 
-		self.connect("Propulsion.chem_isp",               "Trajectory.isp")
-		self.connect("Propulsion.nozzle_thrust",          "Trajectory.thrust")
+		self.connect("Propulsion.prop_isp",               "Trajectory.isp")
+		self.connect("Propulsion.prop_thrust",            "Trajectory.thrust")
 		self.connect("Mass.initial_mass",                 "Trajectory.initial_mass")
 		self.connect("Mass.dry_mass",                     "Trajectory.dry_mass")
 		#endregion

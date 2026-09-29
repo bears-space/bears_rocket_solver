@@ -34,8 +34,8 @@ def main():
 	#endregion
 
 	#region Inputs
-	with open("inputs/reactants.json", "r") as retrieved:
-		data = json.load(retrieved)
+	with open("inputs/reactants.json", "r") as f:
+		data = json.load(f)
 		oname, fname = parse_reactants(data)
 		rho_ox, rho_fuel = parse_densities(data)
 	#endregion
@@ -101,15 +101,15 @@ def main():
 	mr = prob.get_val("OptimizationVars.mixture_ratio")[0]
 	print(f"MR:\t{mr:.2f}")
 
-	p_c = prob.get_val("Propulsion.prop_chamber_pressure")[0]
-	thrust = prob.get_val("Propulsion.nozzle_thrust")[0]
+	p_c    = prob.get_val("Propulsion.prop_chamber_pressure")[0]
+	thrust = prob.get_val("Propulsion.prop_thrust")[0]
 
 	print("\nResults:")
 	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")
 	print(f"h_max: \t{prob.get_val('apogee')[0]} m")
 	print(f"P_ch:  \t{p_c / 1e5:.2f} bar")
 	print(f"Thrust:\t{thrust:.1f} N")
-	print(f"Isp:   \t{prob.get_val('Propulsion.chem_isp')[0]} s")
+	print(f"Isp:   \t{prob.get_val('Propulsion.prop_isp')[0]} s")
 
 	print("\nTank parameters:")
 	print(f"m_struct:\t{prob.get_val('Propulsion.tank_dry_mass')[0]} kg")
@@ -121,7 +121,7 @@ def main():
 	print(f"d_grain: \t{prob.get_val('Propulsion.fuel_grain_diam')[0]*1000:.1f} mm")
 
 	# Dump all computed variables to an output file
-	with open("outputs/outputs.txt", mode="wt") as f:
+	with open("outputs/rocket.txt", mode="wt") as f:
 		prob.model.list_outputs(
 			val=True,
 			units=True,
