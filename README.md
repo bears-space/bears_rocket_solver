@@ -4,7 +4,7 @@ In descending order of importance:
 
 - [ ] Bring the docs up to speed
 
-- [ ] MDAO class structure
+- [x] MDAO class structure
 
   - [x] Basic setup
 
@@ -46,6 +46,9 @@ In descending order of importance:
 - [ ] Move to a JSON5 parsing library to allow for C++-style comments in inputs
       files
 
+> [!WARNING]
+> Most of this documentation is currently out of date **TODO**
+
 # BEARS Rocket Solver
 
 This program aims to implement highly general multi-dimensional
@@ -64,9 +67,6 @@ be reusable. Code clarity and readability is top priority
 The hope of organizing the code into MDAO class structure is that each layer of
 assembly may be understood from its inputs and outputs independent from the
 others, with one central, clearly defined function mapping between the two
-
-> [!WARNING]
-> Docs are currently out of date **TODO**
 
 ## Code structure
 
