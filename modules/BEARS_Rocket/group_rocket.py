@@ -75,8 +75,8 @@ class RocketGroup(Group):
 		# OptimizationVars:
 		# specific parameters that we wish to optimize against
 		ovc = self.add_subsystem("OptimizationVars", IndepVarComp())
-		ovc.add_output("propellant_mass", val=10.0, units="kg")
-		ovc.add_output("mixture_ratio",   val=6.0)
+		ovc.add_output("o_propellant_mass", val=10.0, units="kg")
+		ovc.add_output("o_mixture_ratio",   val=6.0)
 		#endregion
 
 		#region Subsystems
@@ -96,46 +96,46 @@ class RocketGroup(Group):
 
 		#region Connections
 		# - Oxidizer tank
-		self.connect("DesignVars.tank_pressure",          "Propulsion.tank_pressure")
-		self.connect("DesignVars.tank_diam",              "Propulsion.tank_diam")
-		self.connect("DesignVars.tank_safety_factor",     "Propulsion.tank_safety_factor")
-		self.connect("DesignVars.tank_ullage_fraction",   "Propulsion.tank_ullage_frac")
-		self.connect("DesignVars.tank_yield_factor",      "Propulsion.tank_yield_factor")
-		self.connect("DesignVars.tank_wall_density",      "Propulsion.tank_wall_density")
+		self.connect("DesignVars.tank_pressure",           "Propulsion.tank_pressure")
+		self.connect("DesignVars.tank_diam",               "Propulsion.tank_diam")
+		self.connect("DesignVars.tank_safety_factor",      "Propulsion.tank_safety_factor")
+		self.connect("DesignVars.tank_ullage_fraction",    "Propulsion.tank_ullage_frac")
+		self.connect("DesignVars.tank_yield_factor",       "Propulsion.tank_yield_factor")
+		self.connect("DesignVars.tank_wall_density",       "Propulsion.tank_wall_density")
 
 		# - Pressurant tank
-		self.connect("DesignVars.press_pressure",         "Propulsion.press_pressure")
-		self.connect("DesignVars.press_diam",             "Propulsion.press_diam")
-		self.connect("DesignVars.press_safety_factor",    "Propulsion.press_safety_factor")
-		self.connect("DesignVars.press_yield_factor",     "Propulsion.press_yield_factor")
-		self.connect("DesignVars.press_wall_density",     "Propulsion.press_wall_density")
+		self.connect("DesignVars.press_pressure",          "Propulsion.press_pressure")
+		self.connect("DesignVars.press_diam",              "Propulsion.press_diam")
+		self.connect("DesignVars.press_safety_factor",     "Propulsion.press_safety_factor")
+		self.connect("DesignVars.press_yield_factor",      "Propulsion.press_yield_factor")
+		self.connect("DesignVars.press_wall_density",      "Propulsion.press_wall_density")
 
 		# - Fuel
-		self.connect("DesignVars.fuel_port_diam",         "Propulsion.fuel_port_diam")
-		self.connect("DesignVars.fuel_reg_exponent",      "Propulsion.fuel_reg_exponent")
-		self.connect("DesignVars.fuel_reg_ref",           "Propulsion.fuel_reg_ref")
-		self.connect("DesignVars.fuel_oxy_mass_flux_ref", "Propulsion.fuel_oxy_mass_flux_ref")
+		self.connect("DesignVars.fuel_port_diam",          "Propulsion.fuel_port_diam")
+		self.connect("DesignVars.fuel_reg_exponent",       "Propulsion.fuel_reg_exponent")
+		self.connect("DesignVars.fuel_reg_ref",            "Propulsion.fuel_reg_ref")
+		self.connect("DesignVars.fuel_oxy_mass_flux_ref",  "Propulsion.fuel_oxy_mass_flux_ref")
 
-		self.connect("OptimizationVars.mixture_ratio",    "Propulsion.prop_mixture_ratio")
+		self.connect("OptimizationVars.o_mixture_ratio",   "Propulsion.prop_mixture_ratio")
 
 		# - Injector
-		self.connect("DesignVars.injector_area",          "Propulsion.injector_area")
-		self.connect("DesignVars.injector_cd",            "Propulsion.injector_cd")
+		self.connect("DesignVars.injector_area",           "Propulsion.injector_area")
+		self.connect("DesignVars.injector_cd",             "Propulsion.injector_cd")
 
 		# - Nozzle
-		self.connect("DesignVars.nozzle_throat_area",     "Propulsion.nozzle_throat_area")
-		self.connect("DesignVars.nozzle_expansion_ratio", "Propulsion.nozzle_expansion_ratio")
-		self.connect("DesignVars.nozzle_length",          "Propulsion.nozzle_length")
-		self.connect("DesignVars.nozzle_eta_friction",    "Propulsion.nozzle_eta_friction")
+		self.connect("DesignVars.nozzle_throat_area",      "Propulsion.nozzle_throat_area")
+		self.connect("DesignVars.nozzle_expansion_ratio",  "Propulsion.nozzle_expansion_ratio")
+		self.connect("DesignVars.nozzle_length",           "Propulsion.nozzle_length")
+		self.connect("DesignVars.nozzle_eta_friction",     "Propulsion.nozzle_eta_friction")
 
 		# - Mass
-		self.connect("DesignVars.g_payload_mass",         "Mass.payload_mass")
-		self.connect("Propulsion.tank_dry_mass",          "Mass.ox_tank_mass")
-		self.connect("Propulsion.press_dry_mass",         "Mass.press_tank_mass")
-		self.connect("Propulsion.press_press_mass",       "Mass.pressurant_mass")
+		self.connect("DesignVars.g_payload_mass",          "Mass.payload_mass")
+		self.connect("Propulsion.tank_dry_mass",           "Mass.ox_tank_mass")
+		self.connect("Propulsion.press_dry_mass",          "Mass.press_tank_mass")
+		self.connect("Propulsion.press_press_mass",        "Mass.pressurant_mass")
 
-		self.connect("OptimizationVars.propellant_mass",  "Propulsion.prop_prop_mass_init")
-		self.connect("OptimizationVars.propellant_mass",  "Mass.propellant_mass")
+		self.connect("OptimizationVars.o_propellant_mass", "Propulsion.prop_prop_mass_init")
+		self.connect("OptimizationVars.o_propellant_mass", "Mass.propellant_mass")
 
 		# - Trajectory
 		self.connect("DesignVars.g_diameter",             "Trajectory.diameter")

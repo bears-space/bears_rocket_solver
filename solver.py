@@ -21,7 +21,7 @@ from openmdao.visualization.graph_viewer import GraphViewer
 
 from modules.BEARS_Atmo   import BEARS_Atm
 from modules.BEARS_Chem   import Reactant, parse_reactants, parse_densities
-from modules.BEARS_Rocket import RocketGroup
+from modules.BEARS_Rocket import TestStandProblem, RocketLaunchProblem
 #endregion
 
 #region Main
@@ -38,91 +38,43 @@ def main():
 		data = json.load(f)
 		oname, fname = parse_reactants(data)
 		rho_ox, rho_fuel = parse_densities(data)
-	#endregion
 
 	atm = BEARS_Atm("isacalc")
 	cea = CEA_Obj(oxName=oname, fuelName=fname)
+	#endregion
 
-	# Problem setup
-	prob = om.Problem(reports=True, work_dir=work_dir)
-
-	prob.model = RocketGroup(
-		atm=atm,
+	#region Test stand
+	prob_stand = TestStandProblem(
 		cea=cea,
 		rho_ox=rho_ox,
 		rho_fuel=rho_fuel,
+		reports=False,
 	)
+	prob_stand.setup()
+	res = prob_stand.run()
 
-	prob.driver = om.ScipyOptimizeDriver()
-	prob.driver.options["optimizer"] = "SLSQP"
-
-	# - Design variables
-	prob.model.add_design_var(
-		"OptimizationVars.propellant_mass", lower=1.0, upper=50.0, ref=10.0
-	)
-
-	# - Constraints
-	prob.model.add_constraint("apogee", equals=3100.0, ref=3100.0)
-
-	# - Objectives
-	prob.model.add_objective("OptimizationVars.propellant_mass", ref=10.0)
-
-	prob.setup()
-
-	# Design parameters
-	# - Variables
-	prob.set_val("DesignVars.g_payload_mass", 1.0)
-	prob.set_val("DesignVars.g_diameter", 0.12)
-	prob.set_val("DesignVars.tank_pressure", 70)
-	prob.set_val("DesignVars.tank_diam", 0.12)
-	prob.set_val("DesignVars.injector_area", 1.5e-5)
-	prob.set_val("DesignVars.injector_cd", 0.7)
-	prob.set_val("DesignVars.fuel_port_diam", 0.05)
-	prob.set_val("DesignVars.fuel_reg_exponent", 0.5)
-	prob.set_val("DesignVars.fuel_reg_ref", 1.0e-4)
-	prob.set_val("DesignVars.nozzle_expansion_ratio", 40.0)
-	prob.set_val("DesignVars.nozzle_throat_area", 2.0e-4)
-
-	# - Constraints
-	prob.model.add_constraint(
-		"Propulsion.tank_wall_thickness", lower=0.001, upper=0.1, ref=0.002
-	)
-
-	# Optimization initial values
-	prob.set_val("OptimizationVars.propellant_mass", 15.0)
-	prob.set_val("OptimizationVars.mixture_ratio", 6.618)
-
-	prob.run_driver()
-
-	#region Outputs
-	print("Optimized parameters:")
-	print(f"m_prop:\t{prob.get_val('OptimizationVars.propellant_mass')[0]} kg")
-
-	mr = prob.get_val("OptimizationVars.mixture_ratio")[0]
-	print(f"MR:\t{mr:.2f}")
-
-	p_c    = prob.get_val("Propulsion.prop_chamber_pressure")[0]
-	thrust = prob.get_val("Propulsion.prop_thrust")[0]
-
-	print("\nResults:")
-	print(f"t_burn:\t{prob.get_val('burn_time')[0]} s")
-	print(f"h_max: \t{prob.get_val('apogee')[0]} m")
-	print(f"P_ch:  \t{p_c / 1e5:.2f} bar")
-	print(f"Thrust:\t{thrust:.1f} N")
-	print(f"Isp:   \t{prob.get_val('Propulsion.prop_isp')[0]} s")
-
-	print("\nTank parameters:")
-	print(f"m_struct:\t{prob.get_val('Propulsion.tank_dry_mass')[0]} kg")
-	print(f"t_wall:  \t{prob.get_val('Propulsion.tank_wall_thickness')[0]} m")
-	print(f"l_tank:  \t{prob.get_val('Propulsion.tank_length')[0]} m")
-
-	print("\nFuel parameters:")
-	print(f"l_fuel:  \t{prob.get_val('Propulsion.fuel_length')[0]:.4f} m")
-	print(f"d_grain: \t{prob.get_val('Propulsion.fuel_grain_diam')[0]*1000:.1f} mm")
+	print("Simulating test stand...")
+	print("")
+	print(f"PT1 (N2O supply pressure):      \t{res['PT1_N2O_supply_bar']:6.2f} bar")
+	print(f"TC1 (N2O supply temperature):   \t{res['TC1_N2O_supply_K']:6.2f} K")
+	print("")
+	print(f"PT2 (run tank feed temperature):\t{res['PT2_run_tank_bar']:6.2f} bar")
+	print(f"TC2 (run tank liquid temp):     \t{res['TC2_run_liquid_K']:6.2f} K")
+	print("")
+	print(f"PT3 (chamber pressure):         \t{res['PT3_chamber_bar']:6.2f} bar")
+	print(f"TC3 (chamber flame temp):       \t{res['TC3_chamber_temp_K']:6.2f} K")
+	print("")
+	print(f"PT4 (N2 supply pressure):       \t{res['PT4_N2_supply_bar']:6.2f} bar")
+	print(f"TC4 (N2 supply pressure):       \t{res['TC4_run_dome_K']:6.2f} K")
+	print("")
+	print(f"ΔP:                             \t{res['delta_p_feed_bar']:6.2f} bar")
+	print(f"Thrust:                         \t{res['thrust_N']:6.2f} N")
+	print(f"Isp:                            \t{res['isp_s']:6.2f} s")
+	print("\n--------")
 
 	# Dump all computed variables to an output file
-	with open("outputs/rocket.txt", mode="wt") as f:
-		prob.model.list_outputs(
+	with open("outputs/teststand.txt", mode="wt") as f:
+		prob_stand.model.list_outputs(
 			val=True,
 			units=True,
 			hierarchical=True,
@@ -130,7 +82,54 @@ def main():
 		)
 
 	# Draw all the connectivity graphs
-	viewer = GraphViewer(prob.model)
+	viewer = GraphViewer(prob_stand.model)
+	for graph_type in ["dataflow", "tree", "cycle"]:
+		viewer.write_graph(
+			gtype=graph_type,
+			display=False,
+			show_vars=True,
+			outfile=f"figures/teststand_{graph_type}.png",
+		)
+	#endregion
+
+	#region Rocket optimization
+	prob_rocket = RocketLaunchProblem(
+		atm=atm,
+		cea=cea,
+		rho_ox=rho_ox,
+		rho_fuel=rho_fuel,
+		target_apogee=3100.0,
+		reports=True,
+		work_dir=work_dir,
+	)
+	prob_rocket.setup()
+	res = prob_rocket.run()
+
+	print("Optimizing the rocket...")
+	print("")
+	print(f"Optimized m_prop:     \t{res['m_prop_kg']:6.2f} kg")
+	print(f"MR:                   \t{res['mr']:6.2f}")
+	print("")
+	print(f"Apogee:               \t{res['apogee_m']:6.2f} m")
+	print(f"Burn time:            \t{res['burn_time_s']:6.2f} s")
+	print(f"Liftoff thrust:       \t{res['thrust_N']:6.2f} N")
+	print(f"Liftoff Isp:          \t{res['isp_s']:6.2f} s")
+	print(f"Chamber pressure:     \t{res['p_chamber_bar']:6.2f} bar")
+	print("")
+	print(f"Dry mass:             \t{res['m_dry_kg']:6.2f} kg")
+	print(f"Total mass at liftoff:\t{res['m_initial_kg']:6.2f} kg")
+
+	# Dump all computed variables to an output file
+	with open("outputs/rocket.txt", mode="wt") as f:
+		prob_rocket.model.list_outputs(
+			val=True,
+			units=True,
+			hierarchical=True,
+			out_stream=f,
+		)
+
+	# Draw all the connectivity graphs
+	viewer = GraphViewer(prob_rocket.model)
 	for graph_type in ["dataflow", "tree", "cycle"]:
 		viewer.write_graph(
 			gtype=graph_type,
