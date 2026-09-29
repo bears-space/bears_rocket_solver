@@ -6,7 +6,8 @@ import os
 import openmdao.api      as om
 import rocketcea.cea_obj as cea_obj
 
-from rocketcea.cea_obj import CEA_Obj
+from rocketcea.cea_obj                    import CEA_Obj
+from openmdao.visualization.graph_viewer  import GraphViewer
 
 from modules.BEARS_Chem                   import parse_reactants, parse_densities
 from modules.BEARS_Rocket.group_teststand import TestStandGroup
@@ -86,6 +87,24 @@ def main():
 	print("")
 	print(f"Thrust:                          {thrust:6.2f} N")
 	print(f"Isp:                             {isp:6.2f} s")
+
+	with open("outputs/teststand.txt", mode="wt") as f:
+		prob.model.list_outputs(
+			val=True,
+			units=True,
+			hierarchical=True,
+			out_stream=f,
+		)
+
+	viewer = GraphViewer(prob.model)
+	for graph_type in ["dataflow", "tree", "cycle"]:
+		viewer.write_graph(
+			gtype=graph_type,
+			display=False,
+			show_vars=True,
+			outfile=f"figures/teststand_{graph_type}.png",
+		)
+	#endregion
 #endregion
 
 if __name__ == "__main__": main()
