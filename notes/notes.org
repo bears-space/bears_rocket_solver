@@ -271,6 +271,40 @@ References:
 
 [[https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/]]
 
+*** Injector-nozzle balance
+
+Rearrange the master equation in the following form:
+
+\begin{equation*}
+\frac{P_\text{c}}{\sqrt{P_\text{tank} - P_\text{c}}}
+= \left[
+    \left(1 + \frac{1}{\mathrm{MR}}\right)
+    c^* C_\text{d} \sqrt{2\rho_\text{ox}}
+  \right]
+  \cdot \left(\frac{A_\text{inj}}{A_\text{t}}\right)
+\end{equation*}
+
+For given fluid densities and tank pressure, the chamber pressure depends only
+on the ratio of area and throat areas, $A_\text{inj}/A_\text{t}$. Once that
+ratio is fixed, scaling $A_\text{t}$ scales total mass flow and thrust,
+$\dot{m}_\text{prop}\propto A_\text{t}$, $F=C_F P_\text{c}A_\text{t}$. So we can
+effectively use $A_\text{t}$ to control the vehicle thrust and TWR.
+
+$C_F$ - dimensionless thrust coefficient. Ideal equation:
+
+\begin{equation*}
+C_F
+= \sqrt{
+    \frac{2\gamma^2}{\gamma - 1}
+    \left(\frac{2}{\gamma + 1}\right)^{\frac{\gamma+1}{\gamma-1}}
+    \left[
+      1 - \left(\frac{P_\text{e}}{P_\text{c}}\right)
+    \right]^{\frac{\gamma-1}{\gamma}}
+  } + \left(\frac{P_\text{e} - P_\text{a}}{P_\text{c}}\right) \epsilon,
+\quad
+\epsilon = \frac{A_\text{e}}{A_\text{t}}
+\end{equation*}
+
 ** The CEA rocket solver
 
 The CEA rocket solver is a thermodynamic state-finder that follows a parcel of
