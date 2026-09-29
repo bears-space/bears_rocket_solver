@@ -1,4 +1,4 @@
-# region Imports
+#region Imports
 import openmdao.api as om
 
 from openmdao.api      import Group, IndepVarComp
@@ -6,7 +6,7 @@ from rocketcea.cea_obj import CEA_Obj
 
 from .comp_tank    import TankComponent
 from .group_engine import HybridEngineGroup
-# endregion
+#endregion
 
 class TestStandGroup(Group):
 

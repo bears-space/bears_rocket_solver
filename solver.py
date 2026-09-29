@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!.env/bin/python
 """
 The rocket optimization script using OpenMDAO for the framework
 
