@@ -66,6 +66,9 @@ The hope of organizing the code into MDAO class structure is that each layer of
 assembly may be understood from its inputs and outputs independent from the
 others, with one central, clearly defined function mapping between the two
 
+> [!WARNING]
+> Docs are currently out of date **TODO**
+
 ## Code structure
 
 ```
@@ -123,7 +126,7 @@ At the root of the model tree is a `Problem` definition, which contains a
 
 The current dataflow structure of our model looks as follows:
 
-![rocket-structure](figures/dataflow.png "Automatically generated data flow diagram of the current class structure")
+![rocket-structure](figures/rocket-dataflow.png "Automatically generated data flow diagram of the current class structure")
 
 Each global input variable (coming out of `_auto_ivc`) can be either fixed or
 optimized for. More than one variable can be optimized at once. In the current
@@ -131,9 +134,6 @@ optimized for. More than one variable can be optimized at once. In the current
 additionally calculating the optimal oxidizer-to-fuel ratio with CEA
 
 Model components in detail:
-
-> [!WARNING]
-> This table is currently out of date **TODO**
 
 | Component | OpenMDAO Class | Inputs | Outputs | Comments |
 | --------- | -------------- | ------ | ------- | -------- |
