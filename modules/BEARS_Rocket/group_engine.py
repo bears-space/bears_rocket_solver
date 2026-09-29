@@ -70,6 +70,7 @@ class HybridEngineGroup(Group):
 			promotes_outputs=[
 				("isp",             "engine_isp"),
 				("cstar",           "engine_cstar"),
+				("t_chamber",       "engine_chamber_temp"),
 			],
 		)
 
