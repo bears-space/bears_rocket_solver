@@ -41,7 +41,7 @@ class RocketGroup(Group):
 		# - Oxidizer tank
 		# NOTE: the tank component expects pressure in SI Pa units,
 		#       here we specify the pressure in units of bar used by the team
-		#       and let MDAO convert automatically on component boundary
+		#       and let MDAO convert automatically on component interface
 		ivc.add_output("tank_pressure",          val=70,     units="bar")
 		ivc.add_output("tank_diam",              val=0.15,   units="m")
 		ivc.add_output("tank_safety_factor",     val=2.0)

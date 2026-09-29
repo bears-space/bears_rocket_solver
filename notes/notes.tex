@@ -1,4 +1,4 @@
-% Created 2026-07-27 Mon 22:51
+% Created 2026-09-23 Wed 12:38
 % Intended LaTeX compiler: pdflatex
 \documentclass[fleqn]{article}
 \usepackage[utf8]{inputenc}
@@ -19,7 +19,6 @@
 \usepackage{tikz-cd}
 \usepackage{parskip}
 \usepackage{enumitem}
-\setlist[itemize]{label=--}
 \usepackage[
 letterpaper,
 top=2cm,
@@ -28,11 +27,11 @@ left=3cm,
 right=3cm,
 marginparwidth=1.75cm
 ]{geometry}
-\author{Andrii Kozytskyi}
+\setlist[itemize]{label=--}
 \date{\today}
 \title{}
 \hypersetup{
- pdfauthor={Andrii Kozytskyi},
+ pdfauthor={},
  pdftitle={},
  pdfkeywords={},
  pdfsubject={},
@@ -43,7 +42,7 @@ marginparwidth=1.75cm
 \tableofcontents
 
 \section{People}
-\label{sec:org869fcc4}
+\label{sec:org57ad1c2}
 
 Avionics:
 \begin{itemize}
@@ -60,11 +59,17 @@ Propulsion:
 \item Francesco (adapters)
 \item Robert (parametric)
 \item Nils (WhatsApp guy, propulsion not-lead)
+\item David (not-fuel grain guy)
+\end{itemize}
+
+Airbreak:
+\begin{itemize}
+\item Iheb Bouakira (CFD)
 \end{itemize}
 
 Python RocketCEA
 \section{Code}
-\label{sec:orgf4bd763}
+\label{sec:orgfc6e234}
 
 Input variables:
 
@@ -106,20 +111,20 @@ Output variables:
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{./fig/Hybrid-rocket-engine20151021-1314-1g9tiw-292400480.jpg}
-\caption{\label{fig:orgd89491e}Design of a hybrid rocket engine}
+\includegraphics[width=.9\linewidth]{./fig/Hybrid-rocket-engine.jpg}
+\caption{\label{fig:org956471d}Design of a hybrid rocket engine}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{./fig/convergent-divergent-nozzle.png}
-\caption{\label{fig:orgf67b2d0}Design of a convergent-divergent nozzle}
+\caption{\label{fig:org669a29e}Design of a convergent-divergent nozzle}
 \end{figure}
 \subsection{Theory}
-\label{sec:org0893e46}
+\label{sec:orge2420d2}
 
 \subsubsection{Notation}
-\label{sec:orgb0c37a3}
+\label{sec:org2a09a7d}
 
 \begin{description}
 \item[{\(h\)}] altitude above sea level
@@ -139,10 +144,13 @@ entrance of the nozzle
 outside the rocket, for example \(P_\text{amb}\)
 \end{description}
 \subsubsection{General}
-\label{sec:org912346a}
+\label{sec:org29d9853}
 
-2D attitude lookup table: \(\mathcal A : \mathbb R^3, \mathbb R^3 \to \mathbb
-R^3 | \mathbb H\), \(\mathcal A(\mathbf x, \mathbf v)\)
+Ballpark of the total rocket structural mass: \textasciitilde{}60 kg
+
+2D attitude lookup table:
+\(\mathcal A : \mathbb R^3, \mathbb R^3 \to \mathbb R^3 | \mathbb H\),
+\(\mathcal A(\mathbf x, \mathbf v)\)
 
 Ideal rocket equation:
 
@@ -172,8 +180,111 @@ F = T - D
 \end{equation*}
 
 (thrust - drag)
+
+References:
+
+\url{https://www.grc.nasa.gov/WWW/k-12/airplane/rktthsum.html}
+
+\url{https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/}
+\subsubsection{Nonlinearity}
+\label{sec:orgc95f9d5}
+
+In OpenMDAO, each component maps its inputs to its outputs, \(y = f(x)\). When
+components connect in a chain, OpenMDAO simply evaluates them
+sequentially. Components taken together in a group form a system of equations
+with the internal equations of their components.
+
+In the \texttt{PropulsionGroup} component group, the components form a closed loop, and
+the system of equations happens to be non-linear. Explicitly, it consists of the
+following:
+
+\begin{enumerate}
+\item Injector flow (Bernoulli orifice)
+
+\begin{equation*}
+\dot{m}_\text{ox}
+= C_\text{d} A_\text{inj}
+  \sqrt{2\rho_\text{ox} (P_\text{tank} - P_\text{c})}
+\end{equation*}
+
+\item Chamber chemistry (Gibbs free energy equilibrium)
+
+\begin{equation*}
+c^* = f_\text{CEA} (P_\text{c}, \mathrm{MR})
+\end{equation*}
+
+\item Nozzle choking (1D isentropic throat flow)
+
+\begin{equation*}
+P_\text{c}
+= \frac{\dot{m}_\text{prop} \cdot c^*}{A_\text{t}}
+= \frac{\dot{m}_\text{ox} \left(1 - \frac{1}{\mathrm{MR}}\right)c^*}
+       {A_\text{t}}
+\end{equation*}
+\end{enumerate}
+
+Substituting (1) and (2) into (3) we obtain the following master equation:
+
+\begin{equation*}
+P_\text{c}
+= \left[
+    \frac{C_\mathrm{d} A_\text{inj} \left(1 + \frac{1}{\mathrm{MR}}\right)}
+         {A_\text{t}}
+  \right]
+  \cdot \sqrt{2\rho_\text{ox} (P_\text{tank} - P_\text{c})}
+  \cdot c^* (P_\text{c}, \mathrm{MR})
+\end{equation*}
+
+This system is nonlinear and cannot be solved in closed form for three reasons:
+
+\begin{enumerate}
+\item The pressure drop \(\Delta P = P_\text{tnk} - P_\text{c}\) sits inside a square
+root
+
+\item \(c^* (P_\text{c}, \mathrm{MR})\) is not constant, high pressure would suppress
+molecular dissociation, which changes gas molecular weight and temperature
+nonlinearly
+
+\item Chamber pressure \(P_\text{c}\) appears both under the square root and inside
+the CEA chemistry table, creating an implicit self-dependency
+\end{enumerate}
+
+To solve this, define the \emph{residual function} \(R(P_\text{c}) = 0\):
+
+\begin{equation*}
+R(P_\text{c})
+= P_\text{c}
+  - \left[
+    \frac{C_\mathrm{d} A_\text{inj} \left(1 + \frac{1}{\mathrm{MR}}\right)}
+         {A_\text{t}}
+  \right]
+  \cdot \sqrt{2\rho_\text{ox} (P_\text{tank} - P_\text{c})}
+  \cdot c^* (P_\text{c}, \mathrm{MR})
+= 0
+\end{equation*}
+
+OpenMDAO's \texttt{NewtonSolver} solves \(R(P_\text{c})=0\) using an initial guess and
+tangent lines:
+
+\begin{equation*}
+P_\text{c}^{(k+1)}
+= P_\text{c}^{(k)}
+  - \frac{R(P_\text{c}^{(k)})}{\mathrm{d} R / \mathrm{d} P_\text{c}}
+\end{equation*}
+\subsubsection{Tank}
+\label{sec:orge6a3db4}
+
+\sout{60} 70 bar tank pressure
+
+Should be roughly 30-40 kg
+\subsubsection{Plumbing/injector}
+\label{sec:orgcdd15f1}
+
+\textasciitilde{}30 bar pressure loss between tank and fuel grain
+
+Either pressure drop or mass flow rate across the injector
 \subsubsection{Chamber/nozzle}
-\label{sec:org9ee1a1b}
+\label{sec:orgb490a9a}
 
 In the following, let the asterisk superscript denote the value of a function of
 the vertical position \(z\) at the throat.
@@ -216,8 +327,10 @@ References:
 \url{https://www.grc.nasa.gov/WWW/K-12/airplane/astar.html}
 
 \url{https://www.grc.nasa.gov/WWW/K-12/airplane/isentrop.html}
-\subsubsection{CEA rocket solver}
-\label{sec:orgee6d2df}
+
+\url{https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/}
+\subsection{The CEA rocket solver}
+\label{sec:org5183db0}
 
 The CEA rocket solver is a thermodynamic state-finder that follows a parcel of
 gas as it moves from the chamber to the exit assuming an isentropic path (line
@@ -294,14 +407,37 @@ References:
 
 \url{https://nasa.github.io/cea/examples/rocket/example8.html}
 \subsection{My own set of inputs}
-\label{sec:org0ea3239}
+\label{sec:orgfa1cb1c}
 
 Flight plan: attitude as a function of altitude and velocity, or pitch as a
 function of velocity
+
+Aerodynamic
 
 Mass and CoG time-series (CoG from mass flow?)
 
 Chemical composition time-series -> (gamma, M\textsubscript{w}, T) change
 
 Nozzle erosion?
+
+---
+
+A(x,v)
+
+C\textsubscript{D}(v, atm)
+
+M\textsubscript{0} (\textasciitilde{}25.0 kg total) M\textsubscript{f} M\textsubscript{O}
+
+---
+
+P\textsubscript{T} = 60 bar
+
+P\textsubscript{c} = 30 bar
+
+P\textsubscript{inj} > 30 bar
+
+
+NOTE: optimizing for sea-level thrust
+
+Regression rate
 \end{document}
