@@ -15,24 +15,23 @@ In descending order of importance:
 
     - [x] Implement a drag model
 
-  - [ ] Refine the propulsion class/component to include subgroups within the
+  - [x] Refine the propulsion class/component to include subgroups within the
         propulsion assembly
 
     - [x] Injector
 
     - [x] Nozzle
 
-    - [ ] Fuel stack
+    - [x] Fuel stack
 
   - [x] ~~Aerodynamics component~~ Necessary for apogee calculator
 
-  - [ ] Figure out a reasonable class structure for rocket form factor
+  - [x] Figure out a reasonable class structure for rocket form factor
         parameters (diameter etc.)
 
-  - [ ] Implement an MDAO `Problem` class that abstracts optimization problems
+  - [x] Implement an MDAO `Problem` class that abstracts optimization problems
 
-- [ ] Implement proper mass calculations to replace the rudimentary structural
-      coefficient model
+- [ ] Implement proper mass calculations for subcomponent assemblies
 
 - [ ] Figure out the correct chemistry of CEA reactants, specifically reactant
       temperatures and enthalpies of formation
