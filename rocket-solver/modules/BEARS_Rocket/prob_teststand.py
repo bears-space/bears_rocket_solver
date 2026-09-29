@@ -50,6 +50,22 @@ class TestStandProblem(Problem):
 
 		return self
 
+	def set_opt_vars(
+		self,
+		m_prop_kg    : float | None = None,
+		mr           : float | None = None,
+		a_inj_mm2    : float | None = None,
+		a_throat_cm2 : float | None = None,
+	):
+		if m_prop_kg is not None:
+			self.set_val("test_prop_mass_init", m_prop_kg,    units="kg")
+		if mr is not None:
+			self.set_val("test_mixture_ratio",  mr)
+		if a_inj_mm2 is not None:
+			self.set_val("injector_area",       a_inj_mm2,    units="mm**2")
+		if a_throat_cm2 is not None:
+			self.set_val("nozzle_throat_area",  a_throat_cm2, units="cm**2")
+
 	def run(self):
 
 		self.run_model()

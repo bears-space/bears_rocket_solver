@@ -43,61 +43,13 @@ def main():
 	cea = CEA_Obj(oxName=oname, fuelName=fname)
 	#endregion
 
-	#region Test stand
-	prob_stand = TestStandProblem(
-		cea=cea,
-		rho_ox=rho_ox,
-		rho_fuel=rho_fuel,
-		reports=False,
-	)
-	prob_stand.setup()
-	res = prob_stand.run()
-
-	print("Simulating test stand...")
-	print("")
-	print(f"PT1 (N2O supply pressure):      \t{res['PT1_N2O_supply_bar']:6.2f} bar")
-	print(f"TC1 (N2O supply temperature):   \t{res['TC1_N2O_supply_K']:6.2f} K")
-	print("")
-	print(f"PT2 (run tank feed temperature):\t{res['PT2_run_tank_bar']:6.2f} bar")
-	print(f"TC2 (run tank liquid temp):     \t{res['TC2_run_liquid_K']:6.2f} K")
-	print("")
-	print(f"PT3 (chamber pressure):         \t{res['PT3_chamber_bar']:6.2f} bar")
-	print(f"TC3 (chamber flame temp):       \t{res['TC3_chamber_temp_K']:6.2f} K")
-	print("")
-	print(f"PT4 (N2 supply pressure):       \t{res['PT4_N2_supply_bar']:6.2f} bar")
-	print(f"TC4 (N2 supply pressure):       \t{res['TC4_run_dome_K']:6.2f} K")
-	print("")
-	print(f"ΔP:                             \t{res['delta_p_feed_bar']:6.2f} bar")
-	print(f"Thrust:                         \t{res['thrust_N']:6.2f} N")
-	print(f"Isp:                            \t{res['isp_s']:6.2f} s")
-	print("\n--------")
-
-	# Dump all computed variables to an output file
-	with open("outputs/teststand.txt", mode="wt") as f:
-		prob_stand.model.list_outputs(
-			val=True,
-			units=True,
-			hierarchical=True,
-			out_stream=f,
-		)
-
-	# Draw all the connectivity graphs
-	viewer = GraphViewer(prob_stand.model)
-	for graph_type in ["dataflow", "tree", "cycle"]:
-		viewer.write_graph(
-			gtype=graph_type,
-			display=False,
-			show_vars=True,
-			outfile=f"figures/teststand_{graph_type}.png",
-		)
-	#endregion
-
 	#region Rocket optimization
 	prob_rocket = RocketLaunchProblem(
 		atm=atm,
 		cea=cea,
 		rho_ox=rho_ox,
 		rho_fuel=rho_fuel,
+		payload_mass=10.0,
 		target_apogee=3100.0,
 		reports=True,
 		work_dir=work_dir,
@@ -139,6 +91,70 @@ def main():
 			display=False,
 			show_vars=True,
 			outfile=f"figures/rocket_{graph_type}.png",
+		)
+
+	m_prop_opt   = res['m_prop_kg']
+	mr_opt       = res['mr']
+	a_inj_opt    = res['a_inj_mm2']
+	a_throat_opt = res['a_throat_cm2']
+	#endregion
+
+	print("--------")
+
+	#region Test stand
+	prob_stand = TestStandProblem(
+		cea=cea,
+		rho_ox=rho_ox,
+		rho_fuel=rho_fuel,
+		reports=False,
+	)
+
+	prob_stand.setup()
+
+	prob_stand.set_opt_vars(
+		#m_prop_kg=m_prop_opt,
+		mr=mr_opt,
+		a_inj_mm2=a_inj_opt,
+		a_throat_cm2=a_throat_opt,
+	)
+
+	res = prob_stand.run()
+
+	print("Simulating test stand...")
+	print("")
+	print(f"PT1 (N2O supply pressure):      \t{res['PT1_N2O_supply_bar']:6.2f} bar")
+	print(f"TC1 (N2O supply temperature):   \t{res['TC1_N2O_supply_K']:6.2f} K")
+	print("")
+	print(f"PT2 (run tank feed temperature):\t{res['PT2_run_tank_bar']:6.2f} bar")
+	print(f"TC2 (run tank liquid temp):     \t{res['TC2_run_liquid_K']:6.2f} K")
+	print("")
+	print(f"PT3 (chamber pressure):         \t{res['PT3_chamber_bar']:6.2f} bar")
+	print(f"TC3 (chamber flame temp):       \t{res['TC3_chamber_temp_K']:6.2f} K")
+	print("")
+	print(f"PT4 (N2 supply pressure):       \t{res['PT4_N2_supply_bar']:6.2f} bar")
+	print(f"TC4 (N2 supply pressure):       \t{res['TC4_run_dome_K']:6.2f} K")
+	print("")
+	print(f"ΔP:                             \t{res['delta_p_feed_bar']:6.2f} bar")
+	print(f"Thrust:                         \t{res['thrust_N']:6.2f} N")
+	print(f"Isp:                            \t{res['isp_s']:6.2f} s")
+
+	# Dump all computed variables to an output file
+	with open("outputs/teststand.txt", mode="wt") as f:
+		prob_stand.model.list_outputs(
+			val=True,
+			units=True,
+			hierarchical=True,
+			out_stream=f,
+		)
+
+	# Draw all the connectivity graphs
+	viewer = GraphViewer(prob_stand.model)
+	for graph_type in ["dataflow", "tree", "cycle"]:
+		viewer.write_graph(
+			gtype=graph_type,
+			display=False,
+			show_vars=True,
+			outfile=f"figures/teststand_{graph_type}.png",
 		)
 	#endregion
 #endregion

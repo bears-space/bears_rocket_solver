@@ -16,6 +16,7 @@ class RocketLaunchProblem(Problem):
 		cea           : CEA_Obj,
 		rho_ox        : float = 750.0,
 		rho_fuel      : float = 900.0,
+		payload_mass  : float = 1.0,
 		target_apogee : float = 3100.0,
 		**kwargs,
 	):
@@ -32,11 +33,22 @@ class RocketLaunchProblem(Problem):
 		self.driver.options["optimizer"] = "SLSQP"
 
 		# - Design variables
+
+		# Store payload mass as an instance attribute
+		self.payload_mass = payload_mass
+
 		self.model.add_design_var(
 			"OptimizationVars.o_propellant_mass",
 			lower=1.0,
 			upper=10.0,
 			ref=5.0,
+		)
+
+		self.model.add_design_var(
+			"OptimizationVars.o_mixture_ratio",
+			lower=4.0,
+			upper=10.0,
+			ref=6.0,
 		)
 
 		self.model.add_design_var(
@@ -61,6 +73,20 @@ class RocketLaunchProblem(Problem):
 		)
 
 		self.model.add_constraint(
+			"burn_time",
+			lower=2.0,
+			upper=8.0,
+			ref=5.0,
+		)
+
+		self.model.add_constraint(
+			"Propulsion.prop_thrust",
+			upper=1800.0,
+			ref=1500.0,
+		)
+
+		# Injector pressure drop safety margin
+		self.model.add_constraint(
 			"Propulsion.injector_delta_p",
 			lower=20.0,
 			ref=20.0,
@@ -77,8 +103,10 @@ class RocketLaunchProblem(Problem):
 		super().setup(**kwargs)
 
 		# Vehicle parameters
-		self.set_val("DesignVars.g_payload_mass",             1.0)
+		self.set_val("DesignVars.g_payload_mass", self.payload_mass, units="kg")
+
 		self.set_val("DesignVars.g_diameter",                 0.12)
+		self.set_val("DesignVars.press_diam",                 0.12)
 		self.set_val("DesignVars.tank_pressure",              70)
 		self.set_val("DesignVars.tank_diam",                  0.12)
 		self.set_val("DesignVars.injector_cd",                0.7)
