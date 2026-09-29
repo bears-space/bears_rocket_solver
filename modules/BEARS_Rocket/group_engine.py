@@ -35,6 +35,7 @@ class HybridEngineGroup(Group):
 			],
 			promotes_outputs=[
 				("mdot_ox", "engine_mdot_ox"),
+				("delta_p", "injector_delta_p"),
 			],
 		)
 
