@@ -1,4 +1,4 @@
-19 Explicit Output(s) in 'model'
+20 Explicit Output(s) in 'model'
 
 varname              val                 units  prom_name                          
 -------------------  ------------------  -----  -----------------------------------
@@ -11,6 +11,7 @@ RunTank
 HybridEngine
   Injector
     mdot_ox          [0.53089967]        kg/s   HybridEngine.engine_mdot_ox        
+    delta_p          [1065208.65139554]  Pa     HybridEngine.injector_delta_p      
   Fuel
     r_dot            [0.00164434]        m/s    HybridEngine.fuel_regression_rate  
     length           [0.33734733]        m      HybridEngine.fuel_length           

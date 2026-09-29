@@ -18,10 +18,14 @@ class InjectorComponent(ExplicitComponent):
 		# Discharge coefficient (efficiency) TODO
 		self.add_input("cd", val=0.7)
 
-		self.add_output("mdot_ox", val=1.0, units="kg/s")
+		self.add_output("mdot_ox", val=1.0,  units="kg/s")
+		self.add_output("delta_p", val=10e5, units="Pa")
 
 	def setup_partials(self):
 		self.declare_partials("mdot_ox", "*", method="cs")
+
+		self.declare_partials("delta_p", "p_tank",    val=1.0)
+		self.declare_partials("delta_p", "p_chamber", val=-1.0)
 
 	def compute(self, inputs, outputs):
 		p_up   = inputs["p_tank"]
@@ -41,3 +45,4 @@ class InjectorComponent(ExplicitComponent):
 			mdot = -cd * area * np.sqrt(2.0 * rho * (-delta_p))
 
 		outputs["mdot_ox"] = mdot
+		outputs["delta_p"] = delta_p
