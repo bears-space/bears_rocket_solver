@@ -88,7 +88,8 @@ def main():
 
 	copv_ox = LayeredWall(
 		Layer(material=AL_6061_T6, thickness=0.001),
-		Layer(material=CFRP_T700), # Dynamically sized for remaining pressure
+		Layer(material=CFRP_T700, helical_angle_deg=20.0, efficiency=0.85),
+		# ^ Dynamically sized for remaining pressure
 	)
 	#endregion
 
