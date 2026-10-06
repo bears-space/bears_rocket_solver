@@ -10,7 +10,6 @@ The rocket optimization script using OpenMDAO for the framework
 import os
 import numpy        as np
 import openmdao.api as om
-import rocketcea.cea_obj as cea_obj
 
 from scipy.integrate   import solve_ivp
 from scipy.interpolate import interp1d
@@ -73,11 +72,11 @@ def main():
 	#region Working directories
 	work_dir = os.path.abspath("work")
 	os.makedirs(work_dir, exist_ok=True)
-	cea_obj.ROCKETCEA_DATA_DIR = os.path.join(work_dir, "RocketCEA")
+	Thermochemistry.set_work_dir(os.path.join(work_dir, "RocketCEA"))
 	#endregion
 
 	#region Inputs
-	cfg_rocket = load_configs("inputs/rocket.default.toml")
+	cfg_rocket = load_configs("inputs/rocket.toml")
 	cfg_reac   = load_reactants("inputs/reactants.toml")
 
 	atm = BEARS_Atm("isacalc")

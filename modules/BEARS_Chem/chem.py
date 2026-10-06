@@ -1,7 +1,12 @@
 # region Imports
+import os
+import rocketcea.cea_obj as cea_obj
+
+from pathlib               import Path
 from rocketcea.input_cards import oxCards, fuelCards
 from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
-from modules.Config        import MixtureConfig
+
+from ..Config import MixtureConfig
 
 from .reac    import Reactant
 from .helpers import gencard, bulk_density
@@ -18,7 +23,20 @@ class Thermochemistry:
 		self.rho_fuel = rho_fuel
 
 	@classmethod
-	def from_config(cls, config: MixtureConfig) -> "Thermochemistry":
+	def set_work_dir(cls, path: str | Path):
+		abs_path = os.path.abspath(path)
+		os.makedirs(abs_path, exist_ok=True)
+		cea_obj.ROCKETCEA_DATA_DIR = abs_path
+
+	@classmethod
+	def from_config(
+		cls,
+		config   : MixtureConfig,
+		work_dir : str | Path | None = None,
+	) -> "Thermochemistry":
+		if work_dir is not None:
+			cls.set_work_dir(work_dir)
+
 		reac_cards = {"oxid": oxCards, "fuel": fuelCards}
 
 		rnames    : dict[str, str]   = {}

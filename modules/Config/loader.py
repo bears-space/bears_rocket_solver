@@ -17,9 +17,37 @@ from .records import (
 )
 #endregion
 
-def load_configs(path: str | Path) -> RocketConfig:
-	with open(path, "rb") as f:
+def deep_merge(base: dict, overlay: dict) -> dict:
+	merged = dict(base)
+	for k, v in overlay.items():
+		if (
+			k in merged
+			and isinstance(merged[k], dict)
+			and isinstance(v, dict)
+		):
+			merged[k] = deep_merge(merged[k], v)
+		else:
+			merged[k] = v
+
+	return merged
+
+def load_configs(
+	path         : str | Path | None = "inputs/rocket.toml",
+	default_path : str | Path        = "inputs/rocket.default.toml",
+) -> RocketConfig:
+	with open(default_path, "rb") as f:
 		data = tomllib.load(f)
+
+	if path is not None:
+		user_file = Path(path)
+
+		if (
+			user_file.exists()
+			and user_file.resolve() != Path(default_path).resolve()
+		):
+			with open(user_file, "rb") as f:
+				n_data = tomllib.load(f)
+				data = deep_merge(data, n_data)
 
 	ox = data["oxidizer_tank"]
 	pr = data["pressurizer_tank"]
