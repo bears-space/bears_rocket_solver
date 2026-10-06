@@ -24,7 +24,8 @@ In descending order of importance:
 
     - [x] Fuel stack
 
-  - [x] ~~Aerodynamics component~~ Necessary for apogee calculator
+  - [x] Aerodynamics component &rarr; Implemented, drag model necessary for
+        apogee calculator
 
   - [x] Figure out a reasonable class structure for rocket form factor
         parameters (diameter etc.)
@@ -33,18 +34,19 @@ In descending order of importance:
 
 - [ ] Implement proper mass calculations for subcomponent assemblies
 
-- [ ] Figure out the correct chemistry of CEA reactants, specifically reactant
+- [x] Figure out the correct chemistry of CEA reactants, specifically reactant
       temperatures and enthalpies of formation
 
-- [ ] Move optimization options and inputs from `solver.py` to JSON files in
-      `inputs/`
+- [x] Move optimization options and inputs from `solver.py` to JSON files in
+      `inputs/` &rarr; Defaults and overrides in `inputs/rocket.default.toml`
+      and `inputs/rocket.toml`
 
 - [x] Fix RocketCEA's garbage folders
 
 - [ ] Better looking custom graphs
 
-- [ ] Move to a JSON5 parsing library to allow for C++-style comments in inputs
-      files
+- [x] Move to a JSON5 parsing library to allow for C++-style comments in inputs
+      files &rarr; Moved to TOML
 
 > [!WARNING]
 > Most of this documentation is currently out of date **TODO**
