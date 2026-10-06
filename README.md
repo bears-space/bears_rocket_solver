@@ -82,6 +82,10 @@ bears_rocket_solver
 │   ├── BEARS_Chem              # CEA propellant chemistry module
 │   │   ├── chem.py
 │   │   └── ...
+│   ├── BEARS_Material          # Tank wall material properties module
+│   │   ├── material.py         # - Material data class
+│   │   ├── wall.py             # - Multi-layered walls
+│   │   └── ...
 │   └── BEARS_Rocket            # MDAO class structure module
 │       ├── comp_chem.py        # - Propulsion chemistry component
 │       ├── comp_tank.py        # - Tank component
@@ -112,6 +116,10 @@ propulsion subsystem
 [isacalc](https://github.com/LukeDeWaal/ISA_Calculator)
 package for calculating the ISA model parameters from the altitude
 
+`BEARS_Material`: Classes for the [OpenMDAO](#openmdao) rocket assembly
+structure. Each file defines one component class, and each file is prefixed with
+the MDAO component type it defines: `group_`, `comp_`, etc
+
 `BEARS_Rocket`: Classes for the [OpenMDAO](#openmdao) rocket assembly
 structure. Each file defines one component class, and each file is prefixed with
 the MDAO component type it defines: `group_`, `comp_`, etc
@@ -125,7 +133,7 @@ At the root of the model tree is a `Problem` definition, which contains a
 
 The current dataflow structure of our model looks as follows:
 
-![rocket-structure](figures/rocket-dataflow.png "Automatically generated data flow diagram of the current class structure")
+![rocket-structure](figures/rocket_dataflow.png "Automatically generated data flow diagram of the current class structure")
 
 Each global input variable (coming out of `_auto_ivc`) can be either fixed or
 optimized for. More than one variable can be optimized at once. In the current
