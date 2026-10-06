@@ -1,8 +1,9 @@
 #region Imports
 import openmdao.api as om
 
-from openmdao.api      import Group, IndepVarComp
-from rocketcea.cea_obj import CEA_Obj
+from openmdao.api import Group, IndepVarComp
+
+from ..BEARS_Chem import Thermochemistry
 
 from .comp_tank    import TankComponent
 from .group_engine import HybridEngineGroup
@@ -11,18 +12,16 @@ from .group_engine import HybridEngineGroup
 class TestStandGroup(Group):
 
 	def initialize(self):
-		self.options.declare("cea",                     types=CEA_Obj)
+		self.options.declare("chem",                    types=Thermochemistry)
 		self.options.declare("rho_ox",   default=750.0, types=float)
 		self.options.declare("rho_fuel", default=900.0, types=float)
 
 	def setup(self):
-		cea      = self.options["cea"]
-		rho_ox   = self.options["rho_ox"]
-		rho_fuel = self.options["rho_fuel"]
+		chem = self.options["chem"]
 
-		self.set_input_defaults("run_tank_pressure_PT2", val=60e5,   units="Pa")
-		self.set_input_defaults("run_tank_density",      val=rho_ox, units="kg/m**3")
-		self.set_input_defaults("run_tank_fluid_mass",   val=10.0,   units="kg")
+		self.set_input_defaults("run_tank_pressure_PT2", val=60e5,        units="Pa")
+		self.set_input_defaults("run_tank_density",      val=chem.rho_ox, units="kg/m**3")
+		self.set_input_defaults("run_tank_fluid_mass",   val=10.0,        units="kg")
 
 		#region Sensors
 		sensors = self.add_subsystem("Sensors", IndepVarComp())
@@ -58,7 +57,7 @@ class TestStandGroup(Group):
 
 		self.add_subsystem(
 			"HybridEngine",
-			HybridEngineGroup(cea=cea, rho_ox=rho_ox, rho_fuel=rho_fuel),
+			HybridEngineGroup(chem=chem),
 			promotes_inputs=[
 				("engine_feed_pressure",   "run_tank_pressure_PT2"),
 				("engine_prop_mass_init",  "test_prop_mass_init"),

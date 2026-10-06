@@ -7,7 +7,6 @@ The rocket optimization script using OpenMDAO for the framework
 """
 
 #region Imports
-import json
 import os
 import numpy        as np
 import openmdao.api as om
@@ -16,14 +15,14 @@ import rocketcea.cea_obj as cea_obj
 from scipy.integrate   import solve_ivp
 from scipy.interpolate import interp1d
 from scipy.constants   import g
-from rocketcea.cea_obj import CEA_Obj
 from openmdao.visualization.graph_viewer import GraphViewer
 
 import openmdao.utils.variable_table as vt
 import openmdao.core.system          as sys_mod
 
+from modules.Config          import load_configs, load_reactants
 from modules.BEARS_Atmo      import BEARS_Atm
-from modules.BEARS_Chem      import Reactant, parse_reactants, parse_densities
+from modules.BEARS_Chem      import Thermochemistry
 from modules.BEARS_Materials import Layer, LayeredWall, AL_6061_T6, CFRP_T700
 from modules.BEARS_Rocket    import TestStandProblem, RocketLaunchProblem
 #endregion
@@ -78,13 +77,12 @@ def main():
 	#endregion
 
 	#region Inputs
-	with open("inputs/reactants.json", "r") as f:
-		data = json.load(f)
-		oname, fname = parse_reactants(data)
-		rho_ox, rho_fuel = parse_densities(data)
+	cfg_rocket = load_configs("inputs/rocket.default.toml")
+	cfg_reac   = load_reactants("inputs/reactants.toml")
 
 	atm = BEARS_Atm("isacalc")
-	cea = CEA_Obj(oxName=oname, fuelName=fname)
+
+	chem = Thermochemistry.from_config(cfg_reac)
 
 	copv_ox = LayeredWall(
 		Layer(material=AL_6061_T6, thickness=0.001),
@@ -96,11 +94,9 @@ def main():
 	#region Rocket optimization
 	prob_rocket = RocketLaunchProblem(
 		atm=atm,
-		cea=cea,
-		rho_ox=rho_ox,
-		rho_fuel=rho_fuel,
-		payload_mass=10.0,
-		target_apogee=3100.0,
+		chem=chem,
+		payload_mass=cfg_rocket.cfg_global.payload_mass_kg,
+		target_apogee=cfg_rocket.cfg_global.target_altitude_m,
 		ox_wall_material=copv_ox,
 		reports=True,
 		work_dir=work_dir,
@@ -155,12 +151,7 @@ def main():
 	print("--------")
 
 	#region Test stand
-	prob_stand = TestStandProblem(
-		cea=cea,
-		rho_ox=rho_ox,
-		rho_fuel=rho_fuel,
-		reports=False,
-	)
+	prob_stand = TestStandProblem(chem=chem, reports=False)
 
 	prob_stand.setup()
 
