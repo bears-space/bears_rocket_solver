@@ -1,7 +1,9 @@
 #region Imports
+import os
 import openmdao.api as om
 
 from openmdao.api import Problem
+from openmdao.visualization.graph_viewer import GraphViewer
 
 from ..BEARS_Chem import Thermochemistry
 
@@ -86,3 +88,55 @@ class TestStandProblem(Problem):
 			"thrust_N":           thrust,
 			"isp_s":              isp,
 		}
+
+	def print_summary(self, res: dict):
+
+		FMT = "8.3f"
+
+		print("Simulating test stand:")
+		print("")
+		print(f"PT1 (N2O supply pressure):      \t{res['PT1_N2O_supply_bar']:{FMT}} bar")
+		print(f"TC1 (N2O supply temperature):   \t{res['TC1_N2O_supply_K']:{FMT}} K")
+		print("")
+		print(f"PT2 (run tank feed temperature):\t{res['PT2_run_tank_bar']:{FMT}} bar")
+		print(f"TC2 (run tank liquid temp):     \t{res['TC2_run_liquid_K']:{FMT}} K")
+		print("")
+		print(f"PT3 (chamber pressure):         \t{res['PT3_chamber_bar']:{FMT}} bar")
+		print(f"TC3 (chamber flame temp):       \t{res['TC3_chamber_temp_K']:{FMT}} K")
+		print("")
+		print(f"PT4 (N2 supply pressure):       \t{res['PT4_N2_supply_bar']:{FMT}} bar")
+		print(f"TC4 (N2 supply pressure):       \t{res['TC4_run_dome_K']:{FMT}} K")
+		print("")
+		print(f"ΔP:                             \t{res['delta_p_feed_bar']:{FMT}} bar")
+		print(f"Thrust:                         \t{res['thrust_N']:{FMT}} N")
+		print(f"Isp:                            \t{res['isp_s']:{FMT}} s")
+
+	def print_parameters(self, path: str = "outputs/rocket.txt"):
+		os.makedirs(os.path.dirname(path), exist_ok=True)
+		with open(path, mode="wt") as f:
+			self.model.list_outputs(
+				val=True,
+				units=True,
+				hierarchical=True,
+				out_stream=f,
+			)
+
+	def print_graphs(
+		self,
+		out_dir : str = "figures",
+		prefix  : str = "teststand",
+	):
+		os.makedirs(out_dir, exist_ok=True)
+		viewer = GraphViewer(self.model)
+		for gtype in ["dataflow", "tree", "cycle"]:
+			viewer.write_graph(
+				gtype=gtype,
+				display=False,
+				show_vars=True,
+				outfile=os.path.join(out_dir, f"{prefix}_{gtype}.png"),
+			)
+
+	def report(self, res: dict, out_txt: str = "outputs/teststand.txt"):
+		self.print_summary(res)
+		self.print_parameters(out_txt)
+		self.print_graphs()
