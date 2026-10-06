@@ -1,46 +1,46 @@
 32 Explicit Output(s) in 'model'
 
-varname                    val                 units  prom_name                          
--------------------------  ------------------  -----  -----------------------------------
+varname                    val                units  prom_name                          
+-------------------------  -----------------  -----  -----------------------------------
 Sensors
-  PT1_N2O_supply_pressure  [65.]               bar    Sensors.PT1_N2O_supply_pressure    
-  TC1_N2O_supply_temp      [288.15]            degK   Sensors.TC1_N2O_supply_temp        
-  PT2_run_tank_pressure    [60.]               bar    Sensors.PT2_run_tank_pressure      
-  TC2_run_liquid_temp      [275.15]            degK   Sensors.TC2_run_liquid_temp        
-  PT4_N2_supply_pressure   [200.]              bar    Sensors.PT4_N2_supply_pressure     
-  TC4_run_dome_temp        [285.15]            degK   Sensors.TC4_run_dome_temp          
+  PT1_N2O_supply_pressure  [65.]              bar    Sensors.PT1_N2O_supply_pressure    
+  TC1_N2O_supply_temp      [288.15]           degK   Sensors.TC1_N2O_supply_temp        
+  PT2_run_tank_pressure    [60.]              bar    Sensors.PT2_run_tank_pressure      
+  TC2_run_liquid_temp      [275.15]           degK   Sensors.TC2_run_liquid_temp        
+  PT4_N2_supply_pressure   [200.]             bar    Sensors.PT4_N2_supply_pressure     
+  TC4_run_dome_temp        [285.15]           degK   Sensors.TC4_run_dome_temp          
 RunTank
-  t_wall                   [0.00236842]        m      RunTank.t_wall                     
-  t_liner                  [0.00236842]        m      RunTank.t_liner                    
-  t_wrap                   [0.]                m      RunTank.t_wrap                     
-  m_liner                  [1.77166827]        kg     RunTank.m_liner                    
-  m_wrap                   [0.]                kg     RunTank.m_wrap                     
-  t_layers                 [0.00236842]        m      RunTank.t_layers                   
-  m_layers                 [1.77166827]        kg     RunTank.m_layers                   
-  l_tank                   [0.59970813]        m      run_tank_length                    
-  v_internal               [0.00905797]        m**3   run_tank_volume                    
-  v_fluid                  [0.00833333]        m**3   RunTank.v_fluid                    
-  m_tank_dry               [1.77166827]        kg     run_tank_dry_mass                  
+  t_wall                   [0.00236842]       m      RunTank.t_wall                     
+  t_liner                  [0.00236842]       m      RunTank.t_liner                    
+  t_wrap                   [0.]               m      RunTank.t_wrap                     
+  m_liner                  [1.77166827]       kg     RunTank.m_liner                    
+  m_wrap                   [0.]               kg     RunTank.m_wrap                     
+  t_layers                 [0.00236842]       m      RunTank.t_layers                   
+  m_layers                 [1.77166827]       kg     RunTank.m_layers                   
+  l_tank                   [0.59970813]       m      run_tank_length                    
+  v_internal               [0.00905797]       m**3   run_tank_volume                    
+  v_fluid                  [0.00833333]       m**3   RunTank.v_fluid                    
+  m_tank_dry               [1.77166827]       kg     run_tank_dry_mass                  
 HybridEngine
   Injector
-    mdot_ox                [0.50451454]        kg/s   HybridEngine.engine_mdot_ox        
-    delta_p                [1785199.38174227]  Pa     HybridEngine.injector_delta_p      
+    mdot_ox                [0.5047713]        kg/s   HybridEngine.engine_mdot_ox        
+    delta_p                [1812968.2381119]  Pa     HybridEngine.injector_delta_p      
   Fuel
-    r_dot                  [0.00160296]        m/s    HybridEngine.fuel_regression_rate  
-    length                 [0.23889386]        m      HybridEngine.fuel_length           
-    grain_diam             [0.0958011]         m      HybridEngine.fuel_grain_diam       
-    m_fuel                 [0.79228029]        kg     HybridEngine.fuel_mass             
-    mdot_fuel              [0.05545678]        kg/s   HybridEngine.engine_mdot_fuel      
+    r_dot                  [0.00160337]       m/s    HybridEngine.fuel_regression_rate  
+    length                 [0.23897192]       m      HybridEngine.fuel_length           
+    grain_diam             [0.09578913]       m      HybridEngine.fuel_grain_diam       
+    m_fuel                 [0.79233193]       kg     HybridEngine.fuel_mass             
+    mdot_fuel              [0.05548902]       kg/s   HybridEngine.engine_mdot_fuel      
   Chemistry
-    cstar                  [1573.93241501]     m/s    HybridEngine.engine_cstar          
-    isp                    [310.30555244]      s      test_isp                           
-    t_chamber              [3306.93024492]     degK   test_chamber_temp_TC3              
+    cstar                  [1573.84857225]    m/s    HybridEngine.engine_cstar          
+    isp                    [310.29826234]     s      test_isp                           
+    t_chamber              [3306.28447139]    degK   test_chamber_temp_TC3              
   Nozzle
-    p_chamber              [4214800.61825773]  Pa     test_chamber_pressure_PT3          
-    mdot_prop              [0.55997132]        kg/s   HybridEngine.engine_mdot_prop      
-    thrust                 [1586.87677275]     N      test_thrust                        
-    eta_nozzle             [0.93125215]        None   HybridEngine.nozzle_efficiency     
-    exit_half_angle        [16.1512239]        deg    HybridEngine.nozzle_exit_half_angle
+    p_chamber              [4187031.7618881]  Pa     test_chamber_pressure_PT3          
+    mdot_prop              [0.56026031]       kg/s   HybridEngine.engine_mdot_prop      
+    thrust                 [1587.44494535]    N      test_thrust                        
+    eta_nozzle             [0.9311269]        None   HybridEngine.nozzle_efficiency     
+    exit_half_angle        [16.20544516]      deg    HybridEngine.nozzle_exit_half_angle
 
 
 0 Implicit Output(s) in 'model'

@@ -1,5 +1,5 @@
 #region Imports
-from math        import pi
+from math        import pi, cos, tan, radians
 from dataclasses import dataclass
 
 import numpy as np
@@ -9,13 +9,19 @@ from .material import Material
 
 @dataclass(frozen=True)
 class Layer:
-	material:        Material
-	thickness:       float | None = None # None = sized for pressure
-	is_load_bearing: bool = True # False for thermal insulation
+	material          : Material
+	thickness         : float | None = None # None for pressure-sized
+	is_load_bearing   : bool = True         # False for thermal insulation
+	helical_angle_deg : float | None = None # None for isotropic hoop
+	efficiency        : float = 0.85        # Fiber translation efficiency
 
 	@property
 	def is_dynamic(self) -> bool:
 		return self.thickness is None
+
+	@property
+	def is_composite(self) -> bool:
+		return self.helical_angle_deg is not None
 
 class LayeredWall:
 
@@ -36,8 +42,14 @@ class LayeredWall:
 
 		for layer in self.layers:
 			if not layer.is_dynamic and layer.is_load_bearing:
-				sigma_safe = layer.material.yield_strength / sf
-				p_fixed += (sigma_safe * layer.thickness) / r_out
+				if layer.is_composite:
+					sigma_safe = (
+						layer.material.ultimate_strength * layer.efficiency
+					) / sf
+					p_fixed += (sigma_safe * layer.thickness) / (1.5 * r_out)
+				else:
+					sigma_safe = layer.material.yield_strength / sf
+					p_fixed += (sigma_safe * layer.thickness) / r_out
 
 		diff_p = p_max - p_fixed
 
@@ -49,8 +61,26 @@ class LayeredWall:
 		thicknesses = []
 		for layer in self.layers:
 			if layer.is_dynamic:
-				sigma_safe = layer.material.yield_strength / sf
-				t = (p_rem * r_out) / (sigma_safe + p_rem)
+				if layer.is_composite:
+					# Netting analysis strengths
+					# <https://cpvdesign.com/guides/Netting%20Analysis%20of%20CPVs.md>
+					alpha = radians(layer.helical_angle_deg)
+					sigma_safe = (
+						layer.material.ultimate_strength
+						* layer.efficiency
+						/ sf
+					)
+					cos_a = cos(alpha)
+					tan_a = tan(alpha)
+					t_hel = (p_rem * r_out) / (2.0 * sigma_safe * cos_a**2)
+					t_hoop = (
+						p_rem * r_out / sigma_safe
+						* (1.0 - 0.5 * tan_a**2)
+					)
+					t = t_hel + t_hoop
+				else:
+					sigma_safe = layer.material.yield_strength / sf
+					t = (p_rem * r_out) / (sigma_safe + p_rem)
 			else:
 				t = layer.thickness
 
