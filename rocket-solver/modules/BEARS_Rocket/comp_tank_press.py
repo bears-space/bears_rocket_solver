@@ -13,12 +13,13 @@ class PressurantTankComponent(TankComponent):
 		self.options.declare("t_gas",    default=293.15, types=float)
 		self.options.declare("z_factor", default=1.0,    types=float)
 
-	def setup(self):
-		super().setup()
-
+	def setup_fluid_inputs(self):
 		# Sizing inputs from the oxidizer system
 		self.add_input("v_ox_displace", val=0.01, units="m**3")
 		self.add_input("p_ox",          val=70e5, units="Pa")
+
+	def setup(self):
+		super().setup()
 
 		# Thermodynamic outputs
 		self.add_output("m_press",      val=1.2,    units="kg")

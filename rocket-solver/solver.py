@@ -32,7 +32,8 @@ from modules.BEARS_Rocket    import TestStandProblem, RocketLaunchProblem
 def patch_variable_table():
 	"""
 	Dirty hack to prevent OpenMDAO from taking the Euclidean norm of array
-	variables since that makes no sense for this setup
+	variables for the variable printout, since that makes no sense for this
+	setup
 	"""
 
 	orig_write = vt.write_var_table

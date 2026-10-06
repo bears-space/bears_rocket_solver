@@ -17,6 +17,6 @@ class OxidizerTankComponent(TankComponent):
 	def get_fluid_density(self, inputs):
 		return self.options["rho_ox"]
 
-	def setup(self):
-		super().setup()
-		self.add_input("m_oxy", val=10.0, units="kg")
+	def setup_fluid_inputs(self):
+		self.add_input("m_oxy",       val=10.0, units="kg")
+		self.add_input("ullage_frac", val=0.01)
