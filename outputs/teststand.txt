@@ -1,4 +1,4 @@
-26 Explicit Output(s) in 'model'
+32 Explicit Output(s) in 'model'
 
 varname                    val                 units  prom_name                          
 -------------------------  ------------------  -----  -----------------------------------
@@ -11,6 +11,12 @@ Sensors
   TC4_run_dome_temp        [285.15]            degK   Sensors.TC4_run_dome_temp          
 RunTank
   t_wall                   [0.00236842]        m      RunTank.t_wall                     
+  t_liner                  [0.00236842]        m      RunTank.t_liner                    
+  t_wrap                   [0.]                m      RunTank.t_wrap                     
+  m_liner                  [1.77166827]        kg     RunTank.m_liner                    
+  m_wrap                   [0.]                kg     RunTank.m_wrap                     
+  t_layers                 [0.00236842]        m      RunTank.t_layers                   
+  m_layers                 [1.77166827]        kg     RunTank.m_layers                   
   l_tank                   [0.59970813]        m      run_tank_length                    
   v_internal               [0.00905797]        m**3   run_tank_volume                    
   v_fluid                  [0.00833333]        m**3   RunTank.v_fluid                    

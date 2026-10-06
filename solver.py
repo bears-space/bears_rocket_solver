@@ -19,14 +19,56 @@ from scipy.constants   import g
 from rocketcea.cea_obj import CEA_Obj
 from openmdao.visualization.graph_viewer import GraphViewer
 
+import openmdao.utils.variable_table as vt
+import openmdao.core.system          as sys_mod
+
 from modules.BEARS_Atmo      import BEARS_Atm
 from modules.BEARS_Chem      import Reactant, parse_reactants, parse_densities
 from modules.BEARS_Materials import Layer, LayeredWall, AL_6061_T6, CFRP_T700
 from modules.BEARS_Rocket    import TestStandProblem, RocketLaunchProblem
 #endregion
 
+#region Helpers
+def patch_variable_table():
+	"""
+	Dirty hack to prevent OpenMDAO from taking the Euclidean norm of array
+	variables since that makes no sense for this setup
+	"""
+
+	orig_write = vt.write_var_table
+
+	def patched_write(
+		pathname,
+		var_list,
+		var_type,
+		var_dict,
+		hierarchical=True,
+		print_arrays=False,
+		out_stream=None,
+	):
+		patched = {}
+		for k, meta in var_dict.items():
+			meta_copy = dict(meta)
+			val = meta_copy.get("val")
+			if isinstance(val, np.ndarray) and val.size > 1:
+				meta_copy["val"] = np.array2string(
+					val, precision=6, separator=", "
+				)
+			patched[k] = meta_copy
+
+		return orig_write(
+			pathname, var_list, var_type, patched,
+			hierarchical=hierarchical, print_arrays=print_arrays,
+			out_stream=out_stream,
+		)
+
+	vt.write_var_table      = patched_write
+	sys_mod.write_var_table = patched_write
+#endregion
+
 #region Main
 def main():
+	patch_variable_table()
 
 	#region Working directories
 	work_dir = os.path.abspath("work")

@@ -62,6 +62,8 @@ class PropulsionGroup(Group):
 				("l_tank",     "tank_length"),
 				("v_internal", "tank_volume"),
 				("t_wall",     "tank_wall_thickness"),
+				("t_liner",    "tank_liner_thickness"),
+				("t_wrap",     "tank_wrap_thickness"),
 			],
 		)
 
