@@ -12,16 +12,22 @@ from .comp_traj  import TrajectoryComponent
 class RocketGroup(Group):
 
 	def initialize(self):
-		self.options.declare("cea",      types=CEA_Obj)
-		self.options.declare("atm",      types=BEARS_Atm)
+		self.options.declare("cea", types=CEA_Obj)
+		self.options.declare("atm", types=BEARS_Atm)
+
 		self.options.declare("rho_ox",   default=700.0, types=float)
 		self.options.declare("rho_fuel", default=900.0, types=float)
 
+		self.options.declare("ox_wall_material",    default=None)
+		self.options.declare("press_wall_material", default=None)
+
 	def setup(self):
-		cea      = self.options["cea"]
-		atm      = self.options["atm"]
-		rho_ox   = self.options["rho_ox"]
-		rho_fuel = self.options["rho_fuel"]
+		cea        = self.options["cea"]
+		atm        = self.options["atm"]
+		rho_ox     = self.options["rho_ox"]
+		rho_fuel   = self.options["rho_fuel"]
+		ox_wall    = self.options["ox_wall_material"]
+		press_wall = self.options["press_wall_material"]
 
 		#region Independent variable components
 		# DesignVars:
@@ -84,7 +90,13 @@ class RocketGroup(Group):
 		#region Subsystems
 		self.add_subsystem(
 			"Propulsion",
-			PropulsionGroup(cea=cea, rho_ox=rho_ox, rho_fuel=rho_fuel),
+			PropulsionGroup(
+				cea=cea,
+				rho_ox=rho_ox,
+				rho_fuel=rho_fuel,
+				ox_wall_material=ox_wall,
+				press_wall_material=press_wall,
+			),
 		)
 
 		self.add_subsystem("Mass", MassComponent())

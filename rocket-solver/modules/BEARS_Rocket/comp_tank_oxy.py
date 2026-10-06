@@ -8,6 +8,7 @@ from .comp_tank import TankComponent
 class OxidizerTankComponent(TankComponent):
 
 	def initialize(self):
+		super().initialize()
 		self.options.declare("rho_ox", default=700.0, types=float)
 
 	def get_fluid_mass(self, inputs):

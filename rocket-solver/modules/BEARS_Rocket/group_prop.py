@@ -13,14 +13,20 @@ from .group_engine    import HybridEngineGroup
 class PropulsionGroup(Group):
 
 	def initialize(self):
-		self.options.declare("cea",      types=CEA_Obj)
+		self.options.declare("cea", types=CEA_Obj)
+
 		self.options.declare("rho_ox",   default=700.0, types=float)
 		self.options.declare("rho_fuel", default=900.0, types=float)
 
+		self.options.declare("ox_wall_material",    default=None)
+		self.options.declare("press_wall_material", default=None)
+
 	def setup(self):
-		cea      = self.options["cea"]
-		rho_ox   = self.options["rho_ox"]
-		rho_fuel = self.options["rho_fuel"]
+		cea        = self.options["cea"]
+		rho_ox     = self.options["rho_ox"]
+		rho_fuel   = self.options["rho_fuel"]
+		ox_wall    = self.options["ox_wall_material"]
+		press_wall = self.options["press_wall_material"]
 
 		self.set_input_defaults("tank_pressure", val=70e5, units="Pa")
 
@@ -39,7 +45,10 @@ class PropulsionGroup(Group):
 		#       `v_fluid` for the pressurant component to use
 		self.add_subsystem(
 			"OxidizerTank",
-			OxidizerTankComponent(rho_ox=rho_ox),
+			OxidizerTankComponent(
+				rho_ox=rho_ox,
+				wall_material=ox_wall,
+			),
 			promotes_inputs=[
 				("p_tank_max",    "tank_pressure"),
 				("diam_out",      "tank_diam"),
@@ -58,7 +67,7 @@ class PropulsionGroup(Group):
 
 		self.add_subsystem(
 			"PressurantTank",
-			PressurantTankComponent(),
+			PressurantTankComponent(wall_material=press_wall),
 			promotes_inputs=[
 				("p_tank_max",    "press_pressure"),
 				("diam_out",      "press_diam"),
