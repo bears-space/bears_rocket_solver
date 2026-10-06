@@ -1,3 +1,4 @@
+# -*- lexical-binding: t; -*-
 #+LATEX_CLASS: article
 #+LATEX_CLASS_OPTIONS: [fleqn]
 #+LATEX_HEADER: \usepackage{parskip}
@@ -218,6 +219,10 @@ P_\text{c}^{(k+1)}
 +60+ 70 bar tank pressure
 
 Should be roughly 30-40 kg
+
+Netting analysis of carbon fiber tanks:
+
+[[https://cpvdesign.com/guides/Netting%20Analysis%20of%20CPVs.md]]
 
 *** Plumbing/injector
 

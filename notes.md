@@ -7,3 +7,10 @@
 - graphs over the timeline of the burn
 
 - 20-25 bar for 70 bar tank pressure
+
+06.10.2026
+
+- talk to niklas, read through rocketpal
+
+- flight control
+
