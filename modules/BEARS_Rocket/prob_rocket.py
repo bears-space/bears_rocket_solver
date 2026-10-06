@@ -12,12 +12,14 @@ class RocketLaunchProblem(Problem):
 
 	def __init__(
 		self,
-		atm           : BEARS_Atm,
-		cea           : CEA_Obj,
-		rho_ox        : float = 750.0,
-		rho_fuel      : float = 900.0,
-		payload_mass  : float = 1.0,
-		target_apogee : float = 3100.0,
+		atm                 : BEARS_Atm,
+		cea                 : CEA_Obj,
+		rho_ox              : float = 750.0,
+		rho_fuel            : float = 900.0,
+		payload_mass        : float = 1.0,
+		target_apogee       : float = 3100.0,
+		ox_wall_material    = None,
+		press_wall_material = None,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
@@ -27,6 +29,8 @@ class RocketLaunchProblem(Problem):
 			cea=cea,
 			rho_ox=rho_ox,
 			rho_fuel=rho_fuel,
+			ox_wall_material=ox_wall_material,
+			press_wall_material=press_wall_material,
 		)
 
 		self.driver = om.ScipyOptimizeDriver()

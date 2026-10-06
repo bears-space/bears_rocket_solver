@@ -19,9 +19,10 @@ from scipy.constants   import g
 from rocketcea.cea_obj import CEA_Obj
 from openmdao.visualization.graph_viewer import GraphViewer
 
-from modules.BEARS_Atmo   import BEARS_Atm
-from modules.BEARS_Chem   import Reactant, parse_reactants, parse_densities
-from modules.BEARS_Rocket import TestStandProblem, RocketLaunchProblem
+from modules.BEARS_Atmo      import BEARS_Atm
+from modules.BEARS_Chem      import Reactant, parse_reactants, parse_densities
+from modules.BEARS_Materials import Layer, LayeredWall, AL_6061_T6, CFRP_T700
+from modules.BEARS_Rocket    import TestStandProblem, RocketLaunchProblem
 #endregion
 
 #region Main
@@ -41,6 +42,11 @@ def main():
 
 	atm = BEARS_Atm("isacalc")
 	cea = CEA_Obj(oxName=oname, fuelName=fname)
+
+	copv_ox = LayeredWall(
+		Layer(material=AL_6061_T6, thickness=0.001),
+		Layer(material=CFRP_T700), # Dynamically sized for remaining pressure
+	)
 	#endregion
 
 	#region Rocket optimization
@@ -51,6 +57,7 @@ def main():
 		rho_fuel=rho_fuel,
 		payload_mass=10.0,
 		target_apogee=3100.0,
+		ox_wall_material=copv_ox,
 		reports=True,
 		work_dir=work_dir,
 	)

@@ -3,9 +3,19 @@ import numpy as np
 
 from math         import pi
 from openmdao.api import ExplicitComponent
+
+from ..BEARS_Materials import AL_6061_T6
+from ..BEARS_Materials import Layer, LayeredWall
 # endregion
 
 class TankComponent(ExplicitComponent):
+
+	def initialize(self):
+		self.options.declare(
+			"wall_material",
+			default=None,
+			types=(LayeredWall, type(None)),
+		)
 
 	def setup(self):
 		self.add_input("m_fluid",       val=10.0,   units="kg")
@@ -50,9 +60,13 @@ class TankComponent(ExplicitComponent):
 
 		# Hoop stress
 		# <https://www.engineersedge.com/material_science/hoop-stress.htm>
-		sigma_safe = sigma_y / sf
+
+		wall = self.options["wall_material"]
+		if wall is None: wall = LayeredWall(Layer(AL_6061_T6))
+
 		r_out = d_out / 2.0
-		t_wall = (p_max * r_out) / (sigma_safe + p_max)
+		thicknesses = wall.size_layers(p_max, r_out, sf)
+		t_wall = sum(thicknesses)
 
 		r_in = r_out - t_wall
 		d_in = 2.0 * r_in
@@ -71,10 +85,8 @@ class TankComponent(ExplicitComponent):
 		a_int = pi * r_in**2
 		l_cyl = v_cyl / a_int
 		l_tot = l_cyl + d_out
-		v_ext = (pi * r_out**2 * l_cyl) + ((4.0 / 3.0) * pi * r_out**3)
-		v_struct = v_ext - v_int
 
-		m_dry = v_struct * rho_w
+		m_dry, _ = wall.compute_masses(thicknesses, r_in, l_cyl)
 
 		outputs["t_wall"]     = t_wall
 		outputs["l_tank"]     = l_tot

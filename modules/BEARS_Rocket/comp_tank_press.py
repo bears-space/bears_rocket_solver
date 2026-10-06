@@ -8,6 +8,7 @@ from .comp_tank import TankComponent
 class PressurantTankComponent(TankComponent):
 
 	def initialize(self):
+		super().initialize()
 		self.options.declare("r_gas",    default=296.8,  types=float)
 		self.options.declare("t_gas",    default=293.15, types=float)
 		self.options.declare("z_factor", default=1.0,    types=float)
