@@ -1,7 +1,9 @@
 #region Imports
+import os
 import openmdao.api as om
 
-from openmdao.api      import Problem
+from openmdao.api import Problem
+from openmdao.visualization.graph_viewer import GraphViewer
 
 from ..BEARS_Atmo import BEARS_Atm
 from ..BEARS_Chem import Thermochemistry
@@ -159,3 +161,56 @@ class RocketLaunchProblem(Problem):
 				units="bar"
 			)[0],
 		}
+
+	def print_summary(self, res: dict):
+
+		FMT = "8.3f"
+
+		print("Optimized rocket parameters:")
+		print("")
+		print(f"Optimized m_prop:     \t{res['m_prop_kg']:{FMT}} kg")
+		print(f"Optimized A_inj:      \t{res['a_inj_mm2']:{FMT}} mm²")
+		print(f"Optimized A_throat:   \t{res['a_throat_cm2']:{FMT}} cm²")
+		print(f"Optimized MR:         \t{res['mr']:{FMT}}")
+		print("")
+		print(f"Apogee:               \t{res['apogee_m']:{FMT}} m")
+		print(f"Burn time:            \t{res['burn_time_s']:{FMT}} s")
+		print(f"Liftoff thrust:       \t{res['thrust_N']:{FMT}} N")
+		print(f"Liftoff Isp:          \t{res['isp_s']:{FMT}} s")
+		print(f"Chamber pressure:     \t{res['p_chamber_bar']:{FMT}} bar")
+		print(f"Injector ΔP:          \t{res['delta_p_bar']:{FMT}} bar")
+		print("")
+		print(f"Dry mass:             \t{res['m_dry_kg']:{FMT}} kg")
+		print(f"Total mass at liftoff:\t{res['m_initial_kg']:{FMT}} kg")
+
+	def print_parameters(self, path: str = "outputs/rocket.txt"):
+		"""Dump all computed variables to an output file"""
+
+		os.makedirs(os.path.dirname(path), exist_ok=True)
+		with open(path, mode="wt") as f:
+			self.model.list_outputs(
+				val=True,
+				units=True,
+				hierarchical=True,
+				out_stream=f,
+			)
+
+	def print_graphs(self, out_dir: str = "figures", prefix: str = "rocket"):
+		"""Draw all the connectivity graphs"""
+
+		os.makedirs(out_dir, exist_ok=True)
+		viewer = GraphViewer(self.model)
+		for gtype in ["dataflow", "tree", "cycle"]:
+			viewer.write_graph(
+				gtype=gtype,
+				display=False,
+				show_vars=True,
+				outfile=os.path.join(out_dir, f"{prefix}_{gtype}.png"),
+			)
+
+	def report(self, res: dict, out_txt: str = "outputs/rocket.txt"):
+		"""Print results and generate output artifacts"""
+
+		self.print_summary(res)
+		self.print_parameters(out_txt)
+		self.print_graphs()
