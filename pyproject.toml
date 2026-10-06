@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bears_rocket_solver"
-version = "2026.08.03"
+version = "2026.10.06"
 license = "GPL-3.0-or-later"
 readme = "README.md"
 dependencies = [
@@ -12,10 +12,11 @@ dependencies = [
 	"openmdao",
 	"pydot",
 	"graphviz",
-	"isacalc"
+	"isacalc",
+	"rocketpy"
 ]
 authors = [
-	{name = "Andrii Kozytskyi", email = "kozytskyi.andrii.d@gmail.com"}
+	{ name = "Andrii Kozytskyi", email = "kozytskyi.andrii.d@gmail.com" }
 ]
 
 [project.optional-dependencies]

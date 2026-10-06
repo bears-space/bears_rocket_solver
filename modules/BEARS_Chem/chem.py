@@ -1,194 +1,53 @@
 # region Imports
-import json
-
-from dataclasses import dataclass
-from typing      import Optional
-
 from rocketcea.input_cards import oxCards, fuelCards
 from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
+from modules.Config        import MixtureConfig
+
+from .reac    import Reactant
+from .helpers import gencard, bulk_density
 # endregion
 
-class Reactant:
-	reactype       : str
-	name           : str
-	mass_fraction  : float
-	formula_parts  : list[dict[str, float]]
-	formula        : dict[str, float]
-	temperature    : Optional[float]
-	enthalpy       : Optional[float]
-	enthalpy_units : Optional[str]
-	density        : Optional[float]
-	density_units  : Optional[str]
+pa_to_psia = 1.450377e-4 # 1 Pa = 1.45038e-4 psia
+fts_to_ms  = 0.3048      # 1 ft/s = 0.3048 m/s
 
-	def __init__(self, reacdict: dict):
-		"""Construct a Reactant object from a JSON-parsed dictionary"""
+class Thermochemistry:
 
-		# Required reactant parameters
-		self.reactype      = reacdict["reactype"]
-		self.name          = reacdict["name"]
-		self.formula_parts = reacdict["formula_parts"]
+	def __init__(self, cea: CEA_Obj, rho_ox: float, rho_fuel: float):
+		self._cea     = cea
+		self.rho_ox   = rho_ox
+		self.rho_fuel = rho_fuel
 
-		# Optional
-		self.mass_fraction  = reacdict.get("mass_fraction",  100.0)
-		self.temperature    = reacdict.get("temperature",    298.15)
-		self.enthalpy       = reacdict.get("enthalpy")
-		self.enthalpy_units = reacdict.get("enthalpy_units", "cal/mol")
-		self.density        = reacdict.get("density")
-		self.density_units  = reacdict.get("density_units")
+	@classmethod
+	def from_config(cls, config: MixtureConfig) -> "Thermochemistry":
+		reac_cards = {"oxid": oxCards, "fuel": fuelCards}
 
-		self.compile_formula()
+		rnames    : dict[str, str]   = {}
+		densities : dict[str, float] = {}
 
-	def compile_formula(self):
-		"""
-		Compile the formula components as specified in the JSON input into a
-		complete formula
-		"""
-		self.formula: dict[str, float] = {}
-		for part in self.formula_parts:
-			for k, v in part.items():
-				self.formula[k] = self.formula.get(k, 0) + v
+		for rtype, rlist in [
+			("oxid", config.oxidizers),
+			("fuel", config.fuels),
+		]:
+			reactants = [Reactant.from_config(r) for r in rlist]
 
-	def get_density_si(self) -> float:
-		"""Return density in kg/m^3"""
-		if self.density is None:
-			return 1000.0
-		if self.density_units in ["g/cm^3", "g/cc", "g/cm3"]:
-			return self.density * 1000.0
-		return self.density
+			rname = "_".join([reac.name for reac in reactants])
+			card = reac_cards[rtype]
+			if rname not in card:
+				card_text = gencard(reactants)
+				if rtype == "fuel": add_new_fuel(rname, card_text)
+				else: add_new_oxidizer(rname, card_text)
+			rnames[rtype] = rname
 
-	def convert_enth_units(self, eu_out: str):
+			densities[rtype] = bulk_density(reactants)
 
-		# TODO complete the list of conversions/add a better conversion method
+		cea = CEA_Obj(oxName=rnames["oxid"], fuelName=rnames["fuel"])
+		return cls(cea, densities["oxid"], densities["fuel"])
 
-		j_to_cal = 0.2390057361  # 1 J = 0.239006 cal
+	def get_cstar(self, pc_pa: float, mr: float) -> float:
+		return self._cea.get_Cstar(Pc=pc_pa * pa_to_psia, MR=mr) * fts_to_ms
 
-		if self.enthalpy is not None:
-			match (self.enthalpy_units, eu_out):
-				case ("j/mol", "cal/mol"):
-					self.enthalpy = self.enthalpy * j_to_cal
-					self.enthalpy_units = "cal/mol"
-				case ("kj/mol", "cal/mol"):
-					self.enthalpy = self.enthalpy * 1e3 * j_to_cal
-					self.enthalpy_units = "cal/mol"
-				case ("cal/mol", "j/mol"):
-					self.enthalpy = self.enthalpy / j_to_cal
-					self.enthalpy_units = "j/mol"
-				case ("cal/mol", "kj/mol"):
-					self.enthalpy = self.enthalpy / 1e3 / j_to_cal
-					self.enthalpy_units = "kj/mol"
+	def get_isp(self, pc_pa: float, mr: float, eps: float) -> float:
+		return self._cea.get_Isp(Pc=pc_pa * pa_to_psia, MR=mr, eps=eps)
 
-# region Helper functions
-def reactant_card(reactant: Reactant, fraction: Optional[float] = None) -> str:
-	"""
-	Generate a CEA propellant card for a Reactant object, specifying the `wt%`
-	fraction
-
-	See <https://rocketcea.readthedocs.io/en/latest/std_examples.html>
-	"""
-
-	f = reactant.mass_fraction
-	if fraction:
-		f = fraction
-
-	formula_comp = [
-		f"{atom} {float(count)}" for atom, count in reactant.formula.items()
-	]
-
-	formula_str = " ".join(formula_comp)
-
-	lines = []
-
-	line1 = [
-		f"{reactant.reactype}",
-		f"{reactant.name}",
-		f"{formula_str}",
-		f"wt%={f}",
-	]
-	lines.append(" ".join(line1))
-
-	line2 = [
-		f"h,{reactant.enthalpy_units}={reactant.enthalpy}",
-		f"t(k)={reactant.temperature}",
-	]
-	lines.append(" ".join(line2))
-
-	return "\n".join(lines)
-
-def gencard(components: list[Reactant]) -> str:
-	"""
-	Generate a CEA propellant card from a list of reactants, weighing each
-	reactant appropriately according to its `mass_fraction` field
-
-	Same thing as `reactant_card` but for lists
-
-	See <https://rocketcea.readthedocs.io/en/latest/std_examples.html>
-	"""
-
-	rt = components[0].reactype
-	if not all(r.reactype == rt for r in components):
-		raise ValueError(
-			"Can only generate a composite card for reactants of the same type"
-		)
-
-	wt_total = sum(comp.mass_fraction for comp in components)
-
-	if len(components) == 1:
-		return reactant_card(components[0], fraction=100.0)
-	else:
-		cards = []
-		for comp in components:
-			wt = (comp.mass_fraction / wt_total) * 100.0
-			# NOTE: Compontent weights must add up to 100.0 for CEA
-
-			cards.append(reactant_card(comp, fraction=wt))
-
-		return "\n".join(cards)
-# endregion
-
-def parse_reactants(data: dict[str, list[dict]]) -> tuple[str, str]:
-	"""
-	Parse a dictionary of fuel and oxidizer mixtures to the corresponding
-	reactant names
-
-	If a reactant or mixture does not exist in the RocketCEA propellant
-	database, it is created with the appropriate card
-
-	Returns the oxidizer and fuel names for passing to `CEA_Obj`
-	"""
-
-	reac_cards = {"oxid": oxCards, "fuel": fuelCards}
-
-	rnames: dict[str, str] = {}
-	for rtype in ["oxid", "fuel"]:
-		if not all(r["reactype"] == rtype for r in data[rtype]):
-			raise ValueError(
-				"Can only generate a composite card "
-				+ "for reactants of the same type"
-			)
-
-		reactants = list(map(Reactant, data[rtype]))
-		rname = "_".join([reac.name for reac in reactants])
-
-		card = reac_cards[rtype]
-		if rname not in card:
-			card = gencard(reactants)
-			add_new_fuel(rname, card)
-
-		rnames[rtype] = rname
-
-	return rnames["oxid"], rnames["fuel"]
-
-def parse_densities(data: dict[str, list[dict]]) -> tuple[float, float]:
-	"""
-	Calculate effective bulk densities for oxidizer and fuel in kg/m^3.
-	"""
-	densities: dict[str, float] = {}
-	for rtype in ["oxid", "fuel"]:
-		reactants = list(map(Reactant, data[rtype]))
-		wt_total = sum(r.mass_fraction for r in reactants)
-		inv_rho = sum(
-			(r.mass_fraction / wt_total) / r.get_density_si() for r in reactants
-		)
-		densities[rtype] = 1.0 / inv_rho
-
-	return densities["oxid"], densities["fuel"]
+	def get_tcomb(self, pc_pa: float, mr: float) -> float:
+		return self._cea.get_Tcomb(Pc=pc_pa * pa_to_psia, MR=mr) * (5.0 / 9.0)

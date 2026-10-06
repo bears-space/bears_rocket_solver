@@ -1,10 +1,11 @@
 #region Imports
 import openmdao.api as om
 
-from rocketcea.cea_obj import CEA_Obj
 from openmdao.api      import Problem
 
-from ..BEARS_Atmo  import BEARS_Atm
+from ..BEARS_Atmo import BEARS_Atm
+from ..BEARS_Chem import Thermochemistry
+
 from .group_rocket import RocketGroup
 #endregion
 
@@ -13,9 +14,7 @@ class RocketLaunchProblem(Problem):
 	def __init__(
 		self,
 		atm                 : BEARS_Atm,
-		cea                 : CEA_Obj,
-		rho_ox              : float = 750.0,
-		rho_fuel            : float = 900.0,
+		chem                : Thermochemistry,
 		payload_mass        : float = 1.0,
 		target_apogee       : float = 3100.0,
 		ox_wall_material    = None,
@@ -26,9 +25,7 @@ class RocketLaunchProblem(Problem):
 
 		self.model = RocketGroup(
 			atm=atm,
-			cea=cea,
-			rho_ox=rho_ox,
-			rho_fuel=rho_fuel,
+			chem=chem,
 			ox_wall_material=ox_wall_material,
 			press_wall_material=press_wall_material,
 		)

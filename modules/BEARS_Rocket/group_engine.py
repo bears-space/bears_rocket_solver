@@ -1,8 +1,9 @@
 # region Imports
 import openmdao.api as om
 
-from openmdao.api      import Group
-from rocketcea.cea_obj import CEA_Obj
+from openmdao.api import Group
+
+from ..BEARS_Chem import Thermochemistry
 
 from .comp_injector import InjectorComponent
 from .comp_fuel     import FuelComponent
@@ -13,21 +14,17 @@ from .comp_nozzle   import NozzleComponent
 class HybridEngineGroup(Group):
 
 	def initialize(self):
-		self.options.declare("cea",                     types=CEA_Obj)
-		self.options.declare("rho_ox",   default=750.0, types=float)
-		self.options.declare("rho_fuel", default=750.0, types=float)
+		self.options.declare("chem", types=Thermochemistry)
 
 	def setup(self):
-		cea      = self.options["cea"]
-		rho_ox   = self.options["rho_ox"]
-		rho_fuel = self.options["rho_fuel"]
+		chem = self.options["chem"]
 
 		self.set_input_defaults("engine_feed_pressure", val=60e5, units="Pa")
 
 		#region Subsystems
 		self.add_subsystem(
 			"Injector",
-			InjectorComponent(rho_ox=rho_ox),
+			InjectorComponent(rho_ox=chem.rho_ox),
 			promotes_inputs=[
 				("p_tank",  "engine_feed_pressure"),
 				("a_inj",   "injector_area"),
@@ -41,7 +38,7 @@ class HybridEngineGroup(Group):
 
 		self.add_subsystem(
 			"Fuel",
-			FuelComponent(rho_fuel=rho_fuel),
+			FuelComponent(rho_fuel=chem.rho_fuel),
 			promotes_inputs=[
 				("m_prop_i",      "engine_prop_mass_init"),
 				("mixture_ratio", "engine_mixture_ratio"),
@@ -62,7 +59,7 @@ class HybridEngineGroup(Group):
 		# Combustion chemistry & flame temperature (TC3)
 		self.add_subsystem(
 			"Chemistry",
-			ChemComponent(cea=cea),
+			ChemComponent(chem=chem),
 			promotes_inputs=[
 				("mixture_ratio",   "engine_mixture_ratio"),
 				("expansion_ratio", "nozzle_expansion_ratio"),

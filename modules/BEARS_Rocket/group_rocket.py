@@ -1,7 +1,7 @@
 # region Imports
-from openmdao.api      import Group, IndepVarComp
-from rocketcea.cea_obj import CEA_Obj
+from openmdao.api import Group, IndepVarComp
 
+from ..BEARS_Chem import Thermochemistry
 from ..BEARS_Atmo import BEARS_Atm
 
 from .group_prop import PropulsionGroup
@@ -12,7 +12,7 @@ from .comp_traj  import TrajectoryComponent
 class RocketGroup(Group):
 
 	def initialize(self):
-		self.options.declare("cea", types=CEA_Obj)
+		self.options.declare("chem", types=Thermochemistry)
 		self.options.declare("atm", types=BEARS_Atm)
 
 		self.options.declare("rho_ox",   default=700.0, types=float)
@@ -22,10 +22,8 @@ class RocketGroup(Group):
 		self.options.declare("press_wall_material", default=None)
 
 	def setup(self):
-		cea        = self.options["cea"]
+		chem       = self.options["chem"]
 		atm        = self.options["atm"]
-		rho_ox     = self.options["rho_ox"]
-		rho_fuel   = self.options["rho_fuel"]
 		ox_wall    = self.options["ox_wall_material"]
 		press_wall = self.options["press_wall_material"]
 
@@ -91,9 +89,7 @@ class RocketGroup(Group):
 		self.add_subsystem(
 			"Propulsion",
 			PropulsionGroup(
-				cea=cea,
-				rho_ox=rho_ox,
-				rho_fuel=rho_fuel,
+				chem=chem,
 				ox_wall_material=ox_wall,
 				press_wall_material=press_wall,
 			),

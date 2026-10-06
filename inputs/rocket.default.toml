@@ -1,0 +1,42 @@
+[global]
+payload_mass_kg         = 1.0
+target_altitude_m       = 3000.0
+diameter_m              = 0.12
+clearance_m             = 0.002
+
+[oxidizer_tank]
+pressure_bar            = 70.0
+diam_m                  = 0.12
+safety_factor           = 2.0
+ullage_fraction         = 0.1
+yield_factor_pa         = 2.76e8
+wall_density_kgm3       = 2700.0
+
+[pressurizer_tank]
+pressure_bar            = 200.0
+diam_m                  = 0.12
+safety_factor           = 2.0
+yield_factor_pa         = 2.76e8
+wall_density_kgm3       = 2700.0
+
+[injector]
+area_m2                 = 4.5e-5
+cd                      = 0.7
+
+[fuel]
+port_diam_m             = 0.05
+reg_exponent            = 0.5
+reg_ref_ms              = 0.0001
+oxy_mass_flux_ref_kgm2s = 1.0
+
+[nozzle]
+throat_area_m2          = 0.0005
+expansion_ratio         = 40.0
+length_m                = 0.2
+eta_friction            = 0.95
+
+[optimization]
+propellant_mass_kg      = 5.0
+mixture_ratio           = 6.0
+injector_area_m2        = 0.0001
+nozzle_throat_area_m2   = 0.0002

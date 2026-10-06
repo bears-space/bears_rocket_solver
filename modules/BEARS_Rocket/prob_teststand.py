@@ -1,8 +1,9 @@
 #region Imports
 import openmdao.api as om
 
-from rocketcea.cea_obj import CEA_Obj
-from openmdao.api      import Problem
+from openmdao.api import Problem
+
+from ..BEARS_Chem import Thermochemistry
 
 from .group_teststand import TestStandGroup
 #endregion
@@ -11,19 +12,13 @@ class TestStandProblem(Problem):
 
 	def __init__(
 		self,
-		cea      : CEA_Obj,
-		rho_ox   : float = 750.0,
-		rho_fuel : float = 900.0,
+		chem: Thermochemistry,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
 
-		self.cea = cea
-		self.model = TestStandGroup(
-			cea=cea,
-			rho_ox=rho_ox,
-			rho_fuel=rho_fuel,
-		)
+		self.chem = chem
+		self.model = TestStandGroup(chem=chem)
 
 	def setup(self, **kwargs):
 		super().setup(**kwargs)
@@ -75,12 +70,8 @@ class TestStandProblem(Problem):
 		thrust = self.get_val("test_thrust",               units="N")[0]
 		isp    = self.get_val("test_isp",                  units="s")[0]
 
-		pa_to_psia = 1.450377e-4
-		bar_to_pa  = 1e5
-
-		pc_psia = pt3 * bar_to_pa * pa_to_psia
-		mr      = self.get_val("test_mixture_ratio")[0]
-		tc3_k   = self.cea.get_Tcomb(Pc=pc_psia, MR=mr) * (5.0 / 9.0)
+		mr     = self.get_val("test_mixture_ratio")[0]
+		tc3_k  = self.chem.get_tcomb(pc_pa=pt3 * 1e5, mr=mr)
 
 		return {
 			"PT1_N2O_supply_bar": 65.0,
