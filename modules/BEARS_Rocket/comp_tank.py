@@ -17,16 +17,19 @@ class TankComponent(ExplicitComponent):
 			types=(LayeredWall, type(None)),
 		)
 
+	def setup_fluid_inputs(self):
+		self.add_input("m_fluid",     val=10.0,   units="kg")
+		self.add_input("rho_fluid",   val=1000.0, units="kg/m**3")
+		self.add_input("ullage_frac", val=0.1)
+
 	def setup(self):
+		self.setup_fluid_inputs()
+
 		wall = self.options["wall_material"]
 		n_layers = len(wall.layers) if wall else 1
 
-		self.add_input("m_fluid",       val=10.0,   units="kg")
-		self.add_input("rho_fluid",     val=1000.0, units="kg/m**3")
-
 		self.add_input("p_tank_max",    val=70e5,   units="Pa")
 		self.add_input("diam_out",      val=0.15,   units="m")
-		self.add_input("ullage_frac",   val=0.1)
 
 		self.add_input("safety_factor", val=1.5)
 		self.add_input("sigma_y",       val=276e6,  units="Pa")
