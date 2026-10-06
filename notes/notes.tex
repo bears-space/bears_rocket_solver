@@ -1,4 +1,4 @@
-% Created 2026-09-23 Wed 12:38
+% Created 2026-09-30 Wed 00:55
 % Intended LaTeX compiler: pdflatex
 \documentclass[fleqn]{article}
 \usepackage[utf8]{inputenc}
@@ -42,7 +42,7 @@ marginparwidth=1.75cm
 \tableofcontents
 
 \section{People}
-\label{sec:org57ad1c2}
+\label{sec:org791fac0}
 
 Avionics:
 \begin{itemize}
@@ -69,7 +69,7 @@ Airbreak:
 
 Python RocketCEA
 \section{Code}
-\label{sec:orgfc6e234}
+\label{sec:orgdc8980a}
 
 Input variables:
 
@@ -112,19 +112,19 @@ Output variables:
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{./fig/Hybrid-rocket-engine.jpg}
-\caption{\label{fig:org956471d}Design of a hybrid rocket engine}
+\caption{\label{fig:org1f15059}Design of a hybrid rocket engine}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{./fig/convergent-divergent-nozzle.png}
-\caption{\label{fig:org669a29e}Design of a convergent-divergent nozzle}
+\caption{\label{fig:orgc1da22b}Design of a convergent-divergent nozzle}
 \end{figure}
 \subsection{Theory}
-\label{sec:orge2420d2}
+\label{sec:orgada64df}
 
 \subsubsection{Notation}
-\label{sec:org2a09a7d}
+\label{sec:org6c0fbe4}
 
 \begin{description}
 \item[{\(h\)}] altitude above sea level
@@ -144,7 +144,7 @@ entrance of the nozzle
 outside the rocket, for example \(P_\text{amb}\)
 \end{description}
 \subsubsection{General}
-\label{sec:org29d9853}
+\label{sec:orgb8052a9}
 
 Ballpark of the total rocket structural mass: \textasciitilde{}60 kg
 
@@ -187,7 +187,7 @@ References:
 
 \url{https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/}
 \subsubsection{Nonlinearity}
-\label{sec:orgc95f9d5}
+\label{sec:orgb3b6cde}
 
 In OpenMDAO, each component maps its inputs to its outputs, \(y = f(x)\). When
 components connect in a chain, OpenMDAO simply evaluates them
@@ -272,19 +272,19 @@ P_\text{c}^{(k+1)}
   - \frac{R(P_\text{c}^{(k)})}{\mathrm{d} R / \mathrm{d} P_\text{c}}
 \end{equation*}
 \subsubsection{Tank}
-\label{sec:orge6a3db4}
+\label{sec:org1a3e8b6}
 
 \sout{60} 70 bar tank pressure
 
 Should be roughly 30-40 kg
 \subsubsection{Plumbing/injector}
-\label{sec:orgcdd15f1}
+\label{sec:org92da7e7}
 
 \textasciitilde{}30 bar pressure loss between tank and fuel grain
 
 Either pressure drop or mass flow rate across the injector
 \subsubsection{Chamber/nozzle}
-\label{sec:orgb490a9a}
+\label{sec:org10852d4}
 
 In the following, let the asterisk superscript denote the value of a function of
 the vertical position \(z\) at the throat.
@@ -329,8 +329,42 @@ References:
 \url{https://www.grc.nasa.gov/WWW/K-12/airplane/isentrop.html}
 
 \url{https://rrs.org/2023/01/28/making-correct-parabolic-nozzles/}
+\subsubsection{Injector-nozzle balance}
+\label{sec:org0c48826}
+
+Rearrange the master equation in the following form:
+
+\begin{equation*}
+\frac{P_\text{c}}{\sqrt{P_\text{tank} - P_\text{c}}}
+= \left[
+    \left(1 + \frac{1}{\mathrm{MR}}\right)
+    c^* C_\text{d} \sqrt{2\rho_\text{ox}}
+  \right]
+  \cdot \left(\frac{A_\text{inj}}{A_\text{t}}\right)
+\end{equation*}
+
+For given fluid densities and tank pressure, the chamber pressure depends only
+on the ratio of area and throat areas, \(A_\text{inj}/A_\text{t}\). Once that
+ratio is fixed, scaling \(A_\text{t}\) scales total mass flow and thrust,
+\(\dot{m}_\text{prop}\propto A_\text{t}\), \(F=C_F P_\text{c}A_\text{t}\). So we can
+effectively use \(A_\text{t}\) to control the vehicle thrust and TWR.
+
+\(C_F\) - dimensionless thrust coefficient. Ideal equation:
+
+\begin{equation*}
+C_F
+= \sqrt{
+    \frac{2\gamma^2}{\gamma - 1}
+    \left(\frac{2}{\gamma + 1}\right)^{\frac{\gamma+1}{\gamma-1}}
+    \left[
+      1 - \left(\frac{P_\text{e}}{P_\text{c}}\right)
+    \right]^{\frac{\gamma-1}{\gamma}}
+  } + \left(\frac{P_\text{e} - P_\text{a}}{P_\text{c}}\right) \epsilon,
+\quad
+\epsilon = \frac{A_\text{e}}{A_\text{t}}
+\end{equation*}
 \subsection{The CEA rocket solver}
-\label{sec:org5183db0}
+\label{sec:orgef8b5e4}
 
 The CEA rocket solver is a thermodynamic state-finder that follows a parcel of
 gas as it moves from the chamber to the exit assuming an isentropic path (line
@@ -407,7 +441,7 @@ References:
 
 \url{https://nasa.github.io/cea/examples/rocket/example8.html}
 \subsection{My own set of inputs}
-\label{sec:orgfa1cb1c}
+\label{sec:org99f8c40}
 
 Flight plan: attitude as a function of altitude and velocity, or pitch as a
 function of velocity
