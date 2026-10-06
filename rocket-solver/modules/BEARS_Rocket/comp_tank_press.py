@@ -14,23 +14,11 @@ class PressurantTankComponent(TankComponent):
 		self.options.declare("z_factor", default=1.0,    types=float)
 
 	def setup(self):
+		super().setup()
+
 		# Sizing inputs from the oxidizer system
 		self.add_input("v_ox_displace", val=0.01, units="m**3")
 		self.add_input("p_ox",          val=70e5, units="Pa")
-
-		# Pressure vessel parameters
-		self.add_input("p_tank_max",    val=300e5,  units="Pa")
-		self.add_input("diam_out",      val=0.15,   units="m")
-		self.add_input("safety_factor", val=1.5)
-		self.add_input("sigma_y",       val=276e6,  units="Pa")
-		self.add_input("rho_wall",      val=2700.0, units="kg/m**3")
-
-		# Structural outputs
-		self.add_output("t_wall",       val=0.005,  units="m")
-		self.add_output("l_tank",       val=0.4,    units="m")
-		self.add_output("v_internal",   val=0.004,  units="m**3")
-		self.add_output("v_fluid",      val=0.004,  units="m**3")
-		self.add_output("m_tank_dry",   val=2.5,    units="kg")
 
 		# Thermodynamic outputs
 		self.add_output("m_press",      val=1.2,    units="kg")
