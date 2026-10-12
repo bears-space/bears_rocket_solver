@@ -1,1 +1,1 @@
-from .chem import Thermochemistry
+from .chem import BEARS_Chem

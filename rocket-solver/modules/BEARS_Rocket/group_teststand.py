@@ -3,7 +3,7 @@ import openmdao.api as om
 
 from openmdao.api import Group, IndepVarComp
 
-from ..BEARS_Chem import Thermochemistry
+from ..BEARS_Chem import BEARS_Chem
 
 from .comp_tank    import TankComponent
 from .group_engine import HybridEngineGroup
@@ -12,7 +12,7 @@ from .group_engine import HybridEngineGroup
 class TestStandGroup(Group):
 
 	def initialize(self):
-		self.options.declare("chem",                    types=Thermochemistry)
+		self.options.declare("chem",                    types=BEARS_Chem)
 		self.options.declare("rho_ox",   default=750.0, types=float)
 		self.options.declare("rho_fuel", default=900.0, types=float)
 

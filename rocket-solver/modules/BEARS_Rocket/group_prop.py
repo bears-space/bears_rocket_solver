@@ -3,7 +3,7 @@ import openmdao.api as om
 
 from openmdao.api import Group
 
-from ..BEARS_Chem import Thermochemistry
+from ..BEARS_Chem import BEARS_Chem
 
 from .comp_split      import PropellantSplitComponent
 from .comp_tank_oxy   import OxidizerTankComponent
@@ -14,7 +14,7 @@ from .group_engine    import HybridEngineGroup
 class PropulsionGroup(Group):
 
 	def initialize(self):
-		self.options.declare("chem", types=Thermochemistry)
+		self.options.declare("chem", types=BEARS_Chem)
 
 		self.options.declare("ox_wall_material",    default=None)
 		self.options.declare("press_wall_material", default=None)

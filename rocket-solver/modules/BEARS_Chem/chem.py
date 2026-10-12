@@ -15,7 +15,7 @@ from .helpers import gencard, bulk_density
 pa_to_psia = 1.450377e-4 # 1 Pa = 1.45038e-4 psia
 fts_to_ms  = 0.3048      # 1 ft/s = 0.3048 m/s
 
-class Thermochemistry:
+class BEARS_Chem:
 
 	def __init__(self, cea: CEA_Obj, rho_ox: float, rho_fuel: float):
 		self._cea     = cea

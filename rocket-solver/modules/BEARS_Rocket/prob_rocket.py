@@ -5,8 +5,8 @@ import openmdao.api as om
 from openmdao.api import Problem
 from openmdao.visualization.graph_viewer import GraphViewer
 
+from ..BEARS_Chem import BEARS_Chem
 from ..BEARS_Atmo import BEARS_Atm
-from ..BEARS_Chem import Thermochemistry
 
 from .group_rocket import RocketGroup
 #endregion
@@ -16,7 +16,7 @@ class RocketLaunchProblem(Problem):
 	def __init__(
 		self,
 		atm                 : BEARS_Atm,
-		chem                : Thermochemistry,
+		chem                : BEARS_Chem,
 		payload_mass        : float = 1.0,
 		target_apogee       : float = 3100.0,
 		ox_wall_material    = None,
