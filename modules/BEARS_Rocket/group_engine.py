@@ -3,7 +3,7 @@ import openmdao.api as om
 
 from openmdao.api import Group
 
-from ..BEARS_Chem import Thermochemistry
+from ..BEARS_Chem import BEARS_Chem
 
 from .comp_injector import InjectorComponent
 from .comp_fuel     import FuelComponent
@@ -14,7 +14,7 @@ from .comp_nozzle   import NozzleComponent
 class HybridEngineGroup(Group):
 
 	def initialize(self):
-		self.options.declare("chem", types=Thermochemistry)
+		self.options.declare("chem", types=BEARS_Chem)
 
 	def setup(self):
 		chem = self.options["chem"]
@@ -56,7 +56,7 @@ class HybridEngineGroup(Group):
 			],
 		)
 
-		# Combustion chemistry & flame temperature (TC3)
+		# Combustion chemistry & flame temperature
 		self.add_subsystem(
 			"Chemistry",
 			ChemComponent(chem=chem),
@@ -71,7 +71,7 @@ class HybridEngineGroup(Group):
 			],
 		)
 
-		# Nozzle performance & chamber pressure (PT3)
+		# Nozzle performance & chamber pressure
 		self.add_subsystem(
 			"Nozzle",
 			NozzleComponent(),

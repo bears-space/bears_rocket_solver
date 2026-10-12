@@ -16,7 +16,7 @@ import openmdao.core.system          as sys_mod
 
 from modules.Config          import load_configs, load_reactants
 from modules.BEARS_Atmo      import BEARS_Atm
-from modules.BEARS_Chem      import Thermochemistry
+from modules.BEARS_Chem      import BEARS_Chem
 from modules.BEARS_Materials import Layer, LayeredWall, AL_6061_T6, CFRP_T700
 from modules.BEARS_Rocket    import TestStandProblem, RocketLaunchProblem
 #endregion
@@ -67,7 +67,7 @@ def main():
 	#region Working directories
 	work_dir = os.path.abspath("work")
 	os.makedirs(work_dir, exist_ok=True)
-	Thermochemistry.set_work_dir(os.path.join(work_dir, "RocketCEA"))
+	BEARS_Chem.set_work_dir(os.path.join(work_dir, "RocketCEA"))
 	#endregion
 
 	#region Inputs
@@ -76,7 +76,7 @@ def main():
 
 	atm = BEARS_Atm("isacalc")
 
-	chem = Thermochemistry.from_config(cfg_reac)
+	chem = BEARS_Chem.from_config(cfg_reac)
 
 	copv_ox = LayeredWall(
 		Layer(material=AL_6061_T6, thickness=0.001),

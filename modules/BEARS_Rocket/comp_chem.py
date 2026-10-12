@@ -1,13 +1,13 @@
 # region Imports
 from openmdao.api import ExplicitComponent
 
-from ..BEARS_Chem import Thermochemistry
+from ..BEARS_Chem import BEARS_Chem
 # endregion
 
 class ChemComponent(ExplicitComponent):
 
 	def initialize(self):
-		self.options.declare("chem", types=Thermochemistry)
+		self.options.declare("chem", types=BEARS_Chem)
 
 	def setup(self):
 		self.add_input("chamber_pressure", val=35e5, units="Pa")

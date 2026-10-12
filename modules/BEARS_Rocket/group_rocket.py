@@ -1,7 +1,7 @@
 # region Imports
 from openmdao.api import Group, IndepVarComp
 
-from ..BEARS_Chem import Thermochemistry
+from ..BEARS_Chem import BEARS_Chem
 from ..BEARS_Atmo import BEARS_Atm
 
 from .group_prop import PropulsionGroup
@@ -12,8 +12,8 @@ from .comp_traj  import TrajectoryComponent
 class RocketGroup(Group):
 
 	def initialize(self):
-		self.options.declare("chem", types=Thermochemistry)
-		self.options.declare("atm", types=BEARS_Atm)
+		self.options.declare("chem", types=BEARS_Chem)
+		self.options.declare("atm",  types=BEARS_Atm)
 
 		self.options.declare("rho_ox",   default=700.0, types=float)
 		self.options.declare("rho_fuel", default=900.0, types=float)

@@ -5,7 +5,7 @@ import openmdao.api as om
 from openmdao.api import Problem
 from openmdao.visualization.graph_viewer import GraphViewer
 
-from ..BEARS_Chem import Thermochemistry
+from ..BEARS_Chem import BEARS_Chem
 
 from .group_teststand import TestStandGroup
 #endregion
@@ -14,7 +14,7 @@ class TestStandProblem(Problem):
 
 	def __init__(
 		self,
-		chem: Thermochemistry,
+		chem: BEARS_Chem,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
