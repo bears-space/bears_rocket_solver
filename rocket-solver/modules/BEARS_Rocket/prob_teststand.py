@@ -14,24 +14,47 @@ class TestStandProblem(Problem):
 
 	def __init__(
 		self,
-		chem: BEARS_Chem,
+		chem           : BEARS_Chem,
+		tank_mode      : str = "facility",
+		ox_wall_mat    = None,
+		press_wall_mat = None,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
 
-		self.chem = chem
-		self.model = TestStandGroup(chem=chem)
+		self.chem      = chem
+		self.tank_mode = tank_mode
+		self.model     = TestStandGroup(
+			chem=chem,
+			tank_mode=tank_mode,
+			ox_wall_mat=ox_wall_mat,
+			press_wall_mat=press_wall_mat,
+		)
 
 	def setup(self, **kwargs):
 		super().setup(**kwargs)
 
-		# Run tank
-		self.set_val("run_tank_pressure_PT2", 60.0,   units="bar")
-		self.set_val("run_tank_diam",         0.15,   units="m")
-		self.set_val("run_tank_ullage_frac",  0.08)
-		self.set_val("run_tank_wall_density", 2700.0, units="kg/m**3")
-		self.set_val("run_tank_yield_factor", 276e6,  units="Pa")
-		self.set_val("run_tank_fluid_mass",   10.0,   units="kg")
+		match self.tank_mode:
+			case "facility":
+				# Run tank
+				self.set_val("run_tank_pressure_PT2", 60.0,   units="bar")
+				self.set_val("run_tank_diam",         0.15,   units="m")
+				self.set_val("run_tank_ullage_frac",  0.08)
+				self.set_val("run_tank_wall_density", 2700.0, units="kg/m**3")
+				self.set_val("run_tank_yield_factor", 276e6,  units="Pa")
+				self.set_val("run_tank_fluid_mass",   10.0,   units="kg")
+			case "flight":
+				self.set_val("tank_pressure",         60.0,   units="bar")
+				self.set_val("tank_diam",             0.12,   units="m")
+				self.set_val("tank_ullage_frac",      0.10)
+				self.set_val("tank_wall_density",     2700.0, units="kg/m**3")
+				self.set_val("tank_yield_factor",     276e6,  units="Pa")
+				self.set_val("tank_safety_factor",    1.5)
+				self.set_val("press_pressure",        200.0,  units="bar")
+				self.set_val("press_diam",            0.10,   units="m")
+				self.set_val("press_wall_density",    2700.0, units="kg/m**3")
+				self.set_val("press_yield_factor",    276e6,  units="Pa")
+				self.set_val("press_safety_factor",   1.5)
 
 		# Engine baseline parameters
 		self.set_val("test_prop_mass_init",   8.0,    units="kg")
@@ -67,10 +90,10 @@ class TestStandProblem(Problem):
 
 		self.run_model()
 
-		pt2    = self.get_val("run_tank_pressure_PT2",     units="bar")[0]
-		pt3    = self.get_val("test_chamber_pressure_PT3", units="bar")[0]
-		thrust = self.get_val("test_thrust",               units="N")[0]
-		isp    = self.get_val("test_isp",                  units="s")[0]
+		pt2    = self.get_val("Sensors.PT2_run_tank_pressure", units="bar")[0]
+		pt3    = self.get_val("test_chamber_pressure_PT3",     units="bar")[0]
+		thrust = self.get_val("test_thrust",                   units="N")[0]
+		isp    = self.get_val("test_isp",                      units="s")[0]
 
 		mr     = self.get_val("test_mixture_ratio")[0]
 		tc3_k  = self.chem.get_tcomb(pc_pa=pt3 * 1e5, mr=mr)
