@@ -36,9 +36,9 @@ def patch_variable_table():
 		var_list,
 		var_type,
 		var_dict,
-		hierarchical=True,
-		print_arrays=False,
-		out_stream=None,
+		hierarchical = True,
+		print_arrays = False,
+		out_stream   = None,
 	):
 		patched = {}
 		for k, meta in var_dict.items():
@@ -110,10 +110,8 @@ def main():
 
 	#region Test stand
 	prob_stand = TestStandProblem(
-		chem        = chem,
-		tank_mode   = "facility",
-		ox_wall_mat = copv_ox,
-		reports     = False,
+		chem    = chem,
+		reports = False,
 	)
 
 	prob_stand.setup()
