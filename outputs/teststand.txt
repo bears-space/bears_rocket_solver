@@ -28,8 +28,8 @@ HybridEngine
   Fuel
     r_dot                  [0.0016056]         m/s    HybridEngine.fuel_regression_rate  
     length                 [0.23931098]        m      HybridEngine.fuel_length           
-    grain_diam             [0.09572541]        m      HybridEngine.fuel_grain_diam       
-    m_fuel                 [0.79235186]        kg     HybridEngine.fuel_mass             
+    grain_diam             [0.05977516]        m      HybridEngine.fuel_grain_diam       
+    m_fuel                 [0.16938875]        kg     HybridEngine.fuel_mass             
     mdot_fuel              [0.05564504]        kg/s   HybridEngine.engine_mdot_fuel      
   Chemistry
     cstar                  [1573.3233504]      m/s    HybridEngine.engine_cstar          

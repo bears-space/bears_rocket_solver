@@ -18,7 +18,7 @@ from modules.Config          import load_configs, load_reactants
 from modules.BEARS_Atmo      import BEARS_Atm
 from modules.BEARS_Chem      import BEARS_Chem
 from modules.BEARS_Materials import Layer, LayeredWall, AL_6061_T6, CFRP_T700
-from modules.BEARS_Rocket    import TestStandProblem, RocketLaunchProblem
+from modules.BEARS_Rocket    import RocketLaunchProblem, TestStandProblem
 #endregion
 
 #region Helpers
@@ -87,13 +87,13 @@ def main():
 
 	#region Rocket optimization
 	prob_rocket = RocketLaunchProblem(
-		atm=atm,
-		chem=chem,
-		payload_mass=cfg_rocket.cfg_global.payload_mass_kg,
-		target_apogee=cfg_rocket.cfg_global.target_altitude_m,
-		ox_wall_material=copv_ox,
-		reports=True,
-		work_dir=work_dir,
+		atm              = atm,
+		chem             = chem,
+		payload_mass     = cfg_rocket.cfg_global.payload_mass_kg,
+		target_apogee    = cfg_rocket.cfg_global.target_altitude_m,
+		ox_wall_material = copv_ox,
+		reports          = True,
+		work_dir         = work_dir,
 	)
 	prob_rocket.setup()
 	res_rocket = prob_rocket.run()
@@ -109,15 +109,20 @@ def main():
 	print("--------")
 
 	#region Test stand
-	prob_stand = TestStandProblem(chem=chem, reports=False)
+	prob_stand = TestStandProblem(
+		chem        = chem,
+		tank_mode   = "facility",
+		ox_wall_mat = copv_ox,
+		reports     = False,
+	)
 
 	prob_stand.setup()
 
 	prob_stand.set_opt_vars(
-		#m_prop_kg=m_prop_opt,
-		mr=mr_opt,
-		a_inj_mm2=a_inj_opt,
-		a_throat_cm2=a_throat_opt,
+		m_prop_kg    = m_prop_opt,
+		mr           = mr_opt,
+		a_inj_mm2    = a_inj_opt,
+		a_throat_cm2 = a_throat_opt,
 	)
 
 	res_stand = prob_stand.run()
