@@ -8,19 +8,23 @@ from openmdao.visualization.graph_viewer import GraphViewer
 from ..BEARS_Chem import BEARS_Chem
 
 from .group_teststand import TestStandGroup
+from .checks          import CheckFn, DEFAULT_TESTSTAND_CHECKS, run_checks
 #endregion
 
 class TestStandProblem(Problem):
 
 	def __init__(
 		self,
-		chem: BEARS_Chem,
+		chem   : BEARS_Chem,
+		checks : tuple[CheckFn, ...] = DEFAULT_TESTSTAND_CHECKS,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
 
 		self.chem  = chem
 		self.model = TestStandGroup(chem=chem)
+
+		self.checks = checks
 
 	def setup(self, **kwargs):
 		super().setup(**kwargs)
@@ -89,48 +93,16 @@ class TestStandProblem(Problem):
 			"isp_s":              isp,
 		}
 
+	#region Verification
 	def verify(
 		self,
 		res            : dict,
 		raise_on_error : bool = True,
-	) -> tuple[str, ...]:
-		errors   : list[str] = []
-		warnings : list[str] = []
+	):
+		return run_checks(res, self.checks, raise_on_error=raise_on_error)
+	#endregion
 
-		# 1. Forward feed pressure drop
-		if res["delta_p_feed_bar"] <= 0.0:
-			errors.append(f"Feed ΔP non-positive ({res['delta_p_feed_bar']:.3f} bar)")
-		elif res["delta_p_feed_bar"] / res["PT3_chamber_bar"] < 0.15:
-			ratio = res["delta_p_feed_bar"] / res["PT3_chamber_bar"]
-			warnings.append(f"Feed ΔP ratio is low ({ratio:.1%})")
-
-		# 2. Positive thrust and reasonable Isp
-		if res["thrust_N"] <= 0.0:
-			errors.append(f"Thrust non-positive ({res['thrust_N']:.3f} N)")
-
-		if not (150.0 <= res["isp_s"] <= 350.0):
-			warnings.append(f"Isp ({res['isp_s']:.1f} s) outside range [150, 350]")
-
-		# 3. Supply pressure hierarchy
-		if res["PT4_N2_supply_bar"] < res["PT2_run_tank_bar"]:
-			errors.append("N2 supply pressure PT4 is below run tank pressure PT2")
-
-		# 4. Combustion temperature range
-		if not (1500.0 <= res["TC3_chamber_temp_K"] <= 4000.0):
-			warnings.append(
-				f"TC3 flame temp ({res['TC3_chamber_temp_K']:.3f} K) "
-				f"outside range [1500, 4000]"
-			)
-
-		if raise_on_error and errors:
-			msg = "\n  - ".join(errors)
-			raise ValueError(f"Post-run verification failed:\n  - {msg}")
-
-		for w in warnings:
-			print(f"Warning {w}")
-
-		return tuple(errors + warnings)
-
+	#region Outputs
 	def print_summary(self, res: dict):
 
 		FMT = "8.3f"
@@ -184,3 +156,4 @@ class TestStandProblem(Problem):
 		self.print_summary(res)
 		self.print_parameters(out_txt)
 		self.print_graphs()
+	#endregion
