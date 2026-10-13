@@ -9,6 +9,7 @@ from ..BEARS_Chem import BEARS_Chem
 
 from .group_teststand import TestStandGroup
 from .checks          import CheckFn, DEFAULT_TESTSTAND_CHECKS, run_checks
+from .graph_style     import style_graph
 #endregion
 
 class TestStandProblem(Problem):
@@ -145,12 +146,19 @@ class TestStandProblem(Problem):
 		os.makedirs(out_dir, exist_ok=True)
 		viewer = GraphViewer(self.model)
 		for gtype in ["dataflow", "tree", "cycle"]:
-			viewer.write_graph(
-				gtype=gtype,
-				display=False,
-				show_vars=True,
-				outfile=os.path.join(out_dir, f"{prefix}_{gtype}.png"),
+			png_path = os.path.join(out_dir, f"{prefix}_{gtype}.png")
+			svg_path = os.path.join(out_dir, f"{prefix}_{gtype}.svg")
+			dot = viewer.write_graph(
+				gtype     = gtype,
+				display   = False,
+				show_vars = True,
+				#exclude   = ("_auto_ivc",),
+				outfile   = png_path,
 			)
+			if dot is not None:
+				splines = "ortho" if gtype != "tree" else "spline"
+				#dot = style_graph(dot, splines=splines, concentrate=True)
+				dot.write_png(png_path)
 
 	def report(self, res: dict, out_txt: str = "outputs/teststand.txt"):
 		self.print_summary(res)
