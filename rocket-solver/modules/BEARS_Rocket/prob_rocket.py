@@ -10,6 +10,7 @@ from ..BEARS_Chem import BEARS_Chem
 from ..BEARS_Atmo import BEARS_Atm
 
 from .group_rocket import RocketGroup
+from .checks       import CheckFn, DEFAULT_ROCKET_CHECKS, run_checks
 #endregion
 
 class RocketLaunchProblem(Problem):
@@ -22,6 +23,7 @@ class RocketLaunchProblem(Problem):
 		target_apogee       : float = 3100.0,
 		ox_wall_material    = None,
 		press_wall_material = None,
+		checks              : tuple[CheckFn, ...] = DEFAULT_ROCKET_CHECKS,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
@@ -35,6 +37,8 @@ class RocketLaunchProblem(Problem):
 
 		self.driver = om.ScipyOptimizeDriver()
 		self.driver.options["optimizer"] = "SLSQP"
+
+		self.checks = checks
 
 		# - Design variables
 
@@ -194,47 +198,9 @@ class RocketLaunchProblem(Problem):
 		self,
 		res            : dict,
 		raise_on_error : bool = True,
-	) -> tuple[str, ...]:
+	):
 		"""Validate post-run physical quantities and optimization results"""
-		errors   : list[str] = []
-		warnings : list[str] = []
-
-		# 1. Forward fluid flow through injector
-		if res["delta_p_bar"] <= 0.0:
-			errors.append(f"Injector ΔP non-positive ({res['delta_p_bar']:.3f} bar)")
-		elif res["delta_p_bar"] / res["p_chamber_bar"] < 0.15:
-			ratio = res["delta_p_bar"] / res["p_chamber_bar"]
-			warnings.append(f"Injector ΔP ratio is low ({ratio:.1%})")
-
-		# 2. Liftoff thrust-to-weight ratio
-		if res["twr_launch"] < 1.0:
-			errors.append(f"Liftoff TWR below 1.0 ({res['twr_launch']:.2f})")
-		elif res["twr_launch"] < 1.3:
-			warnings.append(f"Liftoff TWR is low ({res['twr_launch']:.2f})")
-
-		# 3. Mass balance
-		if abs(res["m_initial_kg"] - res["m_calc_kg"]) > 1e-3:
-			errors.append(
-				f"Mass balance mismatch: "
-				f"{res['m_initial_kg']:.3f} kg != {res['m_calc_kg']:.3f} kg"
-			)
-
-		# 4. Apogee target error
-		if res["apogee_error_m"] > 20.0:
-			warnings.append(f"Apogee target error is {res['apogee_error_m']:.2f} m")
-
-		# 5. Realistic combusion envelope
-		if not (150.0 <= res["isp_s"] <= 350.0):
-			warnings.append(f"Isp ({res['isp_s']:.1f} s) outside range [150, 350]")
-
-		if raise_on_error and errors:
-			msg = "\n  - ".join(errors)
-			raise ValueError(f"Post-run verification failed:\n  - {msg}")
-
-		for w in warnings:
-			print(f"Warning {w}")
-
-		return tuple(errors + warnings)
+		return run_checks(res, self.checks, raise_on_error=raise_on_error)
 	#endregion
 
 	#region Outputs
