@@ -89,9 +89,53 @@ class TestStandProblem(Problem):
 			"isp_s":              isp,
 		}
 
+	def verify(
+		self,
+		res            : dict,
+		raise_on_error : bool = True,
+	) -> tuple[str, ...]:
+		errors   : list[str] = []
+		warnings : list[str] = []
+
+		# 1. Forward feed pressure drop
+		if res["delta_p_feed_bar"] <= 0.0:
+			errors.append(f"Feed ΔP non-positive ({res['delta_p_feed_bar']:.3f} bar)")
+		elif res["delta_p_feed_bar"] / res["PT3_chamber_bar"] < 0.15:
+			ratio = res["delta_p_feed_bar"] / res["PT3_chamber_bar"]
+			warnings.append(f"Feed ΔP ratio is low ({ratio:.1%})")
+
+		# 2. Positive thrust and reasonable Isp
+		if res["thrust_N"] <= 0.0:
+			errors.append(f"Thrust non-positive ({res['thrust_N']:.3f} N)")
+
+		if not (150.0 <= res["isp_s"] <= 350.0):
+			warnings.append(f"Isp ({res['isp_s']:.1f} s) outside range [150, 350]")
+
+		# 3. Supply pressure hierarchy
+		if res["PT4_N2_supply_bar"] < res["PT2_run_tank_bar"]:
+			errors.append("N2 supply pressure PT4 is below run tank pressure PT2")
+
+		# 4. Combustion temperature range
+		if not (1500.0 <= res["TC3_chamber_temp_K"] <= 4000.0):
+			warnings.append(
+				f"TC3 flame temp ({res['TC3_chamber_temp_K']:.3f} K) "
+				f"outside range [1500, 4000]"
+			)
+
+		if raise_on_error and errors:
+			msg = "\n  - ".join(errors)
+			raise ValueError(f"Post-run verification failed:\n  - {msg}")
+
+		for w in warnings:
+			print(f"Warning {w}")
+
+		return tuple(errors + warnings)
+
 	def print_summary(self, res: dict):
 
 		FMT = "8.3f"
+
+		self.verify(res)
 
 		print("Simulating test stand:")
 		print("")
