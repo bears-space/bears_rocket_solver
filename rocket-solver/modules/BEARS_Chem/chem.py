@@ -46,7 +46,7 @@ class BEARS_Chem:
 			("oxid", config.oxidizers),
 			("fuel", config.fuels),
 		]:
-			reactants = [Reactant.from_config(r) for r in rlist]
+			reactants = tuple(Reactant.from_config(r) for r in rlist)
 
 			rname = "_".join([reac.name for reac in reactants])
 			card = reac_cards[rtype]

@@ -7,7 +7,7 @@ class Reactant:
 	reactype       : str
 	name           : str
 	mass_fraction  : float
-	formula_parts  : list[dict[str, float]]
+	formula_parts  : tuple[dict[str, float], ...]
 	formula        : dict[str, float]
 	temperature    : Optional[float]
 	enthalpy       : Optional[float]
@@ -21,7 +21,7 @@ class Reactant:
 		# Required reactant parameters
 		self.reactype      = reacdict["reactype"]
 		self.name          = reacdict["name"]
-		self.formula_parts = reacdict["formula_parts"]
+		self.formula_parts = tuple(reacdict.get("formula_parts", ()))
 
 		# Optional
 		self.mass_fraction  = reacdict.get("mass_fraction",  100.0)
@@ -38,7 +38,7 @@ class Reactant:
 		return cls({
 			"name"           : cfg.name,
 			"reactype"       : cfg.role or "fuel",
-			"formula_parts"  : list(cfg.formula_parts),
+			"formula_parts"  : cfg.formula_parts,
 			"mass_fraction"  : cfg.mass_fraction,
 			"temperature"    : cfg.temperature_k,
 			"enthalpy"       : cfg.enthalpy,

@@ -70,16 +70,16 @@ class SpeciesConfig:
 
 @dataclass(frozen=True)
 class BipropellantConfig:
-	fuels                   : tuple[ReactantConfig, ...]
-	oxidizers               : tuple[ReactantConfig, ...]
+	fuels                   : tuple[SpeciesConfig, ...]
+	oxidizers               : tuple[SpeciesConfig, ...]
 
 @dataclass(frozen=True)
 class MonopropellantConfig:
-	species                 : tuple[ReactantConfig, ...]
+	species                 : tuple[SpeciesConfig, ...]
 
 @dataclass(frozen=True)
 class WorkingFluidConfig:
-	species                 : tuple[ReactantConfig, ...]
+	species                 : tuple[SpeciesConfig, ...]
 
 # Type alias for one of the above
 PropellantConfig = (
