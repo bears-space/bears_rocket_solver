@@ -1,6 +1,6 @@
 #region Imports
 from typing         import Optional
-from modules.Config import ReactantConfig
+from modules.Config import SpeciesConfig
 #endregion
 
 class Reactant:
@@ -34,10 +34,10 @@ class Reactant:
 		self.compile_formula()
 
 	@classmethod
-	def from_config(cls, cfg: ReactantConfig) -> "Reactant":
+	def from_config(cls, cfg: SpeciesConfig) -> "Reactant":
 		return cls({
 			"name"           : cfg.name,
-			"reactype"       : cfg.reactype,
+			"reactype"       : cfg.role or "fuel",
 			"formula_parts"  : list(cfg.formula_parts),
 			"mass_fraction"  : cfg.mass_fraction,
 			"temperature"    : cfg.temperature_k,

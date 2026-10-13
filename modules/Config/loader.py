@@ -11,8 +11,9 @@ from .records import (
 	FuelConfig,
 	NozzleConfig,
 	OptimizationSeedConfig,
-	ReactantConfig,
-	MixtureConfig,
+	SpeciesConfig,
+	BipropellantConfig,
+	PropellantConfig,
 	RocketConfig,
 )
 #endregion
@@ -90,23 +91,23 @@ def load_configs(
 		cfg_optim      = c_op,
 	)
 
-def load_reactants(path: str | Path) -> MixtureConfig:
+def load_reactants(path: str | Path) -> BipropellantConfig:
 	with open(path, "rb") as f:
 		data = tomllib.load(f)
 
-	def parse_entry(r: dict) -> ReactantConfig:
-		return ReactantConfig(
+	def parse_entry(r: dict, role: str) -> SpeciesConfig:
+		return SpeciesConfig(
 			name           = r["name"],
-			reactype       = r["reactype"],
-			formula_parts  = list(r["formula_parts"]),
+			formula_parts  = tuple(r.get("formula_parts", ())),
 			mass_fraction  = r.get("mass_fraction", 100.0),
 			temperature_k  = r.get("temperature_k", 298.15),
 			enthalpy       = r.get("enthalpy"),
 			enthalpy_units = r.get("enthalpy_units"),
 			density        = r.get("density"),
 			density_units  = r.get("density_units"),
+			role           = role,
 		)
 
-	fuels = list(parse_entry(r) for r in data["fuel"])
-	oxids = list(parse_entry(r) for r in data["oxid"])
-	return MixtureConfig(fuels=fuels, oxidizers=oxids)
+	fuels = tuple(parse_entry(r, "fuel") for r in data["fuel"])
+	oxids = tuple(parse_entry(r, "oxid") for r in data["oxid"])
+	return BipropellantConfig(fuels=fuels, oxidizers=oxids)

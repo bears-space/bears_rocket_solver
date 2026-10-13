@@ -6,7 +6,7 @@ from pathlib               import Path
 from rocketcea.input_cards import oxCards, fuelCards
 from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
 
-from ..Config import MixtureConfig
+from ..Config import BipropellantConfig
 
 from .reac    import Reactant
 from .helpers import gencard, bulk_density
@@ -31,7 +31,7 @@ class BEARS_Chem:
 	@classmethod
 	def from_config(
 		cls,
-		config   : MixtureConfig,
+		config   : BipropellantConfig,
 		work_dir : str | Path | None = None,
 	) -> "Thermochemistry":
 		if work_dir is not None:
