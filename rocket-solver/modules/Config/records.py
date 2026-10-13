@@ -48,16 +48,16 @@ class OptimizationSeedConfig:
 
 #region Chemistry
 @dataclass(frozen=True)
-class ReactantConfig:
+class SpeciesConfig:
 	name                    : str
-	reactype                : str # "fuel" or "oxid"
-	formula_parts           : list[dict[str, float]]
+	formula_parts           : tuple[dict[str, float], ...] = ()
 	mass_fraction           : float = 100.0
 	temperature_k           : float = 298.15
 	enthalpy                : float | None = None
 	enthalpy_units          : str   | None = None
 	density                 : float | None = None
 	density_units           : str   | None = None
+	role                    : str   | None = None
 
 	def get_density_si(self) -> float:
 		if self.density is None:
@@ -69,9 +69,22 @@ class ReactantConfig:
 		return self.density
 
 @dataclass(frozen=True)
-class MixtureConfig:
-	fuels                   : list[ReactantConfig]
-	oxidizers               : list[ReactantConfig]
+class BipropellantConfig:
+	fuels                   : tuple[ReactantConfig, ...]
+	oxidizers               : tuple[ReactantConfig, ...]
+
+@dataclass(frozen=True)
+class MonopropellantConfig:
+	species                 : tuple[ReactantConfig, ...]
+
+@dataclass(frozen=True)
+class WorkingFluidConfig:
+	species                 : tuple[ReactantConfig, ...]
+
+# Type alias for one of the above
+PropellantConfig = (
+	BipropellantConfig | MonopropellantConfig | WorkingFluidConfig
+)
 #endregion
 
 #region Master specification

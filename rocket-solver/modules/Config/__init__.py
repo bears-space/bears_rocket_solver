@@ -5,8 +5,11 @@ from .records import (
 	FuelConfig,
 	NozzleConfig,
 	OptimizationSeedConfig,
-	ReactantConfig,
-	MixtureConfig,
+	SpeciesConfig,
+	BipropellantConfig,
+	MonopropellantConfig,
+	WorkingFluidConfig,
+	PropellantConfig,
 	RocketConfig,
 )
 
