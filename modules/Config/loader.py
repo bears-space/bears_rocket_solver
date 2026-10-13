@@ -16,9 +16,12 @@ from .records import (
 	PropellantConfig,
 	RocketConfig,
 )
+
+from .validation import validate_rocket_config, validate_bipropellant_config
 #endregion
 
 def deep_merge(base: dict, overlay: dict) -> dict:
+	# Helper function for merging dictionaries
 	merged = dict(base)
 	for k, v in overlay.items():
 		if (
@@ -35,6 +38,7 @@ def deep_merge(base: dict, overlay: dict) -> dict:
 def load_configs(
 	path         : str | Path | None = "inputs/rocket.toml",
 	default_path : str | Path        = "inputs/rocket.default.toml",
+	validate     : bool              = True,
 ) -> RocketConfig:
 	with open(default_path, "rb") as f:
 		data = tomllib.load(f)
@@ -81,7 +85,7 @@ def load_configs(
 
 	c_op = OptimizationSeedConfig(**data["optimization"])
 
-	return RocketConfig(
+	cfg = RocketConfig(
 		cfg_global     = c_gl,
 		cfg_oxy_tank   = c_ox,
 		cfg_press_tank = c_pr,
@@ -91,7 +95,14 @@ def load_configs(
 		cfg_optim      = c_op,
 	)
 
-def load_reactants(path: str | Path) -> BipropellantConfig:
+	if validate: validate_rocket_config(cfg)
+
+	return cfg
+
+def load_reactants(
+	path     : str | Path,
+	validate : bool = True,
+) -> BipropellantConfig:
 	with open(path, "rb") as f:
 		data = tomllib.load(f)
 
@@ -110,4 +121,9 @@ def load_reactants(path: str | Path) -> BipropellantConfig:
 
 	fuels = tuple(parse_entry(r, "fuel") for r in data["fuel"])
 	oxids = tuple(parse_entry(r, "oxid") for r in data["oxid"])
-	return BipropellantConfig(fuels=fuels, oxidizers=oxids)
+
+	cfg = BipropellantConfig(fuels=fuels, oxidizers=oxids)
+
+	if validate: validate_bipropellant_config(cfg)
+
+	return cfg

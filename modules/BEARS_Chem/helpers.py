@@ -6,7 +6,10 @@ from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
 from .reac import Reactant
 #endregion
 
-def reactant_card(reactant: Reactant, fraction: Optional[float] = None) -> str:
+def reactant_card(
+	reactant : Reactant,
+	fraction : float | None = None,
+) -> str:
 	"""
 	Generate a CEA propellant card for a Reactant object, specifying the `wt%`
 	fraction
@@ -42,7 +45,7 @@ def reactant_card(reactant: Reactant, fraction: Optional[float] = None) -> str:
 
 	return "\n".join(lines)
 
-def gencard(components: list[Reactant]) -> str:
+def gencard(components: tuple[Reactant]) -> str:
 	"""
 	Generate a CEA propellant card from a list of reactants, weighing each
 	reactant appropriately according to its `mass_fraction` field
@@ -72,7 +75,7 @@ def gencard(components: list[Reactant]) -> str:
 
 		return "\n".join(cards)
 
-def bulk_density(reactants: list[Reactant]) -> float:
+def bulk_density(reactants: tuple[Reactant, ...]) -> float:
 	"""Effective bulk density in kg/m^3 for a list of reactants"""
 	wt_total = sum(r.mass_fraction for r in reactants)
 	inv_rho = sum(

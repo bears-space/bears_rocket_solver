@@ -34,7 +34,7 @@ class LayeredWall:
 		if dynamic_count > 1:
 			raise ValueError("At most one Layer can be sized dynamically")
 
-		self.layers = list(layers)
+		self.layers: tuple[Layer, ...] = tuple(layers)
 
 	def size_layers(self, p_max, r_out, sf):
 
@@ -86,7 +86,7 @@ class LayeredWall:
 
 			thicknesses.append(t)
 
-		return thicknesses
+		return tuple(thicknesses)
 
 	def compute_masses(self, thicknesses, r_in, l_cyl):
 		masses = []
@@ -98,6 +98,6 @@ class LayeredWall:
 			masses.append((v_cyl + v_caps) * layer.material.density)
 			r_inner = r_outer
 
-		return sum(masses), masses
+		return sum(masses), tuple(masses)
 
 
