@@ -8,8 +8,14 @@ from openmdao.visualization.graph_viewer import GraphViewer
 from ..BEARS_Chem import BEARS_Chem
 
 from .group_teststand import TestStandGroup
-from .checks          import CheckFn, DEFAULT_TESTSTAND_CHECKS, run_checks
 from .graph_style     import style_graph
+
+from .checks  import CheckFn, DEFAULT_TESTSTAND_CHECKS, run_checks
+from .results import (
+	TestStandResult,
+	TestStandSensors,
+	PropulsionSummary,
+)
 #endregion
 
 class TestStandProblem(Problem):
@@ -68,7 +74,7 @@ class TestStandProblem(Problem):
 		if a_throat_cm2 is not None:
 			self.set_val("nozzle_throat_area",  a_throat_cm2, units="cm**2")
 
-	def run(self):
+	def run(self) -> TestStandResult:
 
 		self.run_model()
 
@@ -80,19 +86,25 @@ class TestStandProblem(Problem):
 		mr     = self.get_val("test_mixture_ratio")[0]
 		tc3_k  = self.chem.get_tcomb(pc_pa=pt3 * 1e5, mr=mr)
 
-		return {
-			"PT1_N2O_supply_bar": 65.0,
-			"TC1_N2O_supply_K":   288.15,
-			"PT2_run_tank_bar":   pt2,
-			"TC2_run_liquid_K":   275.15,
-			"PT3_chamber_bar":    pt3,
-			"TC3_chamber_temp_K": tc3_k,
-			"PT4_N2_supply_bar":  200.0,
-			"TC4_run_dome_K":     285.15,
-			"delta_p_feed_bar":   pt2 - pt3,
-			"thrust_N":           thrust,
-			"isp_s":              isp,
-		}
+		return TestStandResult(
+			sensors=TestStandSensors(
+				PT1_N2O_supply_bar = 65.0,
+				TC1_N2O_supply_K   = 288.15,
+				PT2_run_tank_bar   = pt2,
+				TC2_run_liquid_K   = 275.15,
+				PT3_chamber_bar    = pt3,
+				TC3_chamber_temp_K = tc3_k,
+				PT4_N2_supply_bar  = 200.0,
+				TC4_run_dome_K     = 285.15,
+				delta_p_feed_bar   = pt2 - pt3,
+			),
+			propulsion=PropulsionSummary(
+				thrust_N      = thrust,
+				isp_s         = isp,
+				p_chamber_bar = pt3,
+				mixture_ratio = mr,
+			),
+		)
 
 	#region Verification
 	def verify(
@@ -112,21 +124,21 @@ class TestStandProblem(Problem):
 
 		print("Simulating test stand:")
 		print("")
-		print(f"PT1 (N2O supply pressure):      \t{res['PT1_N2O_supply_bar']:{FMT}} bar")
-		print(f"TC1 (N2O supply temperature):   \t{res['TC1_N2O_supply_K']:{FMT}} K")
+		print(f"PT1 (N2O supply pressure):      \t{res.sensors.PT1_N2O_supply_bar:{FMT}} bar")
+		print(f"TC1 (N2O supply temperature):   \t{res.sensors.TC1_N2O_supply_K:{FMT}} K")
 		print("")
-		print(f"PT2 (run tank feed temperature):\t{res['PT2_run_tank_bar']:{FMT}} bar")
-		print(f"TC2 (run tank liquid temp):     \t{res['TC2_run_liquid_K']:{FMT}} K")
+		print(f"PT2 (run tank feed temperature):\t{res.sensors.PT2_run_tank_bar:{FMT}} bar")
+		print(f"TC2 (run tank liquid temp):     \t{res.sensors.TC2_run_liquid_K:{FMT}} K")
 		print("")
-		print(f"PT3 (chamber pressure):         \t{res['PT3_chamber_bar']:{FMT}} bar")
-		print(f"TC3 (chamber flame temp):       \t{res['TC3_chamber_temp_K']:{FMT}} K")
+		print(f"PT3 (chamber pressure):         \t{res.sensors.PT3_chamber_bar:{FMT}} bar")
+		print(f"TC3 (chamber flame temp):       \t{res.sensors.TC3_chamber_temp_K:{FMT}} K")
 		print("")
-		print(f"PT4 (N2 supply pressure):       \t{res['PT4_N2_supply_bar']:{FMT}} bar")
-		print(f"TC4 (N2 supply pressure):       \t{res['TC4_run_dome_K']:{FMT}} K")
+		print(f"PT4 (N2 supply pressure):       \t{res.sensors.PT4_N2_supply_bar:{FMT}} bar")
+		print(f"TC4 (N2 supply pressure):       \t{res.sensors.TC4_run_dome_K:{FMT}} K")
 		print("")
-		print(f"ΔP:                             \t{res['delta_p_feed_bar']:{FMT}} bar")
-		print(f"Thrust:                         \t{res['thrust_N']:{FMT}} N")
-		print(f"Isp:                            \t{res['isp_s']:{FMT}} s")
+		print(f"ΔP:                             \t{res.sensors.delta_p_feed_bar:{FMT}} bar")
+		print(f"Thrust:                         \t{res.propulsion.thrust_N:{FMT}} N")
+		print(f"Isp:                            \t{res.propulsion.isp_s:{FMT}} s")
 
 	def print_parameters(self, path: str = "outputs/rocket.txt"):
 		os.makedirs(os.path.dirname(path), exist_ok=True)
