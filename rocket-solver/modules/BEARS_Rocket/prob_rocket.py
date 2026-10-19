@@ -10,8 +10,17 @@ from ..BEARS_Chem import BEARS_Chem
 from ..BEARS_Atmo import BEARS_Atm
 
 from .group_rocket import RocketGroup
-from .checks       import CheckFn, DEFAULT_ROCKET_CHECKS, run_checks
 from .graph_style  import style_graph
+
+from .checks  import CheckFn, DEFAULT_ROCKET_CHECKS, run_checks
+from .results import (
+	RocketResult,
+	PropulsionSummary,
+	InjectorSummary,
+	NozzleSummary,
+	MassSummary,
+	TrajectorySummary,
+)
 #endregion
 
 class RocketLaunchProblem(Problem):
@@ -133,7 +142,7 @@ class RocketLaunchProblem(Problem):
 
 		return self
 
-	def run(self):
+	def run(self) -> RocketResult:
 
 		self.run_driver()
 
@@ -155,6 +164,9 @@ class RocketLaunchProblem(Problem):
 
 		# Random values that were too long and didn't look pretty
 		# in the dict return statement
+		isp = self.get_val("Propulsion.prop_isp")[0]
+		mr = self.get_val("OptimizationVars.o_mixture_ratio")[0]
+
 		ainj = self.get_val(
 			"OptimizationVars.o_injector_area",
 			units="mm**2",
@@ -175,24 +187,34 @@ class RocketLaunchProblem(Problem):
 			units="bar"
 		)[0]
 
-		return {
-			"m_prop_kg"      : mprop,
-			"mr"             : self.get_val("OptimizationVars.o_mixture_ratio")[0],
-			"a_inj_mm2"      : ainj,
-			"a_throat_cm2"   : athr,
-			"apogee_m"       : ap,
-			"apogee_error_m" : ap_err,
-			"burn_time_s"    : self.get_val("burn_time")[0],
-			"thrust_N"       : thr,
-			"isp_s"          : self.get_val("Propulsion.prop_isp")[0],
-			"m_dry_kg"       : mdry,
-			"m_initial_kg"   : mi,
-			"m_press_kg"     : mpr,
-			"p_chamber_bar"  : pch,
-			"delta_p_bar"    : dp,
-			"m_calc_kg"      : mcalc,
-			"twr_launch"     : twr,
-		}
+		return RocketResult(
+			propulsion=PropulsionSummary(
+				thrust_N      = thr,
+				isp_s         = isp,
+				p_chamber_bar = pch,
+				mixture_ratio = mr,
+				burn_time_s   = self.get_val("burn_time")[0],
+			),
+			injector=InjectorSummary(
+				area_mm2    = ainj,
+				delta_p_bar = dp,
+			),
+			nozzle=NozzleSummary(
+				throat_area_cm2 = athr,
+			),
+			mass=MassSummary(
+				initial_kg    = mi,
+				dry_kg        = mdry,
+				propellant_kg = mprop,
+				pressurant_kg = mpr,
+				calculated_kg = mcalc,
+			),
+			trajectory=TrajectorySummary(
+				apogee_m       = ap,
+				apogee_error_m = ap_err,
+				twr_launch     = twr,
+			),
+		)
 
 	#region Verification
 	def verify(
@@ -205,7 +227,7 @@ class RocketLaunchProblem(Problem):
 	#endregion
 
 	#region Outputs
-	def print_summary(self, res: dict):
+	def print_summary(self, res: RocketResult):
 
 		FMT = "8.3f"
 
@@ -213,22 +235,22 @@ class RocketLaunchProblem(Problem):
 
 		print("Optimized rocket parameters:")
 		print("")
-		print(f"Optimized m_prop:     \t{res['m_prop_kg']:{FMT}} kg")
-		print(f"Optimized A_inj:      \t{res['a_inj_mm2']:{FMT}} mm²")
-		print(f"Optimized A_throat:   \t{res['a_throat_cm2']:{FMT}} cm²")
-		print(f"Optimized MR:         \t{res['mr']:{FMT}}")
+		print(f"Optimized m_prop:     \t{res.mass.propellant_kg:{FMT}} kg")
+		print(f"Optimized A_inj:      \t{res.injector.area_mm2:{FMT}} mm²")
+		print(f"Optimized A_throat:   \t{res.nozzle.throat_area_cm2:{FMT}} cm²")
+		print(f"Optimized MR:         \t{res.propulsion.mixture_ratio:{FMT}}")
 		print("")
-		print(f"Apogee:               \t{res['apogee_m']:{FMT}} m")
-		print(f"Burn time:            \t{res['burn_time_s']:{FMT}} s")
-		print(f"Liftoff thrust:       \t{res['thrust_N']:{FMT}} N")
-		print(f"Liftoff Isp:          \t{res['isp_s']:{FMT}} s")
-		print(f"Chamber pressure:     \t{res['p_chamber_bar']:{FMT}} bar")
-		print(f"Injector ΔP:          \t{res['delta_p_bar']:{FMT}} bar")
+		print(f"Apogee:               \t{res.trajectory.apogee_m:{FMT}} m")
+		print(f"Burn time:            \t{res.propulsion.burn_time_s:{FMT}} s")
+		print(f"Liftoff thrust:       \t{res.propulsion.thrust_N:{FMT}} N")
+		print(f"Liftoff Isp:          \t{res.propulsion.isp_s:{FMT}} s")
+		print(f"Chamber pressure:     \t{res.propulsion.p_chamber_bar:{FMT}} bar")
+		print(f"Injector ΔP:          \t{res.injector.delta_p_bar:{FMT}} bar")
 		print("")
-		print(f"Dry mass:             \t{res['m_dry_kg']:{FMT}} kg")
-		print(f"Pressurant mass:      \t{res['m_press_kg']:{FMT}} kg")
-		print(f"Total mass at liftoff:\t{res['m_initial_kg']:{FMT}} kg")
-		print(f"TWR at launch:        \t{res['twr_launch']:{FMT}}")
+		print(f"Dry mass:             \t{res.mass.dry_kg:{FMT}} kg")
+		print(f"Pressurant mass:      \t{res.mass.pressurant_kg:{FMT}} kg")
+		print(f"Total mass at liftoff:\t{res.mass.initial_kg:{FMT}} kg")
+		print(f"TWR at launch:        \t{res.trajectory.twr_launch:{FMT}}")
 
 	def print_parameters(self, path: str = "outputs/rocket.txt"):
 		"""Dump all computed variables to an output file"""
@@ -258,8 +280,15 @@ class RocketLaunchProblem(Problem):
 				outfile   = png_path,
 			)
 			if dot is not None:
-				splines = "ortho" if gtype != "tree" else "spline"
-				#dot = style_graph(dot, splines=splines, concentrate=True)
+				match gtype:
+					case "dataflow":
+						# "spline" | "ortho" | "curved" | "line" | "polyline"
+						splines = "spline" 
+					case "tree":
+						splines = "spline"
+					case "cycle":
+						splines = "spline"
+				dot = style_graph(dot, splines=splines, concentrate=True)
 				dot.write_png(png_path)
 
 	def report(self, res: dict, out_txt: str = "outputs/rocket.txt"):

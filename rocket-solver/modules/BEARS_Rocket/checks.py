@@ -1,5 +1,7 @@
 #region Imports
-from typing import Callable, Literal, NamedTuple
+from typing import Any, Callable, Literal, NamedTuple
+
+from .results import RocketResult, TestStandResult
 #endregion
 
 #region Types
@@ -7,37 +9,49 @@ class CheckResult(NamedTuple):
 	severity : Literal["error", "warning"]
 	message  : str
 
-CheckFn = Callable[[dict], tuple[CheckResult, ...]]
+CheckFn = Callable[[Any], tuple[CheckResult, ...]]
 #endregion
 
 #region Flight Checks
-def check_injector_dp(res: dict) -> tuple[CheckResult, ...]:
+def check_injector_dp(res: RocketResult) -> tuple[CheckResult, ...]:
 	issues: list[CheckResult] = []
-	dp = res["delta_p_bar"]
-	pc = res["p_chamber_bar"]
+	dp = res.injector.delta_p_bar
+	pc = res.propulsion.p_chamber_bar
 
 	if dp <= 0.0:
-		issues.append(CheckResult("error", f"Injector ΔP non-positive ({dp:.3f} bar)"))
+		issues.append(CheckResult(
+			"error",
+			f"Injector ΔP non-positive ({dp:.3f} bar)"
+		))
 	elif dp / pc < 0.15:
 		ratio = dp / pc
-		issues.append(CheckResult("warning", f"Injector ΔP ratio low ({ratio:.1%})"))
+		issues.append(CheckResult(
+			"warning",
+			f"Injector ΔP ratio low ({ratio:.1%})"
+		))
 
 	return tuple(issues)
 
-def check_liftoff_twr(res: dict) -> tuple[CheckResult, ...]:
+def check_liftoff_twr(res: RocketResult) -> tuple[CheckResult, ...]:
 	issues: list[CheckResult] = []
-	twr = res["twr_launch"]
+	twr = res.trajectory.twr_launch
 
 	if twr < 1.0:
-		issues.append(CheckResult("error", f"Liftoff TWR below 1.0 ({twr:.3f})"))
+		issues.append(CheckResult(
+			"error",
+			f"Liftoff TWR below 1.0 ({twr:.3f})"
+		))
 	elif twr < 1.3:
-		warnings.append(f"Liftoff TWR is low ({twr:.3f})")
+		issues.append(CheckResult(
+			"warning",
+			f"Liftoff TWR is low ({twr:.3f})"
+		))
 
 	return tuple(issues)
 
-def check_mass_balance(res: dict) -> tuple[CheckResult, ...]:
-	mi = res["m_initial_kg"]
-	mc = res["m_calc_kg"]
+def check_mass_balance(res: RocketResult) -> tuple[CheckResult, ...]:
+	mi = res.mass.initial_kg
+	mc = res.mass.calculated_kg
 
 	if abs(mi - mc) > 1e-3:
 		return (CheckResult(
@@ -47,8 +61,8 @@ def check_mass_balance(res: dict) -> tuple[CheckResult, ...]:
 	
 	return ()
 
-def check_target_apogee(res: dict) -> tuple[CheckResult, ...]:
-	err = res.get("apogee_error_m", 0.0)
+def check_target_apogee(res: RocketResult) -> tuple[CheckResult, ...]:
+	err = res.trajectory.apogee_error_m
 
 	if err > 20.0:
 		return (CheckResult(
@@ -58,8 +72,10 @@ def check_target_apogee(res: dict) -> tuple[CheckResult, ...]:
 
 	return ()
 
-def check_combustion_isp(res: dict) -> tuple[CheckResult, ...]:
-	isp = res["isp_s"]
+def check_combustion_isp(
+	res: RocketResult | TestStandResult,
+) -> tuple[CheckResult, ...]:
+	isp = res.propulsion.isp_s
 
 	if not (150.0 <= isp <= 350.0):
 		return (CheckResult(
@@ -71,27 +87,38 @@ def check_combustion_isp(res: dict) -> tuple[CheckResult, ...]:
 #endregion
 
 #region Test Stand Checks
-def check_feed_dp(res: dict) -> tuple[CheckResult, ...]:
+def check_feed_dp(res: TestStandResult) -> tuple[CheckResult, ...]:
 	issues: list[CheckResult] = []
-	dp = res["delta_p_feed_bar"]
-	pc = res["PT3_chamber_bar"]
+	dp = res.sensors.delta_p_feed_bar
+	pc = res.sensors.PT3_chamber_bar
 
 	if dp <= 0.0:
-		issues.append(CheckResult("error", f"Feed ΔP non-positive ({dp:.3f} bar)"))
+		issues.append(CheckResult(
+			"error",
+			f"Feed ΔP non-positive ({dp:.3f} bar)"
+		))
 	elif dp / pc < 0.15:
 		ratio = dp / pc
-		issues.append(CheckResult("warning", f"Feed ΔP ratio is low ({ratio:.1%})"))
+		issues.append(CheckResult(
+			"warning",
+			f"Feed ΔP ratio is low ({ratio:.1%})"
+		))
 
 	return tuple(issues)
 
-def check_teststand_thrust(res: dict) -> tuple[CheckResult, ...]:
-	if res["thrust_N"] <= 0.0:
-		return (CheckResult("error", f"Thrust non-positive ({res['thrust_N']:.3f} N)"))
+def check_teststand_thrust(res: TestStandResult) -> tuple[CheckResult, ...]:
+	if res.propulsion.thrust_N <= 0.0:
+		return (CheckResult(
+			"error",
+			f"Thrust non-positive ({res['thrust_N']:.3f} N)"
+		))
 
 	return ()
 
-def check_supply_pressure_hierarchy(res: dict) -> tuple[CheckResult, ...]:
-	if res["PT4_N2_supply_bar"] < res["PT2_run_tank_bar"]:
+def check_supply_pressure_hierarchy(
+	res: TestStandResult,
+) -> tuple[CheckResult, ...]:
+	if res.sensors.PT4_N2_supply_bar < res.sensors.PT2_run_tank_bar:
 		return (CheckResult(
 			"error",
 			"N2 supply pressure PT4 is below run tank pressure PT2"
@@ -99,8 +126,8 @@ def check_supply_pressure_hierarchy(res: dict) -> tuple[CheckResult, ...]:
 
 	return ()
 
-def check_flame_temperature(res: dict) -> tuple[CheckResult, ...]:
-	tc = res["TC3_chamber_temp_K"]
+def check_flame_temperature(res: TestStandResult) -> tuple[CheckResult, ...]:
+	tc = res.sensors.TC3_chamber_temp_K
 
 	if not (1500.0 <= tc <= 4000.0):
 		return (CheckResult(

@@ -11,11 +11,15 @@ def style_graph(
 	dpi         : int = 300,
 ) -> pydot.Dot:
 	"""Apply presentation styling and clean routing to a pydot graph."""
+
 	dot.set_rankdir(rankdir)
 	dot.set("splines",     splines)
 	dot.set("concentrate", "true" if concentrate else "false")
+
+	return dot
+
 	dot.set("dpi",         str(dpi))
-	dot.set("fontname",    "Helvetica")
+	dot.set("fontname",    "Iosevka")
 	dot.set("fontsize",    "11")
 	dot.set("nodesep",     "0.4")
 	dot.set("ranksep",     "0.7")
@@ -32,8 +36,7 @@ def style_graph(
 
 		for node in sg.get_nodes():
 			name = node.get_name().strip('"')
-			if name in ("_Incoming", "_Outgoing"):
-				continue
+			if name in ("_Incoming", "_Outgoing"): continue
 			node.set("fontname", "Helvetica")
 			node.set("fontsize", "10")
 			node.set("style",    "rounded,filled")

@@ -98,10 +98,10 @@ def main():
 	prob_rocket.setup()
 	res_rocket = prob_rocket.run()
 
-	m_prop_opt   = res_rocket['m_prop_kg']
-	mr_opt       = res_rocket['mr']
-	a_inj_opt    = res_rocket['a_inj_mm2']
-	a_throat_opt = res_rocket['a_throat_cm2']
+	m_prop_opt   = res_rocket.mass.propellant_kg
+	mr_opt       = res_rocket.propulsion.mixture_ratio
+	a_inj_opt    = res_rocket.injector.area_mm2
+	a_throat_opt = res_rocket.nozzle.throat_area_cm2
 
 	prob_rocket.report(res_rocket)
 	#endregion
