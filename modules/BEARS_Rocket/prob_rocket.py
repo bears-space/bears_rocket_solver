@@ -13,14 +13,6 @@ from .group_rocket import RocketGroup
 from .graph_style  import style_graph
 
 from .checks  import CheckFn, DEFAULT_ROCKET_CHECKS, run_checks
-from .results import (
-	RocketResult,
-	PropulsionSummary,
-	InjectorSummary,
-	NozzleSummary,
-	MassSummary,
-	TrajectorySummary,
-)
 #endregion
 
 class RocketLaunchProblem(Problem):
@@ -142,115 +134,58 @@ class RocketLaunchProblem(Problem):
 
 		return self
 
-	def run(self) -> RocketResult:
-
+	def run(self):
 		self.run_driver()
-
-		# TWR at launch
-		thr = self.get_val("Propulsion.prop_thrust")[0]
-		mi  = self.get_val("Mass.initial_mass")[0]
-		twr = thr / (mi * g)
-
-		# Calculated mass
-		mdry  = self.get_val("Mass.dry_mass")[0]
-		mprop = self.get_val("OptimizationVars.o_propellant_mass")[0]
-		mpr   = self.get_val("Mass.pressurant_mass")[0]
-
-		mcalc = mdry + mprop + mpr
-
-		# Apogee error
-		ap = self.get_val("apogee")[0]
-		ap_err = abs(ap - self.target_apogee)
-
-		# Random values that were too long and didn't look pretty
-		# in the dict return statement
-		isp = self.get_val("Propulsion.prop_isp")[0]
-		mr = self.get_val("OptimizationVars.o_mixture_ratio")[0]
-
-		ainj = self.get_val(
-			"OptimizationVars.o_injector_area",
-			units="mm**2",
-		)[0]
-
-		athr = self.get_val(
-			"OptimizationVars.o_nozzle_throat_area",
-			units="cm**2",
-		)[0]
-
-		pch = self.get_val(
-			"Propulsion.prop_chamber_pressure",
-			units="bar",
-		)[0]
-
-		dp = self.get_val(
-			"Propulsion.injector_delta_p",
-			units="bar"
-		)[0]
-
-		return RocketResult(
-			propulsion=PropulsionSummary(
-				thrust_N      = thr,
-				isp_s         = isp,
-				p_chamber_bar = pch,
-				mixture_ratio = mr,
-				burn_time_s   = self.get_val("burn_time")[0],
-			),
-			injector=InjectorSummary(
-				area_mm2    = ainj,
-				delta_p_bar = dp,
-			),
-			nozzle=NozzleSummary(
-				throat_area_cm2 = athr,
-			),
-			mass=MassSummary(
-				initial_kg    = mi,
-				dry_kg        = mdry,
-				propellant_kg = mprop,
-				pressurant_kg = mpr,
-				calculated_kg = mcalc,
-			),
-			trajectory=TrajectorySummary(
-				apogee_m       = ap,
-				apogee_error_m = ap_err,
-				twr_launch     = twr,
-			),
-		)
+		return self
 
 	#region Verification
-	def verify(
-		self,
-		res            : dict,
-		raise_on_error : bool = True,
-	):
+	def verify(self, raise_on_error : bool = True):
 		"""Validate post-run physical quantities and optimization results"""
-		return run_checks(res, self.checks, raise_on_error=raise_on_error)
+		return run_checks(self, self.checks, raise_on_error=raise_on_error)
 	#endregion
 
 	#region Outputs
-	def print_summary(self, res: RocketResult):
+	def print_summary(self):
 
 		FMT = "8.3f"
 
-		self.verify(res)
+		self.verify()
+
+		m_prop = self.get_val("OptimizationVars.o_propellant_mass",    units="kg")[0]
+		a_inj  = self.get_val("OptimizationVars.o_injector_area",      units="mm**2")[0]
+		a_thr  = self.get_val("OptimizationVars.o_nozzle_throat_area", units="cm**2")[0]
+		mr     = self.get_val("OptimizationVars.o_mixture_ratio")[0]
+		ap     = self.get_val("apogee",                                units="m")[0]
+		t_burn = self.get_val("burn_time",                             units="s")[0]
+		thr    = self.get_val("Propulsion.prop_thrust",                units="N")[0]
+		isp    = self.get_val("Propulsion.prop_isp",                   units="s")[0]
+		pch    = self.get_val("Propulsion.prop_chamber_pressure",      units="bar")[0]
+		tch    = self.get_val("Propulsion.prop_chamber_temp",          units="K")[0]
+		dp     = self.get_val("Propulsion.injector_delta_p",           units="bar")[0]
+		mdry   = self.get_val("Mass.dry_mass",                         units="kg")[0]
+		mpr    = self.get_val("Mass.pressurant_mass",                  units="kg")[0]
+		mi     = self.get_val("Mass.initial_mass",                     units="kg")[0]
+		twr    = thr / (mi * g)
 
 		print("Optimized rocket parameters:")
 		print("")
-		print(f"Optimized m_prop:     \t{res.mass.propellant_kg:{FMT}} kg")
-		print(f"Optimized A_inj:      \t{res.injector.area_mm2:{FMT}} mm²")
-		print(f"Optimized A_throat:   \t{res.nozzle.throat_area_cm2:{FMT}} cm²")
-		print(f"Optimized MR:         \t{res.propulsion.mixture_ratio:{FMT}}")
+		print(f"Optimized m_prop:     \t{m_prop:{FMT}} kg")
+		print(f"Optimized A_inj:      \t{a_inj:{FMT}} mm²")
+		print(f"Optimized A_throat:   \t{a_thr:{FMT}} cm²")
+		print(f"Optimized MR:         \t{mr:{FMT}}")
 		print("")
-		print(f"Apogee:               \t{res.trajectory.apogee_m:{FMT}} m")
-		print(f"Burn time:            \t{res.propulsion.burn_time_s:{FMT}} s")
-		print(f"Liftoff thrust:       \t{res.propulsion.thrust_N:{FMT}} N")
-		print(f"Liftoff Isp:          \t{res.propulsion.isp_s:{FMT}} s")
-		print(f"Chamber pressure:     \t{res.propulsion.p_chamber_bar:{FMT}} bar")
-		print(f"Injector ΔP:          \t{res.injector.delta_p_bar:{FMT}} bar")
+		print(f"Apogee:               \t{ap:{FMT}} m")
+		print(f"Burn time:            \t{t_burn:{FMT}} s")
+		print(f"Liftoff thrust:       \t{thr:{FMT}} N")
+		print(f"Liftoff Isp:          \t{isp:{FMT}} s")
+		print(f"Chamber pressure:     \t{pch:{FMT}} bar")
+		print(f"Chamber flame temp:   \t{tch:{FMT}} K")
+		print(f"Injector ΔP:          \t{dp:{FMT}} bar")
 		print("")
-		print(f"Dry mass:             \t{res.mass.dry_kg:{FMT}} kg")
-		print(f"Pressurant mass:      \t{res.mass.pressurant_kg:{FMT}} kg")
-		print(f"Total mass at liftoff:\t{res.mass.initial_kg:{FMT}} kg")
-		print(f"TWR at launch:        \t{res.trajectory.twr_launch:{FMT}}")
+		print(f"Dry mass:             \t{mdry:{FMT}} kg")
+		print(f"Pressurant mass:      \t{mpr:{FMT}} kg")
+		print(f"Total mass at liftoff:\t{mi:{FMT}} kg")
+		print(f"TWR at launch:        \t{twr:{FMT}}")
 
 	def print_parameters(self, path: str = "outputs/rocket.txt"):
 		"""Dump all computed variables to an output file"""
@@ -291,10 +226,10 @@ class RocketLaunchProblem(Problem):
 				dot = style_graph(dot, splines=splines, concentrate=True)
 				dot.write_png(png_path)
 
-	def report(self, res: dict, out_txt: str = "outputs/rocket.txt"):
+	def report(self, out_txt: str = "outputs/rocket.txt"):
 		"""Print results and generate output artifacts"""
 
-		self.print_summary(res)
+		self.print_summary()
 		self.print_parameters(out_txt)
 		self.print_graphs()
 	#endregion

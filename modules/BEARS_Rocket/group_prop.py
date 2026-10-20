@@ -104,6 +104,7 @@ class PropulsionGroup(Group):
 			promotes_outputs=[
 				("engine_thrust",           "prop_thrust"),
 				("engine_chamber_pressure", "prop_chamber_pressure"),
+				("engine_chamber_temp",     "prop_chamber_temp"),
 				("engine_isp",              "prop_isp"),
 				("injector_delta_p",        "injector_delta_p"),
 				("fuel_length",             "fuel_length"),
