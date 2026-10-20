@@ -1,7 +1,8 @@
 #region Imports
-from typing import Any, Callable, Literal, NamedTuple
+from openmdao.api import Problem
 
-from .results import RocketResult, TestStandResult
+from typing import Callable, Literal, NamedTuple
+from scipy.constants import g
 #endregion
 
 #region Types
@@ -9,14 +10,14 @@ class CheckResult(NamedTuple):
 	severity : Literal["error", "warning"]
 	message  : str
 
-CheckFn = Callable[[Any], tuple[CheckResult, ...]]
+CheckFn = Callable[[Problem], tuple[CheckResult, ...]]
 #endregion
 
 #region Flight Checks
-def check_injector_dp(res: RocketResult) -> tuple[CheckResult, ...]:
+def check_injector_dp(prob: Problem) -> tuple[CheckResult, ...]:
 	issues: list[CheckResult] = []
-	dp = res.injector.delta_p_bar
-	pc = res.propulsion.p_chamber_bar
+	dp = prob.get_val("Propulsion.injector_delta_p",      units="bar")[0]
+	pc = prob.get_val("Propulsion.prop_chamber_pressure", units="bar")[0]
 
 	if dp <= 0.0:
 		issues.append(CheckResult(
@@ -32,9 +33,11 @@ def check_injector_dp(res: RocketResult) -> tuple[CheckResult, ...]:
 
 	return tuple(issues)
 
-def check_liftoff_twr(res: RocketResult) -> tuple[CheckResult, ...]:
+def check_liftoff_twr(prob: Problem) -> tuple[CheckResult, ...]:
 	issues: list[CheckResult] = []
-	twr = res.trajectory.twr_launch
+	thr = prob.get_val("Propulsion.prop_thrust", units="N")[0]
+	mi  = prob.get_val("Mass.initial_mass",      units="kg")[0]
+	twr = thr / (mi * g)
 
 	if twr < 1.0:
 		issues.append(CheckResult(
@@ -49,11 +52,15 @@ def check_liftoff_twr(res: RocketResult) -> tuple[CheckResult, ...]:
 
 	return tuple(issues)
 
-def check_mass_balance(res: RocketResult) -> tuple[CheckResult, ...]:
-	mi = res.mass.initial_kg
-	mc = res.mass.calculated_kg
+def check_mass_balance(prob: Problem) -> tuple[CheckResult, ...]:
+	mi    = prob.get_val("Mass.initial_mass",                  units="kg")[0]
+	mdry  = prob.get_val("Mass.dry_mass",                      units="kg")[0]
+	mprop = prob.get_val("OptimizationVars.o_propellant_mass", units="kg")[0]
+	mpr   = prob.get_val("Mass.pressurant_mass",               units="kg")[0]
 
-	if abs(mi - mc) > 1e-3:
+	mcalc = mdry + mprop + mpr
+
+	if abs(mi - mcalc) > 1e-3:
 		return (CheckResult(
 			"error",
 			f"Mass balance mismatch: {mi:.3f} kg != {mc:.3f} kg"
@@ -61,8 +68,11 @@ def check_mass_balance(res: RocketResult) -> tuple[CheckResult, ...]:
 	
 	return ()
 
-def check_target_apogee(res: RocketResult) -> tuple[CheckResult, ...]:
-	err = res.trajectory.apogee_error_m
+def check_target_apogee(prob: Problem) -> tuple[CheckResult, ...]:
+	ap     = prob.get_val("apogee",                       units="m")[0]
+	target = prob.get_val("DesignVars.g_target_altitude", units="m")[0]
+
+	err = abs(ap - target)
 
 	if err > 20.0:
 		return (CheckResult(
@@ -72,33 +82,42 @@ def check_target_apogee(res: RocketResult) -> tuple[CheckResult, ...]:
 
 	return ()
 
-def check_combustion_isp(
-	res: RocketResult | TestStandResult,
-) -> tuple[CheckResult, ...]:
-	isp = res.propulsion.isp_s
+def check_combustion_isp(prob: Problem) -> tuple[CheckResult, ...]:
+	from .prob_rocket    import RocketLaunchProblem
+	from .prob_teststand import TestStandProblem
+
+	match prob:
+		case RocketLaunchProblem():
+			isp = prob.get_val("Propulsion.prop_isp", units="s")[0]
+		case TestStandProblem():
+			isp = prob.get_val("test_isp", units="s")[0]
+		case _:
+			raise TypeError(f"Unsupported problem: {type(prob).__name__}")
 
 	if not (150.0 <= isp <= 350.0):
 		return (CheckResult(
 			"warning",
-			f"Isp ({res['isp_s']:.1f} s) outside range [150, 350]"
+			f"Isp ({isp:.1f} s) outside range [150, 350]"
 		))
 
 	return ()
 #endregion
 
 #region Test Stand Checks
-def check_feed_dp(res: TestStandResult) -> tuple[CheckResult, ...]:
+def check_feed_dp(prob: Problem) -> tuple[CheckResult, ...]:
 	issues: list[CheckResult] = []
-	dp = res.sensors.delta_p_feed_bar
-	pc = res.sensors.PT3_chamber_bar
+	pt2 = prob.get_val("Sensors.PT2_run_tank_pressure", units="bar")[0]
+	pt3 = prob.get_val("test_chamber_pressure_PT3",     units="bar")[0]
+
+	dp = pt2 - pt3
 
 	if dp <= 0.0:
 		issues.append(CheckResult(
 			"error",
 			f"Feed ΔP non-positive ({dp:.3f} bar)"
 		))
-	elif dp / pc < 0.15:
-		ratio = dp / pc
+	elif dp / pt3 < 0.15:
+		ratio = dp / pt3
 		issues.append(CheckResult(
 			"warning",
 			f"Feed ΔP ratio is low ({ratio:.1%})"
@@ -106,8 +125,10 @@ def check_feed_dp(res: TestStandResult) -> tuple[CheckResult, ...]:
 
 	return tuple(issues)
 
-def check_teststand_thrust(res: TestStandResult) -> tuple[CheckResult, ...]:
-	if res.propulsion.thrust_N <= 0.0:
+def check_teststand_thrust(prob: Problem) -> tuple[CheckResult, ...]:
+	thrust = prob.get_val("test_thrust", units="N")[0]
+
+	if thrust <= 0.0:
 		return (CheckResult(
 			"error",
 			f"Thrust non-positive ({res['thrust_N']:.3f} N)"
@@ -115,10 +136,11 @@ def check_teststand_thrust(res: TestStandResult) -> tuple[CheckResult, ...]:
 
 	return ()
 
-def check_supply_pressure_hierarchy(
-	res: TestStandResult,
-) -> tuple[CheckResult, ...]:
-	if res.sensors.PT4_N2_supply_bar < res.sensors.PT2_run_tank_bar:
+def check_supply_pressure_hierarchy(prob: Problem) -> tuple[CheckResult, ...]:
+	pt2 = prob.get_val("Sensors.PT2_run_tank_pressure", units="bar")[0]
+	pt4 = 200.0
+
+	if pt4 < pt2:
 		return (CheckResult(
 			"error",
 			"N2 supply pressure PT4 is below run tank pressure PT2"
@@ -126,8 +148,17 @@ def check_supply_pressure_hierarchy(
 
 	return ()
 
-def check_flame_temperature(res: TestStandResult) -> tuple[CheckResult, ...]:
-	tc = res.sensors.TC3_chamber_temp_K
+def check_flame_temperature(prob: Problem) -> tuple[CheckResult, ...]:
+	from .prob_rocket    import RocketLaunchProblem
+	from .prob_teststand import TestStandProblem
+
+	match prob:
+		case RocketLaunchProblem():
+			tc = prob.get_val("Propulsion.prop_chamber_temp", units="K")[0]
+		case TestStandProblem():
+			tc = prob.get_val("test_chamber_temp_TC3", units="K")[0]
+		case _:
+			raise TypeError(f"Unsupported problem: {type(prob).__name__}")
 
 	if not (1500.0 <= tc <= 4000.0):
 		return (CheckResult(

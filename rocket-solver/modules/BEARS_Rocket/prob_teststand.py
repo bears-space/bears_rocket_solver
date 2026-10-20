@@ -11,11 +11,6 @@ from .group_teststand import TestStandGroup
 from .graph_style     import style_graph
 
 from .checks  import CheckFn, DEFAULT_TESTSTAND_CHECKS, run_checks
-from .results import (
-	TestStandResult,
-	TestStandSensors,
-	PropulsionSummary,
-)
 #endregion
 
 class TestStandProblem(Problem):
@@ -74,71 +69,51 @@ class TestStandProblem(Problem):
 		if a_throat_cm2 is not None:
 			self.set_val("nozzle_throat_area",  a_throat_cm2, units="cm**2")
 
-	def run(self) -> TestStandResult:
-
+	def run(self):
 		self.run_model()
-
-		pt2    = self.get_val("Sensors.PT2_run_tank_pressure", units="bar")[0]
-		pt3    = self.get_val("test_chamber_pressure_PT3",     units="bar")[0]
-		thrust = self.get_val("test_thrust",                   units="N")[0]
-		isp    = self.get_val("test_isp",                      units="s")[0]
-
-		mr     = self.get_val("test_mixture_ratio")[0]
-		tc3_k  = self.chem.get_tcomb(pc_pa=pt3 * 1e5, mr=mr)
-
-		return TestStandResult(
-			sensors=TestStandSensors(
-				PT1_N2O_supply_bar = 65.0,
-				TC1_N2O_supply_K   = 288.15,
-				PT2_run_tank_bar   = pt2,
-				TC2_run_liquid_K   = 275.15,
-				PT3_chamber_bar    = pt3,
-				TC3_chamber_temp_K = tc3_k,
-				PT4_N2_supply_bar  = 200.0,
-				TC4_run_dome_K     = 285.15,
-				delta_p_feed_bar   = pt2 - pt3,
-			),
-			propulsion=PropulsionSummary(
-				thrust_N      = thrust,
-				isp_s         = isp,
-				p_chamber_bar = pt3,
-				mixture_ratio = mr,
-			),
-		)
+		return self
 
 	#region Verification
-	def verify(
-		self,
-		res            : dict,
-		raise_on_error : bool = True,
-	):
-		return run_checks(res, self.checks, raise_on_error=raise_on_error)
+	def verify(self, raise_on_error : bool = True):
+		return run_checks(self, self.checks, raise_on_error=raise_on_error)
 	#endregion
 
 	#region Outputs
-	def print_summary(self, res: dict):
+	def print_summary(self):
 
 		FMT = "8.3f"
 
-		self.verify(res)
+		self.verify()
+
+		pt1 = 65.0
+		tc1 = 288.15
+		pt2 = self.get_val("Sensors.PT2_run_tank_pressure", units="bar")[0]
+		tc2 = 275.15
+		pt3 = self.get_val("test_chamber_pressure_PT3",     units="bar")[0]
+		tc3 = self.get_val("test_chamber_temp_TC3",         units="K")[0]
+		pt4 = 200.0
+		tc4 = 285.15
+		mr  = self.get_val("test_mixture_ratio")[0]
+		thr = self.get_val("test_thrust",                   units="N")[0]
+		isp = self.get_val("test_isp",                      units="s")[0]
 
 		print("Simulating test stand:")
 		print("")
-		print(f"PT1 (N2O supply pressure):      \t{res.sensors.PT1_N2O_supply_bar:{FMT}} bar")
-		print(f"TC1 (N2O supply temperature):   \t{res.sensors.TC1_N2O_supply_K:{FMT}} K")
+		print(f"PT1 (N2O supply pressure):      \t{pt1:{FMT}} bar")
+		print(f"TC1 (N2O supply temperature):   \t{tc1:{FMT}} K")
 		print("")
-		print(f"PT2 (run tank feed temperature):\t{res.sensors.PT2_run_tank_bar:{FMT}} bar")
-		print(f"TC2 (run tank liquid temp):     \t{res.sensors.TC2_run_liquid_K:{FMT}} K")
+		print(f"PT2 (run tank feed temperature):\t{pt2:{FMT}} bar")
+		print(f"TC2 (run tank liquid temp):     \t{tc2:{FMT}} K")
 		print("")
-		print(f"PT3 (chamber pressure):         \t{res.sensors.PT3_chamber_bar:{FMT}} bar")
-		print(f"TC3 (chamber flame temp):       \t{res.sensors.TC3_chamber_temp_K:{FMT}} K")
+		print(f"PT3 (chamber pressure):         \t{pt3:{FMT}} bar")
+		print(f"TC3 (chamber flame temp):       \t{tc3:{FMT}} K")
 		print("")
-		print(f"PT4 (N2 supply pressure):       \t{res.sensors.PT4_N2_supply_bar:{FMT}} bar")
-		print(f"TC4 (N2 supply pressure):       \t{res.sensors.TC4_run_dome_K:{FMT}} K")
+		print(f"PT4 (N2 supply pressure):       \t{pt4:{FMT}} bar")
+		print(f"TC4 (N2 supply pressure):       \t{tc4:{FMT}} K")
 		print("")
-		print(f"ΔP:                             \t{res.sensors.delta_p_feed_bar:{FMT}} bar")
-		print(f"Thrust:                         \t{res.propulsion.thrust_N:{FMT}} N")
-		print(f"Isp:                            \t{res.propulsion.isp_s:{FMT}} s")
+		print(f"ΔP:                             \t{pt2 - pt3:{FMT}} bar")
+		print(f"Thrust:                         \t{thr:{FMT}} N")
+		print(f"Isp:                            \t{isp:{FMT}} s")
 
 	def print_parameters(self, path: str = "outputs/rocket.txt"):
 		os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -172,8 +147,8 @@ class TestStandProblem(Problem):
 				#dot = style_graph(dot, splines=splines, concentrate=True)
 				dot.write_png(png_path)
 
-	def report(self, res: dict, out_txt: str = "outputs/teststand.txt"):
-		self.print_summary(res)
+	def report(self, out_txt: str = "outputs/teststand.txt"):
+		self.print_summary()
 		self.print_parameters(out_txt)
 		self.print_graphs()
 	#endregion

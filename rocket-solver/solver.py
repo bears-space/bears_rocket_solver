@@ -95,15 +95,27 @@ def main():
 		reports          = True,
 		work_dir         = work_dir,
 	)
+
 	prob_rocket.setup()
-	res_rocket = prob_rocket.run()
+	prob_rocket.run()
 
-	m_prop_opt   = res_rocket.mass.propellant_kg
-	mr_opt       = res_rocket.propulsion.mixture_ratio
-	a_inj_opt    = res_rocket.injector.area_mm2
-	a_throat_opt = res_rocket.nozzle.throat_area_cm2
+	m_prop_opt = prob_rocket.get_val(
+		"OptimizationVars.o_propellant_mass", units="kg"
+	)[0]
 
-	prob_rocket.report(res_rocket)
+	mr_opt = prob_rocket.get_val(
+		"OptimizationVars.o_mixture_ratio"
+	)[0]
+
+	a_inj_opt = prob_rocket.get_val(
+		"OptimizationVars.o_injector_area", units="mm**2"
+	)[0]
+
+	a_throat_opt = prob_rocket.get_val(
+		"OptimizationVars.o_nozzle_throat_area", units="cm**2"
+	)[0]
+
+	prob_rocket.report()
 	#endregion
 
 	print("--------")
@@ -123,9 +135,8 @@ def main():
 		a_throat_cm2 = a_throat_opt,
 	)
 
-	res_stand = prob_stand.run()
-
-	prob_stand.report(res_stand)
+	prob_stand.run()
+	prob_stand.report()
 	#endregion
 #endregion
 
