@@ -135,7 +135,7 @@ At the root of the model tree is a `Problem` definition, which contains a
 
 The current dataflow structure of our model looks as follows:
 
-![rocket-structure](figures/rocket_dataflow.png "Automatically generated data flow diagram of the current class structure")
+![rocket-structure](figures/rocket_tree.png "Automatically generated data flow diagram of the current class structure (simplified view)")
 
 Each global input variable (coming out of `_auto_ivc`) can be either fixed or
 optimized for. More than one variable can be optimized at once. In the current
