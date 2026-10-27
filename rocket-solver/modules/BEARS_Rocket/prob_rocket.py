@@ -22,7 +22,7 @@ class RocketLaunchProblem(Problem):
 		atm                 : BEARS_Atm,
 		chem                : BEARS_Chem,
 		payload_mass        : float = 1.0,
-		target_apogee       : float = 3000.0,
+		target_apogee       : float = 3100.0,
 		ox_wall_material    = None,
 		press_wall_material = None,
 		checks              : tuple[CheckFn, ...] = DEFAULT_ROCKET_CHECKS,
@@ -87,13 +87,13 @@ class RocketLaunchProblem(Problem):
 			"burn_time",
 			lower = 5.0,
 			upper = 15.0,
-			ref   = 7.0,
+			ref   = 6.0,
 		)
 
 		self.model.add_constraint(
 			"Propulsion.prop_thrust",
-			upper = 1000.0,
-			ref   = 900.0,
+			upper = 1200.0,
+			ref   = 1000.0,
 		)
 
 		# Injector pressure drop safety margin
@@ -151,7 +151,6 @@ class RocketLaunchProblem(Problem):
 
 		self.verify()
 
-		m_load = self.get_val("Mass.loaded_prop_mass",                 units="kg")[0]
 		m_prop = self.get_val("OptimizationVars.o_propellant_mass",    units="kg")[0]
 		a_inj  = self.get_val("OptimizationVars.o_injector_area",      units="mm**2")[0]
 		a_thr  = self.get_val("OptimizationVars.o_nozzle_throat_area", units="cm**2")[0]
@@ -176,7 +175,6 @@ class RocketLaunchProblem(Problem):
 		print(f"Optimized MR:         \t{mr:{FMT}}")
 		print("")
 		print(f"Apogee:               \t{ap:{FMT}} m")
-		print(f"Loaded m_prop:        \t{m_load:{FMT}} kg")
 		print(f"Burn time:            \t{t_burn:{FMT}} s")
 		print(f"Liftoff thrust:       \t{thr:{FMT}} N")
 		print(f"Liftoff Isp:          \t{isp:{FMT}} s")

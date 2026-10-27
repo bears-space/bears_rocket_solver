@@ -42,10 +42,6 @@ class RocketGroup(Group):
 		# Clearance for component mounting
 		ivc.add_output("g_clearance",            val=0.002,  units="m")
 
-		# Efficiencies
-		ivc.add_output("eta_traj",               val=0.95)
-		ivc.add_output("eta_kdrag",              val=1.15)
-
 		# - Oxidizer tank
 		# NOTE: the tank component expects pressure in SI Pa units,
 		#       here we specify the pressure in units of bar used by the team
@@ -146,8 +142,6 @@ class RocketGroup(Group):
 
 		# - Trajectory
 		self.connect("DesignVars.g_diameter",              "Trajectory.diameter")
-		self.connect("DesignVars.eta_traj",                "Trajectory.eta_traj")
-		self.connect("DesignVars.eta_kdrag",               "Trajectory.k_drag")
 		self.connect("Propulsion.prop_isp",                "Trajectory.isp")
 		self.connect("Propulsion.prop_thrust",             "Trajectory.thrust")
 		self.connect("Mass.initial_mass",                  "Trajectory.initial_mass")

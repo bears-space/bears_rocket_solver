@@ -17,17 +17,10 @@ fts_to_ms  = 0.3048      # 1 ft/s = 0.3048 m/s
 
 class BEARS_Chem:
 
-	def __init__(
-		self,
-		cea       : CEA_Obj,
-		rho_ox    : float,
-		rho_fuel  : float,
-		eta_cstar : float = 0.85,
-	):
-		self._cea      = cea
-		self.rho_ox    = rho_ox
-		self.rho_fuel  = rho_fuel
-		self.eta_cstar = eta_cstar
+	def __init__(self, cea: CEA_Obj, rho_ox: float, rho_fuel: float):
+		self._cea     = cea
+		self.rho_ox   = rho_ox
+		self.rho_fuel = rho_fuel
 
 	@classmethod
 	def set_work_dir(cls, path: str | Path):
@@ -69,10 +62,7 @@ class BEARS_Chem:
 		return cls(cea, densities["oxid"], densities["fuel"])
 
 	def get_cstar(self, pc_pa: float, mr: float) -> float:
-		#pc_safe = max(1.5e5, pc_pa)
-		pc_safe = pc_pa
-		cstar = self._cea.get_Cstar(Pc=pc_safe * pa_to_psia, MR=mr) * fts_to_ms
-		return cstar * self.eta_cstar
+		return self._cea.get_Cstar(Pc=pc_pa * pa_to_psia, MR=mr) * fts_to_ms
 
 	def get_isp(
 		self,
@@ -81,18 +71,13 @@ class BEARS_Chem:
 		eps      : float,
 		p_amb_pa : float = 101325.0
 	) -> float:
-		#pc_safe = max(1.5e5, pc_pa)
-		pc_safe = pc_pa
-		pc_psia = pc_safe * pa_to_psia
+		pc_psia = pc_pa * pa_to_psia
 		if p_amb_pa > 0.0:
 			p_amb_psia = p_amb_pa * pa_to_psia
 			isp, _ = self._cea.estimate_Ambient_Isp(
 				Pc=pc_psia, MR=mr, eps=eps, Pamb=p_amb_psia
 			)
-		else:
-			isp = self._cea.get_Isp(Pc=pc_psia, MR=mr, eps=eps)
-
-		return float(isp) * self.eta_cstar
+		return float(self._cea.get_Isp(Pc=pc_psia, MR=mr, eps=eps))
 
 	def get_tcomb(self, pc_pa: float, mr: float) -> float:
 		return self._cea.get_Tcomb(Pc=pc_pa * pa_to_psia, MR=mr) * (5.0 / 9.0)

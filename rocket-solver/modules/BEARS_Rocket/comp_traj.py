@@ -26,7 +26,7 @@ def F_d(v: float, diam: float, rho: float, a: float) -> float:
 		cd = 0.48 + (mach - 0.8) * ( (0.85 - 0.48) / (1.2 - 0.8) )
 	elif mach < 2.0:
 		# Supersonic: drag decreases as Mach number increases
-		cd = 0.85 - (mach - 1.2) * ( (0.85 - 0.65) / (2.0 - 1.2) )
+		cd = 0.85 + (mach - 1.2) * ( (0.85 - 0.65) / (2.0 - 1.2) )
 	else:
 		# High supersonic
 		cd = 0.65
@@ -35,14 +35,12 @@ def F_d(v: float, diam: float, rho: float, a: float) -> float:
 	return drag
 
 def ballistic_apogee(
-	thrust   : float,
-	isp      : float,
-	m_i      : float,
-	m_prop   : float,
-	diam     : float,
-	atm      : BEARS_Atm,
-	eta_traj : float = 0.95,
-	k_drag   : float = 1.15,
+	thrust : float,
+	isp    : float,
+	m_i    : float,
+	m_prop : float,
+	diam   : float,
+	atm    : BEARS_Atm
 ) -> tuple[float, float]:
 	"""
 	Simple ballistic apogee calculator.
@@ -58,22 +56,19 @@ def ballistic_apogee(
 		h, v = y
 		m = m_i - mdot * t
 
-		_, _, rho, a = atm(max(0.0, h))
+		_, _, rho, a = atm(h)
 
 		dh_dt = v
-		dv_dt = (thrust * eta_traj - F_d(v, diam, rho, a) * k_drag) / m - g
-		if h <= 0.0 and dv_dt < 0.0:
-			dv_dt = 0.0
-			dh_dt = max(0.0, dh_dt)
+		dv_dt = (thrust - F_d(v, diam, rho, a)) / m - g
 		return [dh_dt, dv_dt]
 
 	def dynamics_coast(t, y):
 		h, v = y
 
-		_, _, rho, a = atm(max(0.0, h))
+		_, _, rho, a = atm(h)
 
 		dh_dt = v
-		dv_dt = -F_d(v, diam, rho, a) * k_drag / m_burnout - g
+		dv_dt = -F_d(v, diam, rho, a) / m_burnout - g
 		return [dh_dt, dv_dt]
 
 	# A SciPy integration event that captures the moment when velocity reaches 0
@@ -186,8 +181,6 @@ class TrajectoryComponent(ExplicitComponent):
 		self.add_input("initial_mass",    val=15.0, units="kg")
 		self.add_input("propellant_mass", val=5.0,  units="kg")
 		self.add_input("diameter",        val=0.5,  units="m")
-		self.add_input("eta_traj",        val=0.95)
-		self.add_input("k_drag",          val=1.15)
 
 		self.add_output("apogee",         val=3000.0, units="m")
 		self.add_output("burn_time",      val=3.0,    units="s")
@@ -230,12 +223,9 @@ class TrajectoryComponent(ExplicitComponent):
 		m_i    = inputs["initial_mass"][0]
 		m_prop = inputs["propellant_mass"][0]
 		diam   = inputs["diameter"][0]
-		eta_t  = inputs["eta_traj"][0]
-		k_d    = inputs["k_drag"][0]
 
 		burn_time, apogee = ballistic_apogee(
-			thrust, isp, m_i, m_prop, diam, atm,
-			eta_traj=eta_t, k_drag=k_d,
+			thrust, isp, m_i, m_prop, diam, atm
 		)
 
 		outputs["burn_time"] = burn_time

@@ -58,18 +58,13 @@ def check_mass_balance(prob: Problem) -> tuple[CheckResult, ...]:
 	mprop = prob.get_val("OptimizationVars.o_propellant_mass", units="kg")[0]
 	mpr   = prob.get_val("Mass.pressurant_mass",               units="kg")[0]
 
-	try:
-		mprop = prob.get_val("Mass.loaded_prop_mass", units="kg")[0]
-	except KeyError:
-		pass
-
 	mcalc = mdry + mprop + mpr
 
 	if abs(mi - mcalc) > 1e-3:
 		return (CheckResult(
 			"error",
-			f"Mass balance mismatch: {mi:.3f} kg != {mcalc:.3f} kg"
-		),)
+			f"Mass balance mismatch: {mi:.3f} kg != {mc:.3f} kg"
+		))
 	
 	return ()
 
@@ -83,7 +78,7 @@ def check_target_apogee(prob: Problem) -> tuple[CheckResult, ...]:
 		return (CheckResult(
 			"error",
 			f"Apogee target error is {res['apogee_error_m']:.2f} m"
-		),)
+		))
 
 	return ()
 
@@ -192,17 +187,13 @@ DEFAULT_TESTSTAND_CHECKS: tuple[CheckFn, ...] = (
 )
 
 def run_checks(
-	prob           : Problem,
+	res            : dict,
 	checks         : tuple[CheckFn, ...],
 	raise_on_error : bool = True,
 ) -> tuple[CheckResult, ...]:
 	results: list[CheckResult] = []
 	for check in checks:
-		out = check(prob)
-		if isinstance(out, CheckResult):
-			results.append(out)
-		else:
-			results.extend(out)
+		results.extend(check(res))
 
 	errors   = [r.message for r in results if r.severity == "error"]
 	warnings = [r.message for r in results if r.severity == "warning"]

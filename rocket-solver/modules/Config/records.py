@@ -9,8 +9,6 @@ class GlobalConfig:
 	target_altitude_m       : float # [m]
 	diameter_m              : float # [m]
 	clearance_m             : float # [m]
-	eta_traj                : float = 0.95
-	eta_kdrag               : float = 1.15
 
 @dataclass(frozen=True)
 class TankConfig:

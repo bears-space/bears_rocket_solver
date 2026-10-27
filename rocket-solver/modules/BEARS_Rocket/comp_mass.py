@@ -6,24 +6,22 @@ from openmdao.api import ExplicitComponent
 class MassComponent(ExplicitComponent):
 
 	def setup(self):
-		self.add_input("payload_mass",      val=2.0,  units="kg")
-		self.add_input("propellant_mass",   val=10.0, units="kg")
-		self.add_input("pressurant_mass",   val=0.5,  units="kg")
-		self.add_input("residual_frac",     val=0.15)
+		self.add_input("payload_mass",     val=2.0,  units="kg")
+		self.add_input("propellant_mass",  val=10.0, units="kg")
+		self.add_input("pressurant_mass",  val=0.5,  units="kg")
 
-		self.add_input("ox_tank_mass",      val=2.0,  units="kg")
-		self.add_input("press_tank_mass",   val=2.0,  units="kg")
-		self.add_input("motor_dry_mass",    val=4.0,  units="kg")
+		self.add_input("ox_tank_mass",     val=2.0,  units="kg")
+		self.add_input("press_tank_mass",  val=2.0,  units="kg")
+		self.add_input("motor_dry_mass",   val=4.0,  units="kg")
 
-		self.add_input("airframe_mass",     val=5.0,  units="kg")
-		self.add_input("recovery_mass",     val=2.5,  units="kg")
-		self.add_input("avionics_mass",     val=2.5,  units="kg")
-		self.add_input("airfoil_mass",      val=1.0,  units="kg")
+		self.add_input("airframe_mass",    val=5.0,  units="kg")
+		self.add_input("recovery_mass",    val=2.5,  units="kg")
+		self.add_input("avionics_mass",    val=2.5,  units="kg")
+		self.add_input("airfoil_mass",     val=1.0,  units="kg")
 
-		self.add_output("structural_mass",  val=18.0, units="kg")
-		self.add_output("dry_mass",         val=20.0, units="kg")
-		self.add_output("initial_mass",     val=40.0, units="kg")
-		self.add_output("loaded_prop_mass", val=12.0, units="kg")
+		self.add_output("structural_mass", val=18.0, units="kg")
+		self.add_output("dry_mass",        val=20.0, units="kg")
+		self.add_output("initial_mass",    val=40.0, units="kg")
 
 	def setup_partials(self):
 		self.declare_partials("*", "*", method="cs")
@@ -40,15 +38,12 @@ class MassComponent(ExplicitComponent):
 		)
 
 		m_prop    = inputs["propellant_mass"]
-		f_res     = inputs["residual_frac"]
-		m_loaded  = m_prop * (1.0 + f_res)
 		m_press   = inputs["pressurant_mass"]
 		m_payload = inputs["payload_mass"]
 
 		m_dry = m_payload + m_struct
-		m_init = m_dry + m_loaded + m_press
+		m_init = m_dry + m_prop + m_press
 
-		outputs["structural_mass"]  = m_struct
-		outputs["dry_mass"]         = m_dry
-		outputs["initial_mass"]     = m_init
-		outputs["loaded_prop_mass"] = m_loaded
+		outputs["structural_mass"] = m_struct
+		outputs["dry_mass"]        = m_dry
+		outputs["initial_mass"]    = m_init
