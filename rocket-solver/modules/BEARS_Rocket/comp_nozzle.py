@@ -23,7 +23,7 @@ class NozzleComponent(ExplicitComponent):
 
 		# Geometry
 		self.add_input("a_throat",         val=5e-4,   units="m**2")
-		self.add_input("expansion_ratio",  val=40.0)
+		self.add_input("expansion_ratio",  val=5.0)
 		self.add_input("length",           val=0.20,   units="m")
 
 		# Viscous friction efficiency

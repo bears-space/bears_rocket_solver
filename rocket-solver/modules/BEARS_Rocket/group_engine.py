@@ -19,7 +19,8 @@ class HybridEngineGroup(Group):
 	def setup(self):
 		chem = self.options["chem"]
 
-		self.set_input_defaults("engine_feed_pressure", val=60e5, units="Pa")
+		self.set_input_defaults("engine_feed_pressure",   val=60e5, units="Pa")
+		self.set_input_defaults("nozzle_expansion_ratio", val=5.0)
 
 		#region Subsystems
 		self.add_subsystem(

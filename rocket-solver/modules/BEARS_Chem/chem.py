@@ -64,8 +64,20 @@ class BEARS_Chem:
 	def get_cstar(self, pc_pa: float, mr: float) -> float:
 		return self._cea.get_Cstar(Pc=pc_pa * pa_to_psia, MR=mr) * fts_to_ms
 
-	def get_isp(self, pc_pa: float, mr: float, eps: float) -> float:
-		return self._cea.get_Isp(Pc=pc_pa * pa_to_psia, MR=mr, eps=eps)
+	def get_isp(
+		self,
+		pc_pa    : float,
+		mr       : float,
+		eps      : float,
+		p_amb_pa : float = 101325.0
+	) -> float:
+		pc_psia = pc_pa * pa_to_psia
+		if p_amb_pa > 0.0:
+			p_amb_psia = p_amb_pa * pa_to_psia
+			isp, _ = self._cea.estimate_Ambient_Isp(
+				Pc=pc_psia, MR=mr, eps=eps, Pamb=p_amb_psia
+			)
+		return float(self._cea.get_Isp(Pc=pc_psia, MR=mr, eps=eps))
 
 	def get_tcomb(self, pc_pa: float, mr: float) -> float:
 		return self._cea.get_Tcomb(Pc=pc_pa * pa_to_psia, MR=mr) * (5.0 / 9.0)

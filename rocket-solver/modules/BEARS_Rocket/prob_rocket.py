@@ -85,15 +85,15 @@ class RocketLaunchProblem(Problem):
 
 		self.model.add_constraint(
 			"burn_time",
-			lower = 2.0,
-			upper = 8.0,
-			ref   = 5.0,
+			lower = 5.0,
+			upper = 15.0,
+			ref   = 6.0,
 		)
 
 		self.model.add_constraint(
 			"Propulsion.prop_thrust",
-			upper = 1800.0,
-			ref   = 1500.0,
+			upper = 1200.0,
+			ref   = 1000.0,
 		)
 
 		# Injector pressure drop safety margin
@@ -124,7 +124,7 @@ class RocketLaunchProblem(Problem):
 		self.set_val("DesignVars.fuel_port_diam",             0.05)
 		self.set_val("DesignVars.fuel_reg_exponent",          0.5)
 		self.set_val("DesignVars.fuel_reg_ref",               1.0e-4)
-		self.set_val("DesignVars.nozzle_expansion_ratio",     40.0)
+		self.set_val("DesignVars.nozzle_expansion_ratio",     5.0)
 
 		# Starting point for optimization
 		self.set_val("OptimizationVars.o_propellant_mass",    5.0)

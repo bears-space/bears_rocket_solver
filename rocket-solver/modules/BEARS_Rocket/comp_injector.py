@@ -38,7 +38,9 @@ class InjectorComponent(ExplicitComponent):
 		# Upstream (tank) to downstream (fuel chamber) pressure difference
 		delta_p = p_up - p_down
 
-		# Account for possible negative pressure difference (reverse flow)
+		# Orifice plate flow:
+		# https://en.wikipedia.org/wiki/Orifice_plate
+		# Accounting for possible negative pressure difference (reverse flow)
 		if delta_p >= 0:
 			mdot =  cd * area * np.sqrt(2.0 * rho * delta_p)
 		else:

@@ -115,6 +115,10 @@ def main():
 		"OptimizationVars.o_nozzle_throat_area", units="cm**2"
 	)[0]
 
+	eps_opt = prob_rocket.get_val(
+		"DesignVars.nozzle_expansion_ratio"
+	)[0]
+
 	prob_rocket.report()
 	#endregion
 
@@ -129,10 +133,11 @@ def main():
 	prob_stand.setup()
 
 	prob_stand.set_opt_vars(
-		m_prop_kg    = m_prop_opt,
-		mr           = mr_opt,
-		a_inj_mm2    = a_inj_opt,
-		a_throat_cm2 = a_throat_opt,
+		m_prop_kg       = m_prop_opt,
+		mr              = mr_opt,
+		a_inj_mm2       = a_inj_opt,
+		a_throat_cm2    = a_throat_opt,
+		expansion_ratio = eps_opt,
 	)
 
 	prob_stand.run()
