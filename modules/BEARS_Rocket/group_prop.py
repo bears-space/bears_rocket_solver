@@ -1,0 +1,123 @@
+# region Imports
+import openmdao.api as om
+
+from openmdao.api import Group
+
+from ..BEARS_Chem import BEARS_Chem
+
+from .comp_split      import PropellantSplitComponent
+from .comp_tank_oxy   import OxidizerTankComponent
+from .comp_tank_press import PressurantTankComponent
+from .group_engine    import HybridEngineGroup
+# endregion
+
+class PropulsionGroup(Group):
+
+	def initialize(self):
+		self.options.declare("chem", types=BEARS_Chem)
+
+		self.options.declare("ox_wall_material",    default=None)
+		self.options.declare("press_wall_material", default=None)
+
+	def setup(self):
+		chem       = self.options["chem"]
+		ox_wall    = self.options["ox_wall_material"]
+		press_wall = self.options["press_wall_material"]
+
+		self.set_input_defaults("tank_pressure", val=70e5, units="Pa")
+
+		#region Subsystems
+		self.add_subsystem(
+			"PropSplit",
+			PropellantSplitComponent(),
+			promotes_inputs=[
+				("m_prop",        "prop_prop_mass_init"),
+				("mixture_ratio", "prop_mixture_ratio"),
+			],
+		)
+
+		# NOTE: we put the oxidizer tank component here first before the
+		#       pressurant tank component for it to evaluate before its
+		#       `v_fluid` for the pressurant component to use
+		self.add_subsystem(
+			"OxidizerTank",
+			OxidizerTankComponent(
+				rho_ox=chem.rho_ox,
+				wall_material=ox_wall,
+			),
+			promotes_inputs=[
+				("p_tank_max",    "tank_pressure"),
+				("diam_out",      "tank_diam"),
+				("ullage_frac",   "tank_ullage_frac"),
+				("sigma_y",       "tank_yield_factor"),
+				("safety_factor", "tank_safety_factor"),
+				("rho_wall",      "tank_wall_density"),
+			],
+			promotes_outputs=[
+				("m_tank_dry", "tank_dry_mass"),
+				("l_tank",     "tank_length"),
+				("v_internal", "tank_volume"),
+				("t_wall",     "tank_wall_thickness"),
+				("t_liner",    "tank_liner_thickness"),
+				("t_wrap",     "tank_wrap_thickness"),
+			],
+		)
+
+		self.add_subsystem(
+			"PressurantTank",
+			PressurantTankComponent(wall_material=press_wall),
+			promotes_inputs=[
+				("p_tank_max",    "press_pressure"),
+				("diam_out",      "press_diam"),
+				("sigma_y",       "press_yield_factor"),
+				("safety_factor", "press_safety_factor"),
+				("rho_wall",      "press_wall_density"),
+			],
+			promotes_outputs=[
+				("m_tank_dry", "press_dry_mass"),
+				("l_tank",     "press_length"),
+				("v_internal", "press_volume"),
+				("t_wall",     "press_wall_thickness"),
+				("m_press",    "press_press_mass"),
+				("rho_press",  "press_press_density"),
+			],
+		)
+
+		self.add_subsystem(
+			"HybridEngine",
+			HybridEngineGroup(chem=chem),
+			promotes_inputs=[
+				("engine_feed_pressure",   "tank_pressure"),
+				("engine_prop_mass_init",  "prop_prop_mass_init"),
+				("engine_mixture_ratio",   "prop_mixture_ratio"),
+				("injector_area",          "injector_area"),
+				("injector_cd",            "injector_cd"),
+				("fuel_port_diam",         "fuel_port_diam"),
+				("fuel_reg_exponent",      "fuel_reg_exponent"),
+				("fuel_reg_ref",           "fuel_reg_ref"),
+				("fuel_oxy_mass_flux_ref", "fuel_oxy_mass_flux_ref"),
+				("nozzle_throat_area",     "nozzle_throat_area"),
+				("nozzle_expansion_ratio", "nozzle_expansion_ratio"),
+				("nozzle_length",          "nozzle_length"),
+				("nozzle_eta_friction",    "nozzle_eta_friction"),
+			],
+			promotes_outputs=[
+				("engine_thrust",           "prop_thrust"),
+				("engine_chamber_pressure", "prop_chamber_pressure"),
+				("engine_chamber_temp",     "prop_chamber_temp"),
+				("engine_isp",              "prop_isp"),
+				("injector_delta_p",        "injector_delta_p"),
+				("fuel_length",             "fuel_length"),
+				("fuel_grain_diam",         "fuel_grain_diam"),
+				("fuel_regression_rate",    "fuel_regression_rate"),
+				("fuel_mass",               "fuel_mass"),
+			],
+		)
+		#endregion
+
+		#region Connections
+		self.connect("PropSplit.m_ox",        "OxidizerTank.m_oxy")
+		self.connect("OxidizerTank.v_fluid",  "PressurantTank.v_ox_displace")
+		self.connect("tank_pressure",         "PressurantTank.p_ox")
+		#endregion
+
