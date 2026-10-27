@@ -3,6 +3,8 @@ payload_mass_kg         = 1.0
 target_altitude_m       = 3000.0
 diameter_m              = 0.12
 clearance_m             = 0.0
+eta_traj                = 0.95
+eta_kdrag               = 1.15
 
 [oxidizer_tank]
 pressure_bar            = 70.0
