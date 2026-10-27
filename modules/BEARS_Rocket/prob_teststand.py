@@ -32,42 +32,46 @@ class TestStandProblem(Problem):
 		super().setup(**kwargs)
 
 		# Run tank
-		self.set_val("run_tank_pressure_PT2", 60.0,   units="bar")
-		self.set_val("run_tank_diam",         0.15,   units="m")
-		self.set_val("run_tank_ullage_frac",  0.08)
-		self.set_val("run_tank_wall_density", 2700.0, units="kg/m**3")
-		self.set_val("run_tank_yield_factor", 276e6,  units="Pa")
-		self.set_val("run_tank_fluid_mass",   10.0,   units="kg")
+		self.set_val("run_tank_pressure_PT2",  60.0,   units="bar")
+		self.set_val("run_tank_diam",          0.15,   units="m")
+		self.set_val("run_tank_ullage_frac",   0.08)
+		self.set_val("run_tank_wall_density",  2700.0, units="kg/m**3")
+		self.set_val("run_tank_yield_factor",  276e6,  units="Pa")
+		self.set_val("run_tank_fluid_mass",    10.0,   units="kg")
 
 		# Engine baseline parameters
-		self.set_val("test_prop_mass_init",   8.0,    units="kg")
-		self.set_val("test_mixture_ratio",    6.618)
-		self.set_val("injector_area",         1.5e-5, units="m**2")
-		self.set_val("injector_cd",           0.70)
-		self.set_val("fuel_port_diam",        0.05,   units="m")
-		self.set_val("fuel_reg_exponent",     0.50)
-		self.set_val("fuel_reg_ref",          1.0e-4, units="m/s")
-		self.set_val("nozzle_throat_area",    2.0e-4, units="m**2")
-		self.set_val("nozzle_length",         0.15,   units="m")
-		self.set_val("nozzle_eta_friction",   0.95)
+		self.set_val("test_prop_mass_init",    8.0,    units="kg")
+		self.set_val("test_mixture_ratio",     6.618)
+		self.set_val("injector_area",          1.5e-5, units="m**2")
+		self.set_val("injector_cd",            0.70)
+		self.set_val("fuel_port_diam",         0.05,   units="m")
+		self.set_val("fuel_reg_exponent",      0.50)
+		self.set_val("fuel_reg_ref",           1.0e-4, units="m/s")
+		self.set_val("nozzle_throat_area",     2.0e-4, units="m**2")
+		self.set_val("nozzle_expansion_ratio", 5.0)
+		self.set_val("nozzle_length",          0.15,   units="m")
+		self.set_val("nozzle_eta_friction",    0.95)
 
 		return self
 
 	def set_opt_vars(
 		self,
-		m_prop_kg    : float | None = None,
-		mr           : float | None = None,
-		a_inj_mm2    : float | None = None,
-		a_throat_cm2 : float | None = None,
+		m_prop_kg       : float | None = None,
+		mr              : float | None = None,
+		a_inj_mm2       : float | None = None,
+		a_throat_cm2    : float | None = None,
+		expansion_ratio : float | None = None,
 	):
 		if m_prop_kg is not None:
-			self.set_val("test_prop_mass_init", m_prop_kg,    units="kg")
+			self.set_val("test_prop_mass_init",    m_prop_kg,    units="kg")
 		if mr is not None:
-			self.set_val("test_mixture_ratio",  mr)
+			self.set_val("test_mixture_ratio",     mr)
 		if a_inj_mm2 is not None:
-			self.set_val("injector_area",       a_inj_mm2,    units="mm**2")
+			self.set_val("injector_area",          a_inj_mm2,    units="mm**2")
 		if a_throat_cm2 is not None:
-			self.set_val("nozzle_throat_area",  a_throat_cm2, units="cm**2")
+			self.set_val("nozzle_throat_area",     a_throat_cm2, units="cm**2")
+		if expansion_ratio is not None:
+			self.set_val("nozzle_expansion_ratio", expansion_ratio)
 
 	def run(self):
 		self.run_model()

@@ -68,6 +68,7 @@ class TestStandGroup(Group):
 				("fuel_reg_ref",           "fuel_reg_ref"),
 				("fuel_oxy_mass_flux_ref", "fuel_oxy_mass_flux_ref"),
 				("nozzle_throat_area",     "nozzle_throat_area"),
+				("nozzle_expansion_ratio", "nozzle_expansion_ratio"),
 				("nozzle_length",          "nozzle_length"),
 				("nozzle_eta_friction",    "nozzle_eta_friction"),
 			],

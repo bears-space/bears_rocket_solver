@@ -1,7 +1,0 @@
-\beamer@sectionintoc {1}{Problem statement}{3}{0}{1}
-\beamer@sectionintoc {2}{Program components}{5}{0}{2}
-\beamer@subsectionintoc {2}{1}{Flight plan}{5}{0}{2}
-\beamer@subsectionintoc {2}{2}{Aerodynamics}{6}{0}{2}
-\beamer@subsectionintoc {2}{3}{Propulsion}{7}{0}{2}
-\beamer@subsubsectionintoc {2}{3}{1}{Nozzle}{7}{0}{2}
-\beamer@subsubsectionintoc {2}{3}{2}{Chemistry with CEA}{11}{0}{2}

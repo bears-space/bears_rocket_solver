@@ -31,7 +31,7 @@ oxy_mass_flux_ref_kgm2s = 1.0
 
 [nozzle]
 throat_area_m2          = 0.0005
-expansion_ratio         = 40.0
+expansion_ratio         = 5.0
 length_m                = 0.2
 eta_friction            = 0.95
 
