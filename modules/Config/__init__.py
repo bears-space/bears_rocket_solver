@@ -1,4 +1,10 @@
 from .records import (
+	MaterialConfig,
+	GasConfig,
+	LayerConfig,
+	WallConfig,
+	MaterialsConfig,
+	FluidsConfig,
 	GlobalConfig,
 	TankConfig,
 	InjectorConfig,
@@ -14,7 +20,12 @@ from .records import (
 	RocketConfig,
 )
 
-from .loader import load_configs, load_reactants
+from .loader import (
+	load_configs,
+	load_reactants,
+	load_materials,
+	load_fluids,
+)
 
 from .validation import (
 	ConfigValidationError,

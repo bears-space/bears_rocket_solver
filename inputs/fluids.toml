@@ -1,0 +1,13 @@
+[[gas]]
+id         = "N2"
+name       = "Nitrogen Gas"
+molar_mass = 28.0134
+gamma      = 1.40
+z_factor   = 1.15
+
+[[gas]]
+id         = "He"
+name       = "Helium Gas"
+molar_mass = 4.0026
+gamma      = 1.667
+z_factor   = 1.05

@@ -109,18 +109,64 @@ PropellantConfig = (
 )
 #endregion
 
+#region Materials and Fluids
+@dataclass(frozen=True)
+class MaterialConfig:
+	id                      : str
+	name                    : str
+	density                 : float
+	yield_strength          : float
+	ultimate_strength       : float
+	elastic_modulus         : float
+
+@dataclass(frozen=True)
+class GasConfig:
+	id                      : str
+	name                    : str
+	molar_mass              : float
+	gamma                   : float
+	z_factor                : float = 1.0
+
+	@property
+	def r_specific(self) -> float:
+		return 8314.462618 / self.molar_mass
+
+@dataclass(frozen=True)
+class LayerConfig:
+	material          : Material
+	thickness         : float | None = None # None for pressure-sized
+	is_load_bearing   : bool  = True        # False for thermal insulation
+	helical_angle_deg : float | None = None # None for isotropic or dynamic boss
+	efficiency        : float = 0.85        # Fiber translation efficiency
+	fiber_volume_frac : float = 0.72        # Fiber volume fraction
+
+@dataclass(frozen=True)
+class WallConfig:
+	id                : str
+	layers            : tuple[LayerConfig, ...]
+
+@dataclass(frozen=True)
+class MaterialsConfig:
+	materials         : tuple[MaterialConfig, ...]
+	walls             : tuple[WallConfig, ...]
+
+@dataclass(frozen=True)
+class FluidsConfig:
+	gases             : tuple[GasConfig, ...]
+#endregion
+
 #region Master specification
 @dataclass(frozen=True)
 class RocketConfig:
-	cfg_global       : GlobalConfig
-	cfg_oxy_tank     : TankConfig
-	cfg_press_tank   : TankConfig
-	cfg_injector     : InjectorConfig
-	cfg_fuel         : FuelConfig
-	cfg_igniter      : IgniterConfig
-	cfg_nozzle       : NozzleConfig
-	cfg_optim        : OptimizationSeedConfig
-	cfg_efficiencies : EfficienciesConfig = (
+	cfg_global        : GlobalConfig
+	cfg_oxy_tank      : TankConfig
+	cfg_press_tank    : TankConfig
+	cfg_injector      : InjectorConfig
+	cfg_fuel          : FuelConfig
+	cfg_igniter       : IgniterConfig
+	cfg_nozzle        : NozzleConfig
+	cfg_optim         : OptimizationSeedConfig
+	cfg_efficiencies  : EfficienciesConfig = (
 		field(default_factory=EfficienciesConfig)
 	)
 #endregion

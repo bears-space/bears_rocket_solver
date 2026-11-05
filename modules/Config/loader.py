@@ -5,6 +5,11 @@ from pathlib     import Path
 import tomllib
 
 from .records import (
+	MaterialConfig,
+	GasConfig,
+	WallConfig,
+	MaterialsConfig,
+	FluidsConfig,
 	GlobalConfig,
 	TankConfig,
 	InjectorConfig,
@@ -157,3 +162,65 @@ def load_reactants(
 	if validate: validate_bipropellant_config(cfg)
 
 	return cfg
+
+def load_materials(path: str | Path) -> MaterialsConfig:
+	with open(path, "rb") as f:
+		data = tomllib.load(f)
+
+	materials = []
+	for m in data.get("material", []):
+		rho = m["density"]
+		if m.get("density_units") in ("g/cm^3", "g/cc", "g/cm3"):
+			rho *= 1000.0
+
+		ys = m["yield_strength"]
+		us = m["ultimate_strength"]
+		if m.get("strength_units") == "MPa":
+			ys *= 1e6
+			us *= 1e6
+
+		em = m["elastic_modulus"]
+		if m.get("modulus_units") == "GPa":
+			em *= 1e9
+
+		materials.append(MaterialConfig(
+			id                = m["id"],
+			name              = m["name"],
+			density           = rho,
+			yield_strength    = ys,
+			ultimate_strength = us,
+			elastic_modulus   = em,
+		))
+
+	walls = []
+	for w in data.get("wall", []):
+		layers = []
+		for lay in w["layers"]:
+			layers.append(LayerConfig(
+				material_id       = lay["material"],
+				thickness_m       = lay.get("thickness_m"),
+				is_load_bearing   = lay.get("is_load_bearing", True),
+				helical_angle_deg = lay.get("helical_angle_deg"),
+				efficiency        = lay.get("efficiency", 0.85),
+				fiber_volume_frac = lay.get("fiber_volume_frac", 0.72),
+			))
+
+		walls.append(WallConfig(id=w["id"], layers=tuple(layers)))
+
+	return MaterialsConfig(materials=tuple(materials), walls=tuple(walls))
+
+def load_fluids(path: str | Path) -> FluidsConfig:
+	with open(path, "rb") as f:
+		data = tomllib.load(f)
+
+	gases = []
+	for g in data.get("gas", []):
+		gases.append(GasConfig(
+			id         = g["id"],
+			name       = g["name"],
+			molar_mass = g["molar_mass"],
+			gamma      = g["gamma"],
+			z_factor   = g.get("z_factor", 1.0),
+		))
+
+	return FluidsConfig(gases=tuple(gases))

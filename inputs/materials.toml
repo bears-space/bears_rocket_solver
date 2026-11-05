@@ -1,0 +1,47 @@
+[[material]]
+id                = "Al_6061_T6"
+name              = "Aluminum 6061-T6"
+density           = 2700.0
+density_units     = "kg/m^3"
+yield_strength    = 276.0
+ultimate_strength = 310.0
+strength_units    = "MPa"
+elastic_modulus   = 68.9
+modulus_units     = "GPa"
+
+[[material]]
+id                = "CFRP_T700"
+name              = "T7000 Carbon Fiber / Epoxy"
+density           = 1550.0
+density_units     = "kg/m^3"
+yield_strength    = 1800.0
+ultimate_strength = 2100.0
+strength_units    = "MPa"
+elastic_modulus   = 135.0
+modulus_units     = "GPa"
+
+[[wall]]
+id = "copv_press"
+
+  [[wall.layers]]
+  material = "AL_6061_T6"
+  thickness_m = 0.001
+
+  [[wall.layers]]
+  material          = "CFRP_T700"
+  helical_angle_deg = 20.0
+  efficiency        = 0.85
+  fiber_volume_frac = 0.72
+
+[[wall]]
+id = "copv_ox"
+
+  [[wall.layers]]
+  material = "AL_6061_T6"
+  thickness_m = 0.001
+
+  [[wall.layers]]
+  material          = "CFRP_T700"
+  helical_angle_deg = 20.0
+  efficiency        = 0.85
+  fiber_volume_frac = 0.72
