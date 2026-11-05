@@ -9,6 +9,7 @@ from .records import (
 	TankConfig,
 	InjectorConfig,
 	FuelConfig,
+	IgniterConfig,
 	NozzleConfig,
 	OptimizationSeedConfig,
 	SpeciesConfig,
@@ -81,6 +82,15 @@ def load_configs(
 
 	c_fu = FuelConfig(**data["fuel"])
 
+	ign = data.get("igniter", {})
+	c_ig = IgniterConfig(
+		burn_time_s           = ign.get("burn_time_s",           1.0),
+		burn_rate_ms          = ign.get("burn_rate_ms",          0.0015),
+		flame_spread_ms       = ign.get("flame_spread_ms",       0.15),
+		max_spread_delay_s    = ign.get("max_spread_delay_s",    0.10),
+		thermite_density_kgm3 = ign.get("thermite_density_kgm3", 3800.0),
+	)
+
 	c_nz = NozzleConfig(**data["nozzle"])
 
 	c_op = OptimizationSeedConfig(**data["optimization"])
@@ -91,6 +101,7 @@ def load_configs(
 		cfg_press_tank = c_pr,
 		cfg_injector   = c_in,
 		cfg_fuel       = c_fu,
+		cfg_igniter    = c_ig,
 		cfg_nozzle     = c_nz,
 		cfg_optim      = c_op,
 	)

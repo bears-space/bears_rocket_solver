@@ -1,6 +1,6 @@
 [global]
 payload_mass_kg         = 1.0
-nonprop_mass_kg         = 5.0
+nonprop_mass_kg         = 8.0
 target_altitude_m       = 3000.0
 diameter_m              = 0.12
 clearance_m             = 0.0
@@ -30,6 +30,13 @@ reg_exponent            = 0.5
 reg_ref_ms              = 0.0001
 oxy_mass_flux_ref_kgm2s = 1.0
 
+[igniter]
+burn_time_s             = 1.0
+burn_rate_ms            = 0.0015
+flame_spread_ms         = 0.15
+max_spread_delay_s      = 0.10
+thermite_density_kgm3   = 3800.0
+
 [nozzle]
 throat_area_m2          = 0.0005
 expansion_ratio         = 5.0
@@ -38,6 +45,6 @@ eta_friction            = 0.95
 
 [optimization]
 propellant_mass_kg      = 5.0
-mixture_ratio           = 6.0
+mixture_ratio           = 7.0
 injector_area_m2        = 0.0001
 nozzle_throat_area_m2   = 0.0002

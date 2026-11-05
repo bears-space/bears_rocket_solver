@@ -111,6 +111,14 @@ class PropulsionGroup(Group):
 				("fuel_grain_diam",         "fuel_grain_diam"),
 				("fuel_regression_rate",    "fuel_regression_rate"),
 				("fuel_mass",               "fuel_mass"),
+
+				("igniter_lining_thickness", "igniter_lining_thickness"),
+				("igniter_inner_diam",       "igniter_inner_diam"),
+				("igniter_port_blockage",    "igniter_port_blockage"),
+				("igniter_thermite_mass",    "igniter_thermite_mass"),
+				("igniter_pad_count",        "igniter_pad_count"),
+				("igniter_pad_spacing",      "igniter_pad_spacing"),
+				("igniter_thermal_margin",   "igniter_thermal_margin"),
 			],
 		)
 		#endregion

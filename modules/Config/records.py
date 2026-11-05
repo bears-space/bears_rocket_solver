@@ -33,6 +33,14 @@ class FuelConfig:
 	oxy_mass_flux_ref_kgm2s : float # [kg/(m^2*s)]
 
 @dataclass(frozen=True)
+class IgniterConfig:
+	burn_time_s           : float = 1.0    # [s]
+	burn_rate_ms          : float = 0.0015 # [m/s]
+	flame_spread_ms       : float = 0.15   # [m/s]
+	max_spread_delay_s    : float = 0.10   # [s]
+	thermite_density_kgm3 : float = 3800.0 # [kg/m^3]
+
+@dataclass(frozen=True)
 class NozzleConfig:
 	throat_area_m2          : float # [m^2]
 	expansion_ratio         : float
@@ -96,6 +104,7 @@ class RocketConfig:
 	cfg_press_tank  : TankConfig
 	cfg_injector    : InjectorConfig
 	cfg_fuel        : FuelConfig
+	cfg_igniter     : IgniterConfig
 	cfg_nozzle      : NozzleConfig
 	cfg_optim       : OptimizationSeedConfig
 #endregion

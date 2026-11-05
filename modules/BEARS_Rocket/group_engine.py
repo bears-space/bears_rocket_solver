@@ -7,6 +7,7 @@ from ..BEARS_Chem import BEARS_Chem
 
 from .comp_injector import InjectorComponent
 from .comp_fuel     import FuelComponent
+from .comp_igniter  import IgniterComponent
 from .comp_chem     import ChemComponent
 from .comp_nozzle   import NozzleComponent
 # endregion
@@ -54,6 +55,24 @@ class HybridEngineGroup(Group):
 				("r_dot",      "fuel_regression_rate"),
 				("m_fuel",     "fuel_mass"),
 				("mdot_fuel",  "engine_mdot_fuel"),
+			],
+		)
+
+		self.add_subsystem(
+			"Igniter",
+			IgniterComponent(),
+			promotes_inputs=[
+				("diam_out",    "fuel_port_diam"),
+				("fuel_length", "fuel_length"),
+			],
+			promotes_outputs=[
+				("lining_thickness", "igniter_lining_thickness"),
+				("diam_in",          "igniter_inner_diam"),
+				("port_blockage",    "igniter_port_blockage"),
+				("thermite_mass",    "igniter_thermite_mass"),
+				("num_pads",         "igniter_pad_count"),
+				("pad_spacing",      "igniter_pad_spacing"),
+				("ignition_margin",  "igniter_thermal_margin"),
 			],
 		)
 

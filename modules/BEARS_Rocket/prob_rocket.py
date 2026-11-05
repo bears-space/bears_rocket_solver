@@ -6,6 +6,7 @@ from scipy.constants import g
 from openmdao.api    import Problem
 from openmdao.visualization.graph_viewer import GraphViewer
 
+from ..Config     import OptimizationSeedConfig
 from ..BEARS_Chem import BEARS_Chem
 from ..BEARS_Atmo import BEARS_Atm
 
@@ -26,6 +27,7 @@ class RocketLaunchProblem(Problem):
 		target_apogee       : float = 3100.0,
 		ox_wall_material    = None,
 		press_wall_material = None,
+		seed_optim          : OptimizationSeedConfig | None = None,
 		checks              : tuple[CheckFn, ...] = DEFAULT_ROCKET_CHECKS,
 		**kwargs,
 	):
@@ -49,6 +51,7 @@ class RocketLaunchProblem(Problem):
 		self.payload_mass  = payload_mass
 		self.nonprop_mass  = nonprop_mass
 		self.target_apogee = target_apogee
+		self.seed_optim    = seed_optim
 
 		self.model.add_design_var(
 			"OptimizationVars.o_propellant_mass",
@@ -67,7 +70,7 @@ class RocketLaunchProblem(Problem):
 		self.model.add_design_var(
 			"OptimizationVars.o_injector_area",
 			lower = 0.5e-5,
-			upper = 3.0e-5,
+			upper = 3.0e-4,
 			ref   = 1.5e-5,
 		)
 
@@ -129,11 +132,17 @@ class RocketLaunchProblem(Problem):
 		self.set_val("DesignVars.fuel_reg_ref",               1.0e-4)
 		self.set_val("DesignVars.nozzle_expansion_ratio",     5.0)
 
+		so = self.seed_optim
+		m_init  = 5.0    if so is None else so.propellant_mass_kg
+		mr_init = 7.0    if so is None else so.mixture_ratio
+		ai_init = 1.5e-5 if so is None else so.injector_area_m2
+		at_init = 2.0e-4 if so is None else so.nozzle_throat_area_m2
+
 		# Starting point for optimization
-		self.set_val("OptimizationVars.o_propellant_mass",    5.0)
-		self.set_val("OptimizationVars.o_mixture_ratio",      6.0)
-		self.set_val("OptimizationVars.o_injector_area",      1.5e-5)
-		self.set_val("OptimizationVars.o_nozzle_throat_area", 2.0e-4)
+		self.set_val("OptimizationVars.o_propellant_mass",    m_init)
+		self.set_val("OptimizationVars.o_mixture_ratio",      mr_init)
+		self.set_val("OptimizationVars.o_injector_area",      ai_init)
+		self.set_val("OptimizationVars.o_nozzle_throat_area", at_init)
 
 		return self
 

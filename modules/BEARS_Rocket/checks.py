@@ -101,6 +101,26 @@ def check_combustion_isp(prob: Problem) -> tuple[CheckResult, ...]:
 		),)
 
 	return ()
+
+def check_igniter_margin(prob: Problem) -> tuple[CheckResult, ...]:
+	margin = prob.get_val("Propulsion.igniter_thermal_margin")[0]
+	if margin < 2.0:
+		return (CheckResult(
+			"warning",
+			f"Igniter thermal margin ({margin:.1f}x) below 2.0x threshold"
+		),)
+	
+	return ()
+
+def check_igniter_port_clearance(prob: Problem) -> tuple[CheckResult, ...]:
+	blockage = prob.get_val("Propulsion.igniter_port_blockage")[0]
+	if blockage >= 0.20:
+		return (CheckResult(
+			"warning",
+			f"Igniter port blockage ({blocakge * 100:.1f}%) exceeds 20%"
+		),)
+	
+	return ()
 #endregion
 
 #region Test Stand Checks
@@ -176,6 +196,8 @@ DEFAULT_ROCKET_CHECKS: tuple[CheckFn, ...] = (
 	check_mass_balance,
 	check_target_apogee,
 	check_combustion_isp,
+	check_igniter_margin,
+	check_igniter_port_clearance,
 )
 
 DEFAULT_TESTSTAND_CHECKS: tuple[CheckFn, ...] = (
