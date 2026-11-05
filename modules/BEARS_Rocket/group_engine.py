@@ -7,7 +7,7 @@ from ..BEARS_Chem import BEARS_Chem
 
 from .comp_injector import InjectorComponent
 from .comp_fuel     import FuelComponent
-from .comp_igniter  import IgniterComponent
+#from .comp_igniter  import IgniterComponent
 from .comp_chem     import ChemComponent
 from .comp_nozzle   import NozzleComponent
 # endregion
@@ -59,6 +59,7 @@ class HybridEngineGroup(Group):
 			],
 		)
 
+		"""
 		self.add_subsystem(
 			"Igniter",
 			IgniterComponent(),
@@ -76,6 +77,7 @@ class HybridEngineGroup(Group):
 				("ignition_margin",  "igniter_thermal_margin"),
 			],
 		)
+		"""
 
 		# Combustion chemistry & flame temperature
 		self.add_subsystem(

@@ -46,7 +46,7 @@ class IgniterComponent(ExplicitComponent):
 		dh_rxn = self.options["delta_h_rxn"]
 		eta_th = self.options["eta_thermal"]
 
-		t_lining = t_burn * t_burn
+		t_lining = r_burn * t_burn
 		d_in     = d_out - 2.0 * t_lining
 		blockage = 1.0 - (d_in / d_out)**2
 		v_lining = pi * (d_out - t_lining) * t_lining * l_grain

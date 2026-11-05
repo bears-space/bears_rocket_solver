@@ -119,7 +119,7 @@ def check_igniter_port_clearance(prob: Problem) -> tuple[CheckResult, ...]:
 	if blockage >= 0.20:
 		return (CheckResult(
 			"warning",
-			f"Igniter port blockage ({blocakge * 100:.1f}%) exceeds 20%"
+			f"Igniter port blockage ({blockage * 100:.1f}%) exceeds 20%"
 		),)
 	
 	return ()
@@ -198,8 +198,8 @@ DEFAULT_ROCKET_CHECKS: tuple[CheckFn, ...] = (
 	check_mass_balance,
 	check_target_apogee,
 	check_combustion_isp,
-	check_igniter_margin,
-	check_igniter_port_clearance,
+	#check_igniter_margin,
+	#check_igniter_port_clearance,
 )
 
 DEFAULT_TESTSTAND_CHECKS: tuple[CheckFn, ...] = (
