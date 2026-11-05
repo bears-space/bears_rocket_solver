@@ -31,7 +31,7 @@ DesignVars
   nozzle_eta_friction     [0.95]                None       DesignVars.nozzle_eta_friction                
 OptimizationVars
   o_propellant_mass       [1.79801551]          kg         OptimizationVars.o_propellant_mass            
-  o_mixture_ratio         [9.17270683]          None       OptimizationVars.o_mixture_ratio              
+  o_mixture_ratio         [9.17270682]          None       OptimizationVars.o_mixture_ratio              
   o_injector_area         [6.5425451e-06]       m**2       OptimizationVars.o_injector_area              
   o_nozzle_throat_area    [0.00011689]          m**2       OptimizationVars.o_nozzle_throat_area         
 Propulsion
@@ -67,7 +67,7 @@ Propulsion
   HybridEngine
     Injector
       mdot_ox             [0.31729658]          kg/s       Propulsion.HybridEngine.engine_mdot_ox        
-      delta_p             [2000000.01874433]    Pa         Propulsion.injector_delta_p                   
+      delta_p             [2000000.01874507]    Pa         Propulsion.injector_delta_p                   
     Fuel
       r_dot               [0.00127121]          m/s        Propulsion.fuel_regression_rate               
       length              [0.18789806]          m          Propulsion.fuel_length                        
@@ -75,13 +75,13 @@ Propulsion
       m_fuel              [0.17674898]          kg         Propulsion.fuel_mass                          
       mdot_fuel           [0.03459138]          kg/s       Propulsion.HybridEngine.engine_mdot_fuel      
     Chemistry
-      cstar               [1660.9222492]        m/s        Propulsion.HybridEngine.engine_cstar          
+      cstar               [1660.92224923]       m/s        Propulsion.HybridEngine.engine_cstar          
       isp                 [260.44976048]        s          Propulsion.prop_isp                           
-      t_chamber           [4020.20405637]       degK       Propulsion.prop_chamber_temp                  
+      t_chamber           [4020.20405641]       degK       Propulsion.prop_chamber_temp                  
     Nozzle
-      p_chamber           [4999999.98125567]    Pa         Propulsion.prop_chamber_pressure              
+      p_chamber           [4999999.98125493]    Pa         Propulsion.prop_chamber_pressure              
       mdot_prop           [0.35188796]          kg/s       Propulsion.HybridEngine.engine_mdot_prop      
-      thrust              [853.52938135]        N          Propulsion.prop_thrust                        
+      thrust              [853.52938146]        N          Propulsion.prop_thrust                        
       eta_nozzle          [0.94966282]          None       Propulsion.HybridEngine.nozzle_efficiency     
       exit_half_angle     [2.15896843]          deg        Propulsion.HybridEngine.nozzle_exit_half_angle
 Mass
@@ -89,7 +89,7 @@ Mass
   dry_mass                [11.14951934]         kg         Mass.dry_mass                                 
   initial_mass            [13.11476095]         kg         Mass.initial_mass                             
 Trajectory
-  apogee                  [2999.99995688]       m          apogee                                        
+  apogee                  [2999.99995692]       m          apogee                                        
   burn_time               [5.38046233]          s          burn_time                                     
 
 

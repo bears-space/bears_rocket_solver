@@ -4,14 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bears_rocket_solver"
-version = "2026.10.06"
+version = "2026.11.05"
 license = "GPL-3.0-or-later"
 readme = "README.md"
 dependencies = [
-	"rocketcea",
+	"cea",
 	"openmdao",
-	"pydot",
-	"graphviz",
 	"isacalc",
 	"rocketpy"
 ]
@@ -22,6 +20,8 @@ authors = [
 [project.optional-dependencies]
 verification = [
 	"mypy",
+	"pydot",
+	"graphviz",
 	"scipy-stubs"
 ]
 

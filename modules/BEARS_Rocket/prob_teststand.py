@@ -8,7 +8,7 @@ from openmdao.visualization.graph_viewer import GraphViewer
 from ..BEARS_Chem import BEARS_Chem
 
 from .group_teststand import TestStandGroup
-from .graph_style     import style_graph
+from .graph_style     import has_graphviz, style_graph
 
 from .checks  import CheckFn, DEFAULT_TESTSTAND_CHECKS, run_checks
 #endregion
@@ -134,6 +134,10 @@ class TestStandProblem(Problem):
 		out_dir : str = "figures",
 		prefix  : str = "teststand",
 	):
+		if not has_graphviz():
+			print(f"Graphviz ('dot') not found; skipping {prefix} graphs")
+			return
+
 		os.makedirs(out_dir, exist_ok=True)
 		viewer = GraphViewer(self.model)
 		for gtype in ["dataflow", "tree", "cycle"]:
@@ -151,8 +155,12 @@ class TestStandProblem(Problem):
 				#dot = style_graph(dot, splines=splines, concentrate=True)
 				dot.write_png(png_path)
 
-	def report(self, out_txt: str = "outputs/teststand.txt"):
+	def report(
+		self,
+		out_txt : str  = "outputs/teststand.txt",
+		graphs  : bool = True,
+	):
 		self.print_summary()
 		self.print_parameters(out_txt)
-		self.print_graphs()
+		if graphs: self.print_graphs()
 	#endregion

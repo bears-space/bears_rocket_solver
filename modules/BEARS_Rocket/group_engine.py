@@ -106,6 +106,7 @@ class HybridEngineGroup(Group):
 		self.nonlinear_solver = om.NewtonSolver(solve_subsystems=False)
 		self.nonlinear_solver.options["maxiter"] = 30
 		self.nonlinear_solver.options["rtol"]    = 1e-6
+		self.nonlinear_solver.options["atol"]    = 1e-6
 		self.nonlinear_solver.options["iprint"]  = 0
 		self.nonlinear_solver.linesearch = om.ArmijoGoldsteinLS()
 

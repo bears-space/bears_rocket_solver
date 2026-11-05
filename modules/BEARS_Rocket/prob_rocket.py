@@ -10,7 +10,7 @@ from ..BEARS_Chem import BEARS_Chem
 from ..BEARS_Atmo import BEARS_Atm
 
 from .group_rocket import RocketGroup
-from .graph_style  import style_graph
+from .graph_style  import has_graphviz, style_graph
 
 from .checks  import CheckFn, DEFAULT_ROCKET_CHECKS, run_checks
 #endregion
@@ -203,7 +203,11 @@ class RocketLaunchProblem(Problem):
 			)
 
 	def print_graphs(self, out_dir: str = "figures", prefix: str = "rocket"):
-		"""Draw all the connectivity graphs"""
+		"""Draw all the connectivity graphs, provided Graphviz is installed"""
+
+		if not has_graphviz():
+			print(f"Graphviz ('dot') not found, skipping {prefix} graphs")
+			return
 
 		os.makedirs(out_dir, exist_ok=True)
 		viewer = GraphViewer(self.model)
@@ -229,10 +233,15 @@ class RocketLaunchProblem(Problem):
 				dot = style_graph(dot, splines=splines, concentrate=True)
 				dot.write_png(png_path)
 
-	def report(self, out_txt: str = "outputs/rocket.txt"):
+	def report(
+		self,
+		out_txt : str  = "outputs/rocket.txt",
+		graphs  : bool = True,
+	):
 		"""Print results and generate output artifacts"""
 
 		self.print_summary()
 		self.print_parameters(out_txt)
-		self.print_graphs()
+		if graphs:
+			self.print_graphs()
 	#endregion

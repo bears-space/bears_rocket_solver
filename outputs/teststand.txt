@@ -24,7 +24,7 @@ RunTank
 HybridEngine
   Injector
     mdot_ox                [0.28121085]        kg/s   HybridEngine.engine_mdot_ox        
-    delta_p                [1568891.73132219]  Pa     HybridEngine.injector_delta_p      
+    delta_p                [1568891.73132088]  Pa     HybridEngine.injector_delta_p      
   Fuel
     r_dot                  [0.00119683]        m/s    HybridEngine.fuel_regression_rate  
     length                 [0.17690417]        m      HybridEngine.fuel_length           
@@ -32,13 +32,13 @@ HybridEngine
     m_fuel                 [0.17674898]        kg     HybridEngine.fuel_mass             
     mdot_fuel              [0.03065735]        kg/s   HybridEngine.engine_mdot_fuel      
   Chemistry
-    cstar                  [1660.83256771]     m/s    HybridEngine.engine_cstar          
-    isp                    [258.25928822]      s      test_isp                           
-    t_chamber              [4020.21958778]     degK   test_chamber_temp_TC3              
+    cstar                  [1660.83256773]     m/s    HybridEngine.engine_cstar          
+    isp                    [258.25935058]      s      test_isp                           
+    t_chamber              [4020.21958782]     degK   test_chamber_temp_TC3              
   Nozzle
-    p_chamber              [4431108.26867781]  Pa     test_chamber_pressure_PT3          
+    p_chamber              [4431108.26867912]  Pa     test_chamber_pressure_PT3          
     mdot_prop              [0.31186819]        kg/s   HybridEngine.engine_mdot_prop      
-    thrust                 [749.83052269]      N      test_thrust                        
+    thrust                 [749.83070524]      N      test_thrust                        
     eta_nozzle             [0.94940107]        None   HybridEngine.nozzle_efficiency     
     exit_half_angle        [2.87756592]        deg    HybridEngine.nozzle_exit_half_angle
 

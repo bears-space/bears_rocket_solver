@@ -1,15 +1,28 @@
 #region Imports
-import pydot
+import shutil
+from typing import Any
 #endregion
+
+def has_graphviz() -> bool:
+	"""Check if system Graphviz (`dot`) binary and `pydot` are available"""
+
+	if shutil.which("dot") is None:
+		return False
+
+	try:
+		import pydot
+		return True
+	except ImportError:
+		return False
 
 #region Graph Stylizer
 def style_graph(
-	dot         : pydot.Dot,
+	dot         : Any,
 	rankdir     : str = "LR",
 	splines     : str = "ortho",
 	concentrate : bool = True,
 	dpi         : int = 300,
-) -> pydot.Dot:
+) -> Any:
 	"""Apply presentation styling and clean routing to a pydot graph."""
 
 	dot.set_rankdir(rankdir)
