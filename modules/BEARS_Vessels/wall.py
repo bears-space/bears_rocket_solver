@@ -15,12 +15,12 @@ from .netting import (
 #region Layer record
 @dataclass(frozen=True)
 class Layer:
-	material:          Material
-	thickness:         float | None = None # None for pressure-sized
-	is_load_bearing:   bool = True         # False for thermal insulation
-	helical_angle_deg: float | None = None # None for isotropic or dynamic boss
-	efficiency:        float = 0.85        # Fiber translation efficiency
-	fiber_volume_frac: float = 0.72        # Fiber volume fraction
+	material          : Material
+	thickness         : float | None = None # None for pressure-sized
+	is_load_bearing   : bool  = True        # False for thermal insulation
+	helical_angle_deg : float | None = None # None for isotropic or dynamic boss
+	efficiency        : float = 0.85        # Fiber translation efficiency
+	fiber_volume_frac : float = 0.72        # Fiber volume fraction
 
 	@property
 	def is_dynamic(self) -> bool:

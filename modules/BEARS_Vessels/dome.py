@@ -6,11 +6,11 @@ K_V_ISOTENSOID: float = 1.4341
 K_L_ISOTENSOID: float = 0.6276
 #endregion
 
-#region Geometry functions
+#region Geometry
 def dome_shell_volume(
-	r_inner: float,
-	r_outer: float,
-	k_v: float = K_V_ISOTENSOID
+	r_inner : float,
+	r_outer : float,
+	k_v     : float = K_V_ISOTENSOID
 ) -> float:
 	return 2.0 * k_v * (r_outer**3 - r_inner**3)
 
