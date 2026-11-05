@@ -12,6 +12,7 @@ from .records import (
 	IgniterConfig,
 	NozzleConfig,
 	OptimizationSeedConfig,
+	EfficienciesConfig,
 	SpeciesConfig,
 	BipropellantConfig,
 	PropellantConfig,
@@ -95,15 +96,25 @@ def load_configs(
 
 	c_op = OptimizationSeedConfig(**data["optimization"])
 
+	eff = data.get("efficiencies", {})
+	c_ef = EfficienciesConfig(
+		combustion             = eff.get("combustion",             0.88),
+		trajectory             = eff.get("trajectory",             0.92),
+		propellant_utilization = eff.get("propellant_utilization", 0.92),
+		regression_correction  = eff.get("regression_correction",  0.60),
+		nozzle_friction        = eff.get("nozzle_friction",        0.60),
+	)
+
 	cfg = RocketConfig(
-		cfg_global     = c_gl,
-		cfg_oxy_tank   = c_ox,
-		cfg_press_tank = c_pr,
-		cfg_injector   = c_in,
-		cfg_fuel       = c_fu,
-		cfg_igniter    = c_ig,
-		cfg_nozzle     = c_nz,
-		cfg_optim      = c_op,
+		cfg_global       = c_gl,
+		cfg_oxy_tank     = c_ox,
+		cfg_press_tank   = c_pr,
+		cfg_injector     = c_in,
+		cfg_fuel         = c_fu,
+		cfg_igniter      = c_ig,
+		cfg_nozzle       = c_nz,
+		cfg_optim        = c_op,
+		cfg_efficiencies = c_ef,
 	)
 
 	if validate: validate_rocket_config(cfg)

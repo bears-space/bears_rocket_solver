@@ -1,4 +1,4 @@
-83 Explicit Output(s) in 'model'
+89 Explicit Output(s) in 'model'
 
 varname                   val                   units      prom_name                                     
 ------------------------  --------------------  ---------  ----------------------------------------------
@@ -29,76 +29,82 @@ DesignVars
   nozzle_expansion_ratio  [5.]                  None       DesignVars.nozzle_expansion_ratio             
   nozzle_length           [0.2]                 m          DesignVars.nozzle_length                      
   nozzle_eta_friction     [0.95]                None       DesignVars.nozzle_eta_friction                
+  eta_combustion          [0.88]                None       DesignVars.eta_combustion                     
+  eta_trajectory          [0.92]                None       DesignVars.eta_trajectory                     
+  eta_propellant          [0.92]                None       DesignVars.eta_propellant                     
+  eta_regression          [0.6]                 None       DesignVars.eta_regression                     
 OptimizationVars
-  o_propellant_mass       [2.11528923]          kg         OptimizationVars.o_propellant_mass            
-  o_mixture_ratio         [9.17455996]          None       OptimizationVars.o_mixture_ratio              
-  o_injector_area         [8.28365741e-06]      m**2       OptimizationVars.o_injector_area              
-  o_nozzle_throat_area    [0.00014799]          m**2       OptimizationVars.o_nozzle_throat_area         
+  o_propellant_mass       [2.66315241]          kg         OptimizationVars.o_propellant_mass            
+  o_mixture_ratio         [9.17298866]          None       OptimizationVars.o_mixture_ratio              
+  o_injector_area         [1.04286371e-05]      m**2       OptimizationVars.o_injector_area              
+  o_nozzle_throat_area    [0.00016396]          m**2       OptimizationVars.o_nozzle_throat_area         
 Propulsion
   PropSplit
-    m_ox                  [1.9073894]           kg         Propulsion.PropSplit.m_ox                     
-    m_fuel                [0.20789982]          kg         Propulsion.PropSplit.m_fuel                   
+    m_ox                  [2.40136578]          kg         Propulsion.PropSplit.m_ox                     
+    m_fuel                [0.26178663]          kg         Propulsion.PropSplit.m_fuel                   
   OxidizerTank
     t_wall                [0.00147395]          m          Propulsion.tank_wall_thickness                
     t_liner               [0.001]               m          Propulsion.tank_liner_thickness               
     t_wrap                [0.00047395]          m          Propulsion.tank_wrap_thickness                
-    m_liner               [0.20441866]          kg         Propulsion.OxidizerTank.m_liner               
-    m_wrap                [0.05671909]          kg         Propulsion.OxidizerTank.m_wrap                
+    m_liner               [0.2469806]           kg         Propulsion.OxidizerTank.m_liner               
+    m_wrap                [0.06844402]          kg         Propulsion.OxidizerTank.m_wrap                
     t_layers              [0.001   , 0.000474]  m          Propulsion.OxidizerTank.t_layers              
-    m_layers              [0.204419, 0.056719]  kg         Propulsion.OxidizerTank.m_layers              
-    l_tank                [0.20608746]          m          Propulsion.tank_length                        
-    v_internal            [0.0017661]           m**3       Propulsion.tank_volume                        
-    v_fluid               [0.00158949]          m**3       Propulsion.OxidizerTank.v_fluid               
-    m_tank_dry            [0.26113775]          kg         Propulsion.tank_dry_mass                      
+    m_layers              [0.246981, 0.068444]  kg         Propulsion.OxidizerTank.m_layers              
+    l_tank                [0.24859188]          m          Propulsion.tank_length                        
+    v_internal            [0.00222349]          m**3       Propulsion.tank_volume                        
+    v_fluid               [0.00200114]          m**3       Propulsion.OxidizerTank.v_fluid               
+    m_tank_dry            [0.31542463]          kg         Propulsion.tank_dry_mass                      
   PressurantTank
     t_wall                [0.00759494]          m          Propulsion.press_wall_thickness               
     t_liner               [0.00759494]          m          Propulsion.PressurantTank.t_liner             
     t_wrap                [0.]                  m          Propulsion.PressurantTank.t_wrap              
-    m_liner               [1.02758479]          kg         Propulsion.PressurantTank.m_liner             
+    m_liner               [1.21362504]          kg         Propulsion.PressurantTank.m_liner             
     m_wrap                [0.]                  kg         Propulsion.PressurantTank.m_wrap              
     t_layers              [0.00759494]          m          Propulsion.PressurantTank.t_layers            
-    m_layers              [1.02758479]          kg         Propulsion.PressurantTank.m_layers            
-    l_tank                [0.14932767]          m          Propulsion.press_length                       
-    v_internal            [0.00085588]          m**3       Propulsion.press_volume                       
-    v_fluid               [0.00085588]          m**3       Propulsion.PressurantTank.v_fluid             
-    m_tank_dry            [1.02758479]          kg         Propulsion.press_dry_mass                     
-    m_press               [0.19673834]          kg         Propulsion.press_press_mass                   
+    m_layers              [1.21362504]          kg         Propulsion.PressurantTank.m_layers            
+    l_tank                [0.1750188]           m          Propulsion.press_length                       
+    v_internal            [0.00107754]          m**3       Propulsion.press_volume                       
+    v_fluid               [0.00107754]          m**3       Propulsion.PressurantTank.v_fluid             
+    m_tank_dry            [1.21362504]          kg         Propulsion.press_dry_mass                     
+    m_press               [0.24768971]          kg         Propulsion.press_press_mass                   
     rho_press             [229.86677382]        kg/m**3    Propulsion.press_press_density                
   HybridEngine
     Injector
-      mdot_ox             [0.40173606]          kg/s       Propulsion.HybridEngine.engine_mdot_ox        
-      delta_p             [2000000.21837591]    Pa         Propulsion.injector_delta_p                   
+      mdot_ox             [0.50576203]          kg/s       Propulsion.HybridEngine.engine_mdot_ox        
+      delta_p             [2000000.09635749]    Pa         Propulsion.injector_delta_p                   
     Fuel
-      r_dot               [0.00143039]          m/s        Propulsion.fuel_regression_rate               
-      length              [0.21138409]          m          Propulsion.fuel_length                        
-      grain_diam          [0.06358263]          m          Propulsion.fuel_grain_diam                    
-      m_fuel              [0.20789982]          kg         Propulsion.fuel_mass                          
-      mdot_fuel           [0.04378805]          kg/s       Propulsion.HybridEngine.engine_mdot_fuel      
+      r_dot               [0.00096296]          m/s        Propulsion.fuel_regression_rate               
+      length              [0.39536492]          m          Propulsion.fuel_length                        
+      grain_diam          [0.05914432]          m          Propulsion.fuel_grain_diam                    
+      m_fuel              [0.26178663]          kg         Propulsion.fuel_mass                          
+      mdot_fuel           [0.05513601]          kg/s       Propulsion.HybridEngine.engine_mdot_fuel      
     Igniter
       lining_thickness    [1.]                  m          Propulsion.igniter_lining_thickness           
       diam_in             [-1.95]               m          Propulsion.igniter_inner_diam                 
       port_blockage       [-1520.]              None       Propulsion.igniter_port_blockage              
-      thermite_mass       [-2397.3385118]       kg         Propulsion.igniter_thermite_mass              
-      num_pads            [9.]                  None       Propulsion.igniter_pad_count                  
-      pad_spacing         [0.02642301]          m          Propulsion.igniter_pad_spacing                
+      thermite_mass       [-4483.89263478]      kg         Propulsion.igniter_thermite_mass              
+      num_pads            [15.]                 None       Propulsion.igniter_pad_count                  
+      pad_spacing         [0.02824035]          m          Propulsion.igniter_pad_spacing                
       ignition_margin     [6.06844598e+08]      None       Propulsion.igniter_thermal_margin             
     Chemistry
-      cstar               [1660.8959422]        m/s        Propulsion.HybridEngine.engine_cstar          
-      isp                 [260.4499668]         s          Propulsion.prop_isp                           
-      t_chamber           [4020.15916732]       degK       Propulsion.prop_chamber_temp                  
+      cstar               [1461.61524638]       m/s        Propulsion.HybridEngine.engine_cstar          
+      isp                 [229.19581307]        s          Propulsion.prop_isp                           
+      t_chamber           [4020.19702293]       degK       Propulsion.prop_chamber_temp                  
     Nozzle
-      p_chamber           [4999999.78162409]    Pa         Propulsion.prop_chamber_pressure              
-      mdot_prop           [0.4455241]           kg/s       Propulsion.HybridEngine.engine_mdot_prop      
-      thrust              [1080.54945186]       N          Propulsion.prop_thrust                        
-      eta_nozzle          [0.94957323]          None       Propulsion.HybridEngine.nozzle_efficiency     
-      exit_half_angle     [2.42896689]          deg        Propulsion.HybridEngine.nozzle_exit_half_angle
+      p_chamber           [4999999.90364251]    Pa         Propulsion.prop_chamber_pressure              
+      mdot_prop           [0.56089805]          kg/s       Propulsion.HybridEngine.engine_mdot_prop      
+      thrust              [1197.06770462]       N          Propulsion.prop_thrust                        
+      eta_nozzle          [0.94952724]          None       Propulsion.HybridEngine.nozzle_efficiency     
+      exit_half_angle     [2.55649655]          deg        Propulsion.HybridEngine.nozzle_exit_half_angle
 Mass
-  structural_mass         [13.28872254]         kg         Mass.structural_mass                          
-  dry_mass                [14.28872254]         kg         Mass.dry_mass                                 
-  initial_mass            [16.6007501]          kg         Mass.initial_mass                             
+  structural_mass         [13.52904967]         kg         Mass.structural_mass                          
+  dry_mass                [14.76062814]         kg         Mass.dry_mass                                 
+  initial_mass            [17.67147026]         kg         Mass.initial_mass                             
+  prop_loaded_mass        [2.89473088]          kg         Mass.prop_loaded_mass                         
+  residual_mass           [0.23157847]          kg         Mass.residual_mass                            
 Trajectory
-  apogee                  [3000.00002875]       m          apogee                                        
-  burn_time               [5.00000101]          s          burn_time                                     
+  apogee                  [3260.86938802]       m          apogee                                        
+  burn_time               [5.00039904]          s          burn_time                                     
 
 
 0 Implicit Output(s) in 'model'

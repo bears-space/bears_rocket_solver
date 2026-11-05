@@ -29,7 +29,9 @@ class CEABackend:
 		self._reac_mix = cea.Mixture(all_cea)
 		self._prod_mix = cea.Mixture(all_cea, products_from_reactants=True)
 		self._solver   = cea.RocketSolver(
-			self._prod_mix, reactants=self._reac_mix
+			self._prod_mix,
+			reactants         = self._reac_mix,
+			smooth_truncation = True,
 		)
 		self._solution = cea.RocketSolution(self._solver)
 		ox_tot   = sum(r.mass_fraction for r in ox_reactants)

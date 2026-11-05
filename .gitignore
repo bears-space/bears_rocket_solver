@@ -6,5 +6,6 @@
 
 build/*
 work/*
+doc/*
 
 rocket-solver/recreate-env

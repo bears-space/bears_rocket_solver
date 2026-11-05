@@ -6,7 +6,7 @@ from scipy.constants import g
 from openmdao.api    import Problem
 from openmdao.visualization.graph_viewer import GraphViewer
 
-from ..Config     import OptimizationSeedConfig
+from ..Config     import OptimizationSeedConfig, EfficienciesConfig
 from ..BEARS_Chem import BEARS_Chem
 from ..BEARS_Atmo import BEARS_Atm
 
@@ -28,6 +28,7 @@ class RocketLaunchProblem(Problem):
 		ox_wall_material    = None,
 		press_wall_material = None,
 		seed_optim          : OptimizationSeedConfig | None = None,
+		cfg_efficiencies    : EfficienciesConfig | None = None,
 		checks              : tuple[CheckFn, ...] = DEFAULT_ROCKET_CHECKS,
 		**kwargs,
 	):
@@ -48,10 +49,14 @@ class RocketLaunchProblem(Problem):
 		# - Design variables
 
 		# Store payload mass and target apogee as an instance attribute
-		self.payload_mass  = payload_mass
-		self.nonprop_mass  = nonprop_mass
-		self.target_apogee = target_apogee
-		self.seed_optim    = seed_optim
+		self.payload_mass     = payload_mass
+		self.nonprop_mass     = nonprop_mass
+		self.target_apogee    = target_apogee
+		self.seed_optim       = seed_optim
+		self.cfg_efficiencies = cfg_efficiencies
+
+		eta_t = 0.92 if cfg_efficiencies is None else cfg_efficiencies.trajectory
+		eff_apogee = target_apogee / eta_t
 
 		self.model.add_design_var(
 			"OptimizationVars.o_propellant_mass",
@@ -84,8 +89,8 @@ class RocketLaunchProblem(Problem):
 		# - Constraints
 		self.model.add_constraint(
 			"apogee",
-			lower = target_apogee,
-			ref   = target_apogee,
+			lower = eff_apogee,
+			ref   = eff_apogee,
 		)
 
 		self.model.add_constraint(
@@ -132,6 +137,19 @@ class RocketLaunchProblem(Problem):
 		self.set_val("DesignVars.fuel_reg_ref",               1.0e-4)
 		self.set_val("DesignVars.nozzle_expansion_ratio",     5.0)
 
+		ef = self.cfg_efficiencies
+		eta_c = 0.88 if ef is None else ef.combustion
+		eta_t = 0.92 if ef is None else ef.trajectory
+		eta_p = 0.92 if ef is None else ef.propellant_utilization
+		eta_r = 0.60 if ef is None else ef.regression_correction
+		eta_n = 0.95 if ef is None else ef.nozzle_friction
+
+		self.set_val("DesignVars.eta_combustion",             eta_c)
+		self.set_val("DesignVars.eta_trajectory",             eta_t)
+		self.set_val("DesignVars.eta_propellant",             eta_p)
+		self.set_val("DesignVars.eta_regression",             eta_r)
+		self.set_val("DesignVars.nozzle_eta_friction",        eta_n)
+
 		so = self.seed_optim
 		m_init  = 5.0    if so is None else so.propellant_mass_kg
 		mr_init = 7.0    if so is None else so.mixture_ratio
@@ -164,6 +182,7 @@ class RocketLaunchProblem(Problem):
 		self.verify()
 
 		m_prop = self.get_val("OptimizationVars.o_propellant_mass",    units="kg")[0]
+		m_ld   = self.get_val("Mass.prop_loaded_mass",                 units="kg")[0]
 		a_inj  = self.get_val("OptimizationVars.o_injector_area",      units="mm**2")[0]
 		a_thr  = self.get_val("OptimizationVars.o_nozzle_throat_area", units="cm**2")[0]
 		mr     = self.get_val("OptimizationVars.o_mixture_ratio")[0]
@@ -181,23 +200,24 @@ class RocketLaunchProblem(Problem):
 
 		print("Optimized rocket parameters:")
 		print("")
-		print(f"Optimized m_prop:     \t{m_prop:{FMT}} kg")
-		print(f"Optimized A_inj:      \t{a_inj:{FMT}} mm²")
-		print(f"Optimized A_throat:   \t{a_thr:{FMT}} cm²")
-		print(f"Optimized MR:         \t{mr:{FMT}}")
+		print(f"Burned (optimized) m_prop:\t{m_prop:{FMT}} kg")
+		print(f"Loaded m_prop:            \t{m_ld:{FMT}} kg")
+		print(f"Optimized A_inj:          \t{a_inj:{FMT}} mm²")
+		print(f"Optimized A_throat:       \t{a_thr:{FMT}} cm²")
+		print(f"Optimized MR:             \t{mr:{FMT}}")
 		print("")
-		print(f"Apogee:               \t{ap:{FMT}} m")
-		print(f"Burn time:            \t{t_burn:{FMT}} s")
-		print(f"Liftoff thrust:       \t{thr:{FMT}} N")
-		print(f"Liftoff Isp:          \t{isp:{FMT}} s")
-		print(f"Chamber pressure:     \t{pch:{FMT}} bar")
-		print(f"Chamber flame temp:   \t{tch:{FMT}} K")
-		print(f"Injector ΔP:          \t{dp:{FMT}} bar")
+		print(f"Apogee:                   \t{ap:{FMT}} m")
+		print(f"Burn time:                \t{t_burn:{FMT}} s")
+		print(f"Liftoff thrust:           \t{thr:{FMT}} N")
+		print(f"Liftoff Isp:              \t{isp:{FMT}} s")
+		print(f"Chamber pressure:         \t{pch:{FMT}} bar")
+		print(f"Chamber flame temp:       \t{tch:{FMT}} K")
+		print(f"Injector ΔP:              \t{dp:{FMT}} bar")
 		print("")
-		print(f"Dry mass:             \t{mdry:{FMT}} kg")
-		print(f"Pressurant mass:      \t{mpr:{FMT}} kg")
-		print(f"Total mass at liftoff:\t{mi:{FMT}} kg")
-		print(f"TWR at launch:        \t{twr:{FMT}}")
+		print(f"Dry mass:                 \t{mdry:{FMT}} kg")
+		print(f"Pressurant mass:          \t{mpr:{FMT}} kg")
+		print(f"Total mass at liftoff:    \t{mi:{FMT}} kg")
+		print(f"TWR at launch:            \t{twr:{FMT}}")
 
 	def print_parameters(self, path: str = "outputs/rocket.txt"):
 		"""Dump all computed variables to an output file"""

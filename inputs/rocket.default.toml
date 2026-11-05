@@ -43,6 +43,13 @@ expansion_ratio         = 5.0
 length_m                = 0.2
 eta_friction            = 0.95
 
+[efficiencies]
+combustion              = 0.88
+trajectory              = 0.92
+propellant_utilization  = 0.92
+regression_correction   = 0.60
+nozzle_friction         = 0.95
+
 [optimization]
 propellant_mass_kg      = 5.0
 mixture_ratio           = 7.0

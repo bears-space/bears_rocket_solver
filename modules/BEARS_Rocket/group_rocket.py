@@ -77,6 +77,12 @@ class RocketGroup(Group):
 		ivc.add_output("nozzle_length",          val=0.20,   units="m")
 		ivc.add_output("nozzle_eta_friction",    val=0.95)
 
+		# - Efficiencies
+		ivc.add_output("eta_combustion",         val=0.88)
+		ivc.add_output("eta_trajectory",         val=0.92)
+		ivc.add_output("eta_propellant",         val=0.92)
+		ivc.add_output("eta_regression",         val=0.60)
+
 		# OptimizationVars:
 		# specific parameters that we wish to optimize against
 		ovc = self.add_subsystem("OptimizationVars", IndepVarComp())
@@ -149,6 +155,11 @@ class RocketGroup(Group):
 		self.connect("Mass.initial_mass",                  "Trajectory.initial_mass")
 
 		self.connect("OptimizationVars.o_propellant_mass", "Trajectory.propellant_mass")
+
+		# - Efficiencies
+		self.connect("DesignVars.eta_regression",          "Propulsion.fuel_eta_reg")
+		self.connect("DesignVars.eta_combustion",          "Propulsion.chem_eta_cstar")
+		self.connect("DesignVars.eta_propellant",          "Mass.eta_prop")
 
 		# - Optimization
 		self.connect("OptimizationVars.o_mixture_ratio",      "Propulsion.prop_mixture_ratio")

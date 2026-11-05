@@ -48,6 +48,7 @@ class HybridEngineGroup(Group):
 				("n_reg",         "fuel_reg_exponent"),
 				("reg_ref",       "fuel_reg_ref"),
 				("g0_ref",        "fuel_oxy_mass_flux_ref"),
+				("eta_reg",       "fuel_eta_reg"),
 			],
 			promotes_outputs=[
 				("length",     "fuel_length"),
@@ -83,6 +84,7 @@ class HybridEngineGroup(Group):
 			promotes_inputs=[
 				("mixture_ratio",   "engine_mixture_ratio"),
 				("expansion_ratio", "nozzle_expansion_ratio"),
+				("eta_cstar",       "chem_eta_cstar"),
 			],
 			promotes_outputs=[
 				("isp",             "engine_isp"),

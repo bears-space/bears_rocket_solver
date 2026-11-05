@@ -100,6 +100,8 @@ class PropulsionGroup(Group):
 				("nozzle_expansion_ratio", "nozzle_expansion_ratio"),
 				("nozzle_length",          "nozzle_length"),
 				("nozzle_eta_friction",    "nozzle_eta_friction"),
+				("fuel_eta_reg",           "fuel_eta_reg"),
+				("chem_eta_cstar",         "chem_eta_cstar"),
 			],
 			promotes_outputs=[
 				("engine_thrust",           "prop_thrust"),

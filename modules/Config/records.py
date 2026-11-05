@@ -1,5 +1,5 @@
 #region Imports
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 #endregion
 
 #region Design
@@ -53,6 +53,14 @@ class OptimizationSeedConfig:
 	mixture_ratio           : float
 	injector_area_m2        : float # [m^2]
 	nozzle_throat_area_m2   : float # [m^2]
+
+@dataclass(frozen=True)
+class EfficienciesConfig:
+	combustion              : float # [kg]
+	trajectory              : float
+	propellant_utilization  : float # [m^2]
+	regression_correction   : float # [m^2]
+	nozzle_friction         : float # [m^2]
 #endregion
 
 #region Chemistry
@@ -99,12 +107,15 @@ PropellantConfig = (
 #region Master specification
 @dataclass(frozen=True)
 class RocketConfig:
-	cfg_global      : GlobalConfig
-	cfg_oxy_tank    : TankConfig
-	cfg_press_tank  : TankConfig
-	cfg_injector    : InjectorConfig
-	cfg_fuel        : FuelConfig
-	cfg_igniter     : IgniterConfig
-	cfg_nozzle      : NozzleConfig
-	cfg_optim       : OptimizationSeedConfig
+	cfg_global       : GlobalConfig
+	cfg_oxy_tank     : TankConfig
+	cfg_press_tank   : TankConfig
+	cfg_injector     : InjectorConfig
+	cfg_fuel         : FuelConfig
+	cfg_igniter      : IgniterConfig
+	cfg_nozzle       : NozzleConfig
+	cfg_optim        : OptimizationSeedConfig
+	cfg_efficiencies : EfficienciesConfig = (
+		field(default_factory=EfficienciesConfig)
+	)
 #endregion

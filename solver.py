@@ -94,6 +94,7 @@ def main():
 		target_apogee    = cfg_rocket.cfg_global.target_altitude_m,
 		ox_wall_material = copv_ox,
 		seed_optim       = cfg_rocket.cfg_optim,
+		cfg_efficiencies = cfg_rocket.cfg_efficiencies,
 		reports          = True,
 		work_dir         = work_dir,
 	)

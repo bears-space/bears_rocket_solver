@@ -13,6 +13,7 @@ class ChemComponent(ExplicitComponent):
 		self.add_input("chamber_pressure", val=35e5, units="Pa")
 		self.add_input("mixture_ratio",    val=6.0)
 		self.add_input("expansion_ratio",  val=5.0) # Expansion area ratio
+		self.add_input("eta_cstar",        val=1.0)
 
 		self.add_output("cstar",     val=1500.0, units="m/s") # Characteristic velocity
 		self.add_output("isp",       val=120.0,  units="s")
@@ -30,13 +31,17 @@ class ChemComponent(ExplicitComponent):
 		chamber_pressure = inputs["chamber_pressure"][0]
 		mixture_ratio    = inputs["mixture_ratio"][0]
 		expansion_ratio  = inputs["expansion_ratio"][0]
+		eta_cstar        = inputs["eta_cstar"][0]
 
 		chem = self.options["chem"]
 
-		outputs["cstar"]     = chem.get_cstar(chamber_pressure, mixture_ratio)
-		outputs["t_chamber"] = chem.get_tcomb(chamber_pressure, mixture_ratio)
-		outputs["isp"]       = chem.get_isp(
+		cstar = chem.get_cstar(chamber_pressure, mixture_ratio)
+		isp = chem.get_isp(
 			chamber_pressure,
 			mixture_ratio,
 			expansion_ratio,
 		)
+
+		outputs["cstar"]     = eta_cstar * cstar
+		outputs["t_chamber"] = chem.get_tcomb(chamber_pressure, mixture_ratio)
+		outputs["isp"]       = eta_cstar * isp

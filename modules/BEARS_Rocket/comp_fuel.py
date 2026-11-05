@@ -24,6 +24,7 @@ class FuelComponent(ExplicitComponent):
 		self.add_input("reg_ref",       val=1.0e-4, units="m/s")
 
 		self.add_input("g0_ref",        val=1.0, units="kg/(m**2*s)")
+		self.add_input("eta_reg",       val=1.0)
 
 		self.add_output("r_dot",        val=0.002, units="m/s")
 		self.add_output("length",       val=0.4,   units="m")
@@ -43,9 +44,10 @@ class FuelComponent(ExplicitComponent):
 		d_port  = inputs["port_diam"]
 		mr      = inputs["mixture_ratio"]
 
-		n  = inputs["n_reg"]
-		a  = inputs["reg_ref"]
-		g0 = inputs["g0_ref"]
+		n       = inputs["n_reg"]
+		a       = inputs["reg_ref"]
+		g0      = inputs["g0_ref"]
+		eta_reg = inputs["eta_reg"]
 
 		rho_fuel = self.options["rho_fuel"]
 
@@ -99,7 +101,7 @@ class FuelComponent(ExplicitComponent):
 		g_ratio = g_ox / g0
 
 		# Regression rate
-		r_dot = a * (g_ratio**n)
+		r_dot = eta_reg * a * (g_ratio**n)
 
 		# Fuel flow and dependent stack length
 		mdot_fuel = mdot_ox / mr

@@ -5,6 +5,7 @@ from .records import (
 	FuelConfig,
 	NozzleConfig,
 	OptimizationSeedConfig,
+	EfficienciesConfig,
 	SpeciesConfig,
 	BipropellantConfig,
 	MonopropellantConfig,

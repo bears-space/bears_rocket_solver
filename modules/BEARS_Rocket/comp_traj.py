@@ -56,16 +56,20 @@ def ballistic_apogee(
 		h, v = y
 		m = m_i - mdot * t
 
-		_, _, rho, a = atm(h)
+		_, _, rho, a = atm(max(0.0, h))
+		f_net = thrust - F_d(v, diam, rho, a)
 
-		dh_dt = v
-		dv_dt = (thrust - F_d(v, diam, rho, a)) / m - g
+		if h <= 0.0 and f_net / m <= g:
+			dh_dt, dv_dt = max(0.0, v), 0.0
+		else:
+			dh_dt, dv_dt = v, (f_net / m) - g
+
 		return [dh_dt, dv_dt]
 
 	def dynamics_coast(t, y):
 		h, v = y
 
-		_, _, rho, a = atm(h)
+		_, _, rho, a = atm(max(0.0, h))
 
 		dh_dt = v
 		dv_dt = -F_d(v, diam, rho, a) / m_burnout - g
