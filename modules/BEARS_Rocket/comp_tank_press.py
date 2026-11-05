@@ -10,14 +10,21 @@ class PressurantTankComponent(TankComponent):
 	def initialize(self):
 		super().initialize()
 		self.options.declare("r_gas",       default=296.8,  types=float)
-		self.options.declare("t_ambient_k", default=303.15, types=float)
-		self.options.declare("z_factor",    default=1.15,   types=float)
 		self.options.declare("gamma_gas",   default=1.40,   types=float)
+		self.options.declare("t_ambient_k", default=303.15, types=float)
+
+		# Compressibility factor
+		self.options.declare("z_factor",    default=1.15,   types=float)
+
+		# Saturation (vapor) pressure of the liquid oxidizer
+		# Used for pad gas sizing (Dalton's law)
 		self.options.declare("p_sat",       default=57.5e5, types=float)
 
 	def setup_fluid_inputs(self):
 		self.add_input("v_ox_displace",  val=0.01, units="m**3")
 		self.add_input("p_ox",           val=70e5, units="Pa")
+
+		# Regulator pressure margin
 		self.add_input("p_reg_margin",   val=20e5, units="Pa")
 		self.add_input("ox_ullage_frac", val=0.10)
 
@@ -62,6 +69,7 @@ class PressurantTankComponent(TankComponent):
 		m_burn    = (p_ox * v_ox) / (r_gas * t_mean)
 		m_press   = 1.10 * (m_burn + m_pad) / f_del
 		rho_press = p_bottle / (z * r_gas * t0)
+
 		return m_press, rho_press, m_pad, m_burn, f_del
 
 	def get_fluid_density(self, inputs):
