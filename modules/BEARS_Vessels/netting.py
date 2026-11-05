@@ -3,7 +3,7 @@ from math import pi, cos, tan, radians
 import numpy as np
 #endregion
 
-#region Clairaut relations
+#region Clairaut
 def clairaut_angle_trig(r_boss: float, r_out: float) -> tuple[float, float]:
 	sin_a = r_boss / r_out
 	cos_sq = 1.0 - sin_a**2
@@ -11,7 +11,7 @@ def clairaut_angle_trig(r_boss: float, r_out: float) -> tuple[float, float]:
 	return cos_sq, tan_sq
 #endregion
 
-#region Sizing formulas
+#region Sizing
 def size_composite_layer(
 	p_design: float,
 	r_out: float,
