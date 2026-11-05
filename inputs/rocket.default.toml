@@ -1,5 +1,6 @@
 [global]
 payload_mass_kg         = 1.0
+nonprop_mass_kg         = 5.0
 target_altitude_m       = 3000.0
 diameter_m              = 0.12
 clearance_m             = 0.0

@@ -34,6 +34,7 @@ class RocketGroup(Group):
 
 		# - Global/master inputs
 		ivc.add_output("g_payload_mass",         val=1.0,    units="kg")
+		ivc.add_output("g_nonprop_mass",         val=5.0,    units="kg")
 		ivc.add_output("g_target_altitude",      val=3000.0, units="m")
 
 		# Airframe diameter
@@ -136,6 +137,7 @@ class RocketGroup(Group):
 
 		# - Mass
 		self.connect("DesignVars.g_payload_mass",          "Mass.payload_mass")
+		self.connect("DesignVars.g_nonprop_mass",          "Mass.nonprop_mass")
 		self.connect("Propulsion.tank_dry_mass",           "Mass.ox_tank_mass")
 		self.connect("Propulsion.press_dry_mass",          "Mass.press_tank_mass")
 		self.connect("Propulsion.press_press_mass",        "Mass.pressurant_mass")

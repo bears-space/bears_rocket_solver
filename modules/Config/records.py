@@ -6,6 +6,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class GlobalConfig:
 	payload_mass_kg         : float # [kg]
+	nonprop_mass_kg         : float # [kg]
 	target_altitude_m       : float # [m]
 	diameter_m              : float # [m]
 	clearance_m             : float # [m]

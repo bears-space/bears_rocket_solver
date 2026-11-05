@@ -1,4 +1,4 @@
-#!.env/bin/python
+#!env/bin/python
 """
 The rocket optimization script using OpenMDAO for the framework
 
@@ -90,6 +90,7 @@ def main():
 		atm              = atm,
 		chem             = chem,
 		payload_mass     = cfg_rocket.cfg_global.payload_mass_kg,
+		nonprop_mass     = cfg_rocket.cfg_global.nonprop_mass_kg,
 		target_apogee    = cfg_rocket.cfg_global.target_altitude_m,
 		ox_wall_material = copv_ox,
 		reports          = True,

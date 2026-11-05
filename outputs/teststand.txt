@@ -23,24 +23,24 @@ RunTank
   m_tank_dry               [1.77166827]        kg     run_tank_dry_mass                  
 HybridEngine
   Injector
-    mdot_ox                [0.37882473]        kg/s   HybridEngine.engine_mdot_ox        
-    delta_p                [1917328.21491255]  Pa     HybridEngine.injector_delta_p      
+    mdot_ox                [0.28121085]        kg/s   HybridEngine.engine_mdot_ox        
+    delta_p                [1568891.73132219]  Pa     HybridEngine.injector_delta_p      
   Fuel
-    r_dot                  [0.00138901]        m/s    HybridEngine.fuel_regression_rate  
-    length                 [0.23709557]        m      HybridEngine.fuel_length           
-    grain_diam             [0.06538268]        m      HybridEngine.fuel_grain_diam       
-    m_fuel                 [0.2640911]         kg     HybridEngine.fuel_mass             
-    mdot_fuel              [0.04769307]        kg/s   HybridEngine.engine_mdot_fuel      
+    r_dot                  [0.00119683]        m/s    HybridEngine.fuel_regression_rate  
+    length                 [0.17690417]        m      HybridEngine.fuel_length           
+    grain_diam             [0.06379614]        m      HybridEngine.fuel_grain_diam       
+    m_fuel                 [0.17674898]        kg     HybridEngine.fuel_mass             
+    mdot_fuel              [0.03065735]        kg/s   HybridEngine.engine_mdot_fuel      
   Chemistry
-    cstar                  [1591.48140553]     m/s    HybridEngine.engine_cstar          
-    isp                    [269.09714254]      s      test_isp                           
-    t_chamber              [3316.26253311]     degK   test_chamber_temp_TC3              
+    cstar                  [1660.83256771]     m/s    HybridEngine.engine_cstar          
+    isp                    [258.25928822]      s      test_isp                           
+    t_chamber              [4020.21958778]     degK   test_chamber_temp_TC3              
   Nozzle
-    p_chamber              [4082671.78508745]  Pa     test_chamber_pressure_PT3          
-    mdot_prop              [0.4265178]         kg/s   HybridEngine.engine_mdot_prop      
-    thrust                 [1068.31882616]     N      test_thrust                        
-    eta_nozzle             [0.94914878]        None   HybridEngine.nozzle_efficiency     
-    exit_half_angle        [3.43064848]        deg    HybridEngine.nozzle_exit_half_angle
+    p_chamber              [4431108.26867781]  Pa     test_chamber_pressure_PT3          
+    mdot_prop              [0.31186819]        kg/s   HybridEngine.engine_mdot_prop      
+    thrust                 [749.83052269]      N      test_thrust                        
+    eta_nozzle             [0.94940107]        None   HybridEngine.nozzle_efficiency     
+    exit_half_angle        [2.87756592]        deg    HybridEngine.nozzle_exit_half_angle
 
 
 0 Implicit Output(s) in 'model'

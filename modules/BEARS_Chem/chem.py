@@ -1,83 +1,91 @@
 # region Imports
 import os
-import rocketcea.cea_obj as cea_obj
 
-from pathlib               import Path
-from rocketcea.input_cards import oxCards, fuelCards
-from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
+from pathlib import Path
+from typing  import Any
 
 from ..Config import BipropellantConfig
 
-from .reac    import Reactant
-from .helpers import gencard, bulk_density
+from .reac         import Reactant
+from .helpers      import bulk_density
+from .backend_base import ThermochemistryBackend
 # endregion
 
-pa_to_psia = 1.450377e-4 # 1 Pa = 1.45038e-4 psia
-fts_to_ms  = 0.3048      # 1 ft/s = 0.3048 m/s
-
 class BEARS_Chem:
+	"""Unified thermochemistry evaluation interface for OpenMDAO"""
 
-	def __init__(self, cea: CEA_Obj, rho_ox: float, rho_fuel: float):
-		self._cea     = cea
+	def __init__(
+		self,
+		backend  : ThermochemistryBackend,
+		rho_ox   : float,
+		rho_fuel : float,
+	):
+		self._backend = backend
 		self.rho_ox   = rho_ox
 		self.rho_fuel = rho_fuel
 
+	@property
+	def _cea(self) -> Any:
+		if hasattr(self._backend, "_cea"):
+			return self._backend._cea
+		return self._backend
+
 	@classmethod
 	def set_work_dir(cls, path: str | Path):
-		abs_path = os.path.abspath(path)
-		os.makedirs(abs_path, exist_ok=True)
-		cea_obj.ROCKETCEA_DATA_DIR = abs_path
+		try:
+			import rocketcea.cea_obj as cea_obj
+			abs_path = os.path.abspath(path)
+			os.makedirs(abs_path, exist_ok=True)
+			cea_obj.ROCKETCEA_DATA_DIR = abs_path
+		except ImportError:
+			pass
 
 	@classmethod
 	def from_config(
 		cls,
 		config   : BipropellantConfig,
+		backend  : str = "auto",
 		work_dir : str | Path | None = None,
-	) -> "Thermochemistry":
+	) -> "BEARS_Chem":
 		if work_dir is not None:
 			cls.set_work_dir(work_dir)
 
-		reac_cards = {"oxid": oxCards, "fuel": fuelCards}
+		ox_reactants   = tuple(Reactant.from_config(r) for r in config.oxidizers)
+		fuel_reactants = tuple(Reactant.from_config(r) for r in config.fuels)
 
-		rnames    : dict[str, str]   = {}
-		densities : dict[str, float] = {}
+		rho_ox   = bulk_density(ox_reactants)
+		rho_fuel = bulk_density(fuel_reactants)
 
-		for rtype, rlist in [
-			("oxid", config.oxidizers),
-			("fuel", config.fuels),
-		]:
-			reactants = tuple(Reactant.from_config(r) for r in rlist)
+		selected = backend.lower()
+		if selected == "auto":
+			try:
+				import cea
+				selected = "cea"
+			except ImportError:
+				selected = "rocketcea"
 
-			rname = "_".join([reac.name for reac in reactants])
-			card = reac_cards[rtype]
-			if rname not in card:
-				card_text = gencard(reactants)
-				if rtype == "fuel": add_new_fuel(rname, card_text)
-				else: add_new_oxidizer(rname, card_text)
-			rnames[rtype] = rname
+		if selected == "cea":
+			from .backend_cea import CEABackend
+			engine = CEABackend(ox_reactants, fuel_reactants)
+		elif selected == "rocketcea":
+			from .backend_rocketcea import RocketCEABackend
+			engine = RocketCEABackend(ox_reactants, fuel_reactants, work_dir)
+		else:
+			raise ValueError(f"Unknown thermochemistry backend: '{backend}'")
 
-			densities[rtype] = bulk_density(reactants)
-
-		cea = CEA_Obj(oxName=rnames["oxid"], fuelName=rnames["fuel"])
-		return cls(cea, densities["oxid"], densities["fuel"])
+		return cls(engine, rho_ox, rho_fuel)
 
 	def get_cstar(self, pc_pa: float, mr: float) -> float:
-		return self._cea.get_Cstar(Pc=pc_pa * pa_to_psia, MR=mr) * fts_to_ms
+		return self._backend.get_cstar(pc_pa, mr)
+
+	def get_tcomb(self, pc_pa: float, mr: float) -> float:
+		return self._backend.get_tcomb(pc_pa, mr)
 
 	def get_isp(
 		self,
 		pc_pa    : float,
 		mr       : float,
 		eps      : float,
-		p_amb_pa : float = 101325.0
+		p_amb_pa : float = 101325.0,
 	) -> float:
-		pc_psia = pc_pa * pa_to_psia
-		if p_amb_pa > 0.0:
-			p_amb_psia = p_amb_pa * pa_to_psia
-			isp, _ = self._cea.estimate_Ambient_Isp(
-				Pc=pc_psia, MR=mr, eps=eps, Pamb=p_amb_psia
-			)
-		return float(self._cea.get_Isp(Pc=pc_psia, MR=mr, eps=eps))
-
-	def get_tcomb(self, pc_pa: float, mr: float) -> float:
-		return self._cea.get_Tcomb(Pc=pc_pa * pa_to_psia, MR=mr) * (5.0 / 9.0)
+		return self._backend.get_isp(pc_pa, mr, eps, p_amb_pa)

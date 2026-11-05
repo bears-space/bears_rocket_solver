@@ -63,13 +63,13 @@ def check_mass_balance(prob: Problem) -> tuple[CheckResult, ...]:
 	if abs(mi - mcalc) > 1e-3:
 		return (CheckResult(
 			"error",
-			f"Mass balance mismatch: {mi:.3f} kg != {mc:.3f} kg"
+			f"Mass balance mismatch: {mi:.3f} kg != {mcalc:.3f} kg"
 		))
 	
 	return ()
 
 def check_target_apogee(prob: Problem) -> tuple[CheckResult, ...]:
-	ap     = prob.get_val("apogee",                       units="m")[0]
+	ap     = prob.get_val("Trajectory.apogee",            units="m")[0]
 	target = prob.get_val("DesignVars.g_target_altitude", units="m")[0]
 
 	err = abs(ap - target)
@@ -78,7 +78,7 @@ def check_target_apogee(prob: Problem) -> tuple[CheckResult, ...]:
 		return (CheckResult(
 			"error",
 			f"Apogee target error is {res['apogee_error_m']:.2f} m"
-		))
+		),)
 
 	return ()
 
@@ -98,7 +98,7 @@ def check_combustion_isp(prob: Problem) -> tuple[CheckResult, ...]:
 		return (CheckResult(
 			"warning",
 			f"Isp ({isp:.1f} s) outside range [150, 350]"
-		))
+		),)
 
 	return ()
 #endregion
@@ -132,7 +132,7 @@ def check_teststand_thrust(prob: Problem) -> tuple[CheckResult, ...]:
 		return (CheckResult(
 			"error",
 			f"Thrust non-positive ({res['thrust_N']:.3f} N)"
-		))
+		),)
 
 	return ()
 
@@ -144,7 +144,7 @@ def check_supply_pressure_hierarchy(prob: Problem) -> tuple[CheckResult, ...]:
 		return (CheckResult(
 			"error",
 			"N2 supply pressure PT4 is below run tank pressure PT2"
-		))
+		),)
 
 	return ()
 
@@ -164,7 +164,7 @@ def check_flame_temperature(prob: Problem) -> tuple[CheckResult, ...]:
 		return (CheckResult(
 			"warning",
 			f"TC3 flame temp ({tc:.3f} K) outside range [1500, 4000]"
-		))
+		),)
 
 	return ()
 #endregion
@@ -193,7 +193,11 @@ def run_checks(
 ) -> tuple[CheckResult, ...]:
 	results: list[CheckResult] = []
 	for check in checks:
-		results.extend(check(res))
+		out = check(res)
+		if isinstance(out, CheckResult):
+			results.append(out)
+		elif out:
+			results.extend(out)
 
 	errors   = [r.message for r in results if r.severity == "error"]
 	warnings = [r.message for r in results if r.severity == "warning"]

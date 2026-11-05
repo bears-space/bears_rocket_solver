@@ -1,7 +1,5 @@
 #region Imports
-from typing                import Optional
-from rocketcea.input_cards import oxCards, fuelCards
-from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
+from typing import Optional
 
 from .reac import Reactant
 #endregion
@@ -64,7 +62,7 @@ def gencard(components: tuple[Reactant]) -> str:
 	wt_total = sum(comp.mass_fraction for comp in components)
 
 	if len(components) == 1:
-		return reactant_card(components[0], fraction=100.0)
+		ret = reactant_card(components[0], fraction=100.0)
 	else:
 		cards = []
 		for comp in components:
@@ -73,7 +71,9 @@ def gencard(components: tuple[Reactant]) -> str:
 
 			cards.append(reactant_card(comp, fraction=wt))
 
-		return "\n".join(cards)
+		ret = "\n".join(cards)
+	
+	return ret
 
 def bulk_density(reactants: tuple[Reactant, ...]) -> float:
 	"""Effective bulk density in kg/m^3 for a list of reactants"""
@@ -82,6 +82,31 @@ def bulk_density(reactants: tuple[Reactant, ...]) -> float:
 		(r.mass_fraction / wt_total) / r.get_density_si() for r in reactants
 	)
 	return 1.0 / inv_rho
+
+def to_cea_reactant(r: Reactant):
+	"""Convert Reactant into a NASA CEA Reactant object"""
+
+	import cea
+
+	if r.enthalpy is not None and r.enthalpy_units is not None:
+		u = r.enthalpy_units.lower()
+		ret = cea.Reactant(
+			name           = r.name,
+			formula        = r.formula or None,
+			enthalpy       = r.enthalpy,
+			enthalpy_units = u,
+			temperature    = r.temperature,
+		)
+	elif r.formula:
+		ret = cea.Reactant(
+			name        = r.name,
+			formula     = r.formula,
+			temperature = r.temperature,
+		)
+	else:
+		ret = cea.Reactant(name = r.name, temperature = r.temperature)
+
+	return ret
 
 def parse_reactants(data: dict[str, list[dict]]) -> tuple[str, str]:
 	"""
@@ -93,6 +118,9 @@ def parse_reactants(data: dict[str, list[dict]]) -> tuple[str, str]:
 
 	Returns the oxidizer and fuel names for passing to `CEA_Obj`
 	"""
+
+	from rocketcea.input_cards import oxCards, fuelCards
+	from rocketcea.cea_obj     import add_new_fuel, add_new_oxidizer
 
 	reac_cards = {"oxid": oxCards, "fuel": fuelCards}
 

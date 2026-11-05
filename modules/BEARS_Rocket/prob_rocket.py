@@ -22,6 +22,7 @@ class RocketLaunchProblem(Problem):
 		atm                 : BEARS_Atm,
 		chem                : BEARS_Chem,
 		payload_mass        : float = 1.0,
+		nonprop_mass        : float = 5.0,
 		target_apogee       : float = 3100.0,
 		ox_wall_material    = None,
 		press_wall_material = None,
@@ -46,6 +47,7 @@ class RocketLaunchProblem(Problem):
 
 		# Store payload mass and target apogee as an instance attribute
 		self.payload_mass  = payload_mass
+		self.nonprop_mass  = nonprop_mass
 		self.target_apogee = target_apogee
 
 		self.model.add_design_var(
@@ -115,6 +117,7 @@ class RocketLaunchProblem(Problem):
 
 		# Vehicle parameters
 		self.set_val("DesignVars.g_payload_mass", self.payload_mass, units="kg")
+		self.set_val("DesignVars.g_nonprop_mass", self.nonprop_mass, units="kg")
 
 		self.set_val("DesignVars.g_diameter",                 0.12)
 		self.set_val("DesignVars.press_diam",                 0.12)
