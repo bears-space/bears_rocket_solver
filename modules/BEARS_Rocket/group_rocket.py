@@ -53,6 +53,9 @@ class RocketGroup(Group):
 		ivc.add_output("tank_ullage_fraction",   val=0.1)
 		ivc.add_output("tank_yield_factor",      val=276e6,  units="Pa")
 		ivc.add_output("tank_wall_density",      val=2700.0, units="kg/m**3")
+		ivc.add_output("tank_boss_opening",      val=0.02,   units="m")
+		ivc.add_output("tank_boss_len_fwd",      val=0.015,  units="m")
+		ivc.add_output("tank_boss_len_aft",      val=0.019,  units="m")
 
 		# - Pressurant tank
 		ivc.add_output("press_pressure",         val=200,    units="bar")
@@ -60,6 +63,10 @@ class RocketGroup(Group):
 		ivc.add_output("press_safety_factor",    val=2.0)
 		ivc.add_output("press_yield_factor",     val=276e6,  units="Pa")
 		ivc.add_output("press_wall_density",     val=2700.0, units="kg/m**3")
+		ivc.add_output("press_boss_opening",     val=0.02,   units="m")
+		ivc.add_output("press_boss_len_fwd",     val=0.015,  units="m")
+		ivc.add_output("press_boss_len_aft",     val=0.015,  units="m")
+		ivc.add_output("press_reg_margin",       val=20,     units="bar")
 
 		# - Injector
 		ivc.add_output("injector_area",          val=4.5e-5, units="m**2")
@@ -119,6 +126,9 @@ class RocketGroup(Group):
 		self.connect("DesignVars.tank_ullage_fraction",    "Propulsion.tank_ullage_frac")
 		self.connect("DesignVars.tank_yield_factor",       "Propulsion.tank_yield_factor")
 		self.connect("DesignVars.tank_wall_density",       "Propulsion.tank_wall_density")
+		self.connect("DesignVars.tank_boss_opening",       "Propulsion.tank_boss_opening")
+		self.connect("DesignVars.tank_boss_len_fwd",       "Propulsion.tank_boss_len_fwd")
+		self.connect("DesignVars.tank_boss_len_aft",       "Propulsion.tank_boss_len_aft")
 
 		# - Pressurant tank
 		self.connect("DesignVars.press_pressure",          "Propulsion.press_pressure")
@@ -126,6 +136,10 @@ class RocketGroup(Group):
 		self.connect("DesignVars.press_safety_factor",     "Propulsion.press_safety_factor")
 		self.connect("DesignVars.press_yield_factor",      "Propulsion.press_yield_factor")
 		self.connect("DesignVars.press_wall_density",      "Propulsion.press_wall_density")
+		self.connect("DesignVars.press_boss_opening",      "Propulsion.press_boss_opening")
+		self.connect("DesignVars.press_boss_len_fwd",      "Propulsion.press_boss_len_fwd")
+		self.connect("DesignVars.press_boss_len_aft",      "Propulsion.press_boss_len_aft")
+		self.connect("DesignVars.press_reg_margin",        "Propulsion.press_reg_margin")
 
 		# - Fuel
 		self.connect("DesignVars.fuel_port_diam",          "Propulsion.fuel_port_diam")

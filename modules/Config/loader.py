@@ -67,7 +67,10 @@ def load_configs(
 		safety_factor     = ox["safety_factor"],
 		yield_factor_pa   = ox["yield_factor_pa"],
 		wall_density_kgm3 = ox["wall_density_kgm3"],
-		ullage_fraction   = ox.get("ullage_fraction", 0.0),
+		ullage_fraction   = ox.get("ullage_fraction",   0.0),
+		boss_opening_m    = ox.get("boss_opening_m",    0.02),
+		boss_length_fwd_m = ox.get("boss_length_fwd_m", 0.015),
+		boss_length_aft_m = ox.get("boss_length_aft_m", 0.019),
 	)
 
 	c_pr = TankConfig(
@@ -76,7 +79,12 @@ def load_configs(
 		safety_factor     = pr["safety_factor"],
 		yield_factor_pa   = pr["yield_factor_pa"],
 		wall_density_kgm3 = pr["wall_density_kgm3"],
-		ullage_fraction   = pr.get("ullage_fraction", 0.0),
+		ullage_fraction   = pr.get("ullage_fraction",   0.0),
+		boss_opening_m    = ox.get("boss_opening_m",    0.02),
+		boss_length_fwd_m = ox.get("boss_length_fwd_m", 0.015),
+		boss_length_aft_m = ox.get("boss_length_aft_m", 0.019),
+		reg_margin_bar    = ox.get("reg_margin_bar",    20.0),
+		ambient_temp_c    = ox.get("ambient_temp_c",    30.0),
 	)
 
 	c_in = InjectorConfig(**data["injector"])

@@ -1,19 +1,26 @@
 #region Imports
-from math        import pi, cos, tan, radians
+from math import pi, cos, tan, radians
 from dataclasses import dataclass
-
 import numpy as np
 
-from .material import Material
+from ..BEARS_Materials.material import Material
+from .dome import K_V_ISOTENSOID, dome_shell_volume
+from .netting import (
+	clairaut_angle_trig,
+	size_composite_layer,
+	size_metal_layer,
+)
 #endregion
 
+#region Layer record
 @dataclass(frozen=True)
 class Layer:
-	material          : Material
-	thickness         : float | None = None # None for pressure-sized
-	is_load_bearing   : bool = True         # False for thermal insulation
-	helical_angle_deg : float | None = None # None for isotropic hoop
-	efficiency        : float = 0.85        # Fiber translation efficiency
+	material:          Material
+	thickness:         float | None = None # None for pressure-sized
+	is_load_bearing:   bool = True         # False for thermal insulation
+	helical_angle_deg: float | None = None # None for isotropic or dynamic boss
+	efficiency:        float = 0.85        # Fiber translation efficiency
+	fiber_volume_frac: float = 0.72        # Fiber volume fraction
 
 	@property
 	def is_dynamic(self) -> bool:
@@ -22,7 +29,9 @@ class Layer:
 	@property
 	def is_composite(self) -> bool:
 		return self.helical_angle_deg is not None
+#endregion
 
+#region LayeredWall
 class LayeredWall:
 
 	def __init__(self, *layers: Layer):
@@ -30,22 +39,22 @@ class LayeredWall:
 			raise ValueError("A LayeredWall must have at least one layer")
 
 		dynamic_count = sum(1 for layer in layers if layer.is_dynamic)
-
 		if dynamic_count > 1:
 			raise ValueError("At most one Layer can be sized dynamically")
 
 		self.layers: tuple[Layer, ...] = tuple(layers)
 
-	def size_layers(self, p_max, r_out, sf):
-
+	def size_layers(self, p_max, r_out, sf, r_boss=None):
 		p_fixed = 0.0
 
 		for layer in self.layers:
 			if not layer.is_dynamic and layer.is_load_bearing:
 				if layer.is_composite:
 					sigma_safe = (
-						layer.material.ultimate_strength * layer.efficiency
-					) / sf
+						layer.material.ultimate_strength
+						* layer.efficiency
+						/ sf
+					)
 					p_fixed += (sigma_safe * layer.thickness) / (1.5 * r_out)
 				else:
 					sigma_safe = layer.material.yield_strength / sf
@@ -62,25 +71,30 @@ class LayeredWall:
 		for layer in self.layers:
 			if layer.is_dynamic:
 				if layer.is_composite:
-					# Netting analysis strengths
-					# <https://cpvdesign.com/guides/Netting%20Analysis%20of%20CPVs.md>
-					alpha = radians(layer.helical_angle_deg)
 					sigma_safe = (
 						layer.material.ultimate_strength
 						* layer.efficiency
 						/ sf
 					)
-					cos_a = cos(alpha)
-					tan_a = tan(alpha)
-					t_hel = (p_rem * r_out) / (2.0 * sigma_safe * cos_a**2)
-					t_hoop = (
-						p_rem * r_out / sigma_safe
-						* (1.0 - 0.5 * tan_a**2)
+					if layer.helical_angle_deg is not None:
+						alpha = radians(layer.helical_angle_deg)
+						cos_sq, tan_sq = cos(alpha)**2, tan(alpha)**2
+					elif r_boss is not None:
+						cos_sq, tan_sq = clairaut_angle_trig(r_boss, r_out)
+					else:
+						cos_sq, tan_sq = 1.0, 0.0
+
+					t = size_composite_layer(
+						p_rem,
+						r_out,
+						sigma_safe,
+						cos_sq,
+						tan_sq,
+						layer.fiber_volume_frac
 					)
-					t = t_hel + t_hoop
 				else:
 					sigma_safe = layer.material.yield_strength / sf
-					t = (p_rem * r_out) / (sigma_safe + p_rem)
+					t = size_metal_layer(p_rem, r_out, sigma_safe)
 			else:
 				t = layer.thickness
 
@@ -88,16 +102,17 @@ class LayeredWall:
 
 		return tuple(thicknesses)
 
-	def compute_masses(self, thicknesses, r_in, l_cyl):
+	def compute_masses(
+		self, thicknesses, r_in, l_cyl, k_v_dome=K_V_ISOTENSOID
+	):
 		masses = []
 		r_inner = r_in
 		for layer, t in zip(self.layers, thicknesses):
 			r_outer = r_inner + t
 			v_cyl   = pi * (r_outer**2 - r_inner**2) * l_cyl
-			v_caps  = (4.0 / 3.0) * pi * (r_outer**3 - r_inner**3)
+			v_caps  = dome_shell_volume(r_inner, r_outer, k_v_dome)
 			masses.append((v_cyl + v_caps) * layer.material.density)
 			r_inner = r_outer
 
 		return sum(masses), tuple(masses)
-
-
+#endregion

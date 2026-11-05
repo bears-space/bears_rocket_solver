@@ -52,6 +52,9 @@ class PropulsionGroup(Group):
 				("sigma_y",       "tank_yield_factor"),
 				("safety_factor", "tank_safety_factor"),
 				("rho_wall",      "tank_wall_density"),
+				("r_boss",        "tank_boss_opening"),
+				("boss_len_fwd",  "tank_boss_len_fwd"),
+				("boss_len_aft",  "tank_boss_len_aft"),
 			],
 			promotes_outputs=[
 				("m_tank_dry", "tank_dry_mass"),
@@ -72,6 +75,10 @@ class PropulsionGroup(Group):
 				("sigma_y",       "press_yield_factor"),
 				("safety_factor", "press_safety_factor"),
 				("rho_wall",      "press_wall_density"),
+				("r_boss",        "press_boss_opening"),
+				("boss_len_fwd",  "press_boss_len_fwd"),
+				("boss_len_aft",  "press_boss_len_aft"),
+				("p_reg_margin",  "press_reg_margin"),
 			],
 			promotes_outputs=[
 				("m_tank_dry", "press_dry_mass"),
@@ -129,5 +136,6 @@ class PropulsionGroup(Group):
 		self.connect("PropSplit.m_ox",        "OxidizerTank.m_oxy")
 		self.connect("OxidizerTank.v_fluid",  "PressurantTank.v_ox_displace")
 		self.connect("tank_pressure",         "PressurantTank.p_ox")
+		self.connect("tank_ullage_frac",      "PressurantTank.ox_ullage_frac")
 		#endregion
 

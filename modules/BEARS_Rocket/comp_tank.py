@@ -5,7 +5,7 @@ from math         import pi
 from openmdao.api import ExplicitComponent
 
 from ..BEARS_Materials import AL_6061_T6
-from ..BEARS_Materials import Layer, LayeredWall
+from ..BEARS_Vessels   import Layer, LayeredWall
 # endregion
 
 class TankComponent(ExplicitComponent):
@@ -16,6 +16,8 @@ class TankComponent(ExplicitComponent):
 			default=None,
 			types=(LayeredWall, type(None)),
 		)
+		self.options.declare("k_v_dome", default=1.4341, types=float)
+		self.options.declare("k_l_dome", default=0.6276, types=float)
 
 	def setup_fluid_inputs(self):
 		self.add_input("m_fluid",     val=10.0,   units="kg")
@@ -34,6 +36,9 @@ class TankComponent(ExplicitComponent):
 		self.add_input("safety_factor", val=1.5)
 		self.add_input("sigma_y",       val=276e6,  units="Pa")
 		self.add_input("rho_wall",      val=2700.0, units="kg/m**3")
+		self.add_input("r_boss",        val=0.02,   units="m")
+		self.add_input("boss_len_fwd",  val=0.015,  units="m")
+		self.add_input("boss_len_aft",  val=0.015,  units="m")
 
 		self.add_output("t_wall",       val=0.002,  units="m")
 		self.add_output("t_liner",      val=0.001,  units="m")
@@ -72,23 +77,25 @@ class TankComponent(ExplicitComponent):
 		sf      = inputs["safety_factor"][0]
 		rho_w   = inputs["rho_wall"][0]
 
-		# Hoop stress
-		# <https://www.engineersedge.com/material_science/hoop-stress.htm>
+		r_boss = inputs["r_boss"][0]
+		bfwd   = inputs["boss_len_fwd"][0]
+		baft   = inputs["boss_len_aft"][0]
+		k_v    = self.options["k_v_dome"]
+		k_l    = self.options["k_l_dome"]
 
 		wall = self.options["wall_material"]
 		if wall is None: wall = LayeredWall(Layer(AL_6061_T6))
 
 		r_out = d_out / 2.0
-		ts = wall.size_layers(p_max, r_out, sf)
+		ts = wall.size_layers(p_max, r_out, sf, r_boss=r_boss)
 		t_wall = sum(ts)
 
 		r_in = r_out - t_wall
-		d_in = 2.0 * r_in
 
 		# Volumes and lengths
 		v_fluid = m_fluid / rho_f
 		v_int = v_fluid / (1.0 - uf)
-		v_caps = (4.0 / 3.0) * pi * r_in**3 # Hemispherical caps
+		v_caps = 2.0 * k_v * r_in**3 # Geodesic dome caps
 
 		diff_v = v_int - v_caps
 		if np.iscomplexobj(diff_v):
@@ -98,9 +105,9 @@ class TankComponent(ExplicitComponent):
 
 		a_int = pi * r_in**2
 		l_cyl = v_cyl / a_int
-		l_tot = l_cyl + d_out
+		l_tot = l_cyl + 2.0 * k_l * r_in + bfwd + baft
 
-		m_dry, masses = wall.compute_masses(ts, r_in, l_cyl)
+		m_dry, masses = wall.compute_masses(ts, r_in, l_cyl, k_v_dome=k_v)
 
 		outputs["t_layers"]   = np.asarray(ts)
 		outputs["m_layers"]   = np.asarray(masses)

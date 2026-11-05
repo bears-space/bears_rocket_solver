@@ -17,7 +17,8 @@ import openmdao.core.system          as sys_mod
 from modules.Config          import load_configs, load_reactants
 from modules.BEARS_Atmo      import BEARS_Atm
 from modules.BEARS_Chem      import BEARS_Chem
-from modules.BEARS_Materials import Layer, LayeredWall, AL_6061_T6, CFRP_T700
+from modules.BEARS_Materials import AL_6061_T6, CFRP_T700
+from modules.BEARS_Vessels   import Layer, LayeredWall
 from modules.BEARS_Rocket    import RocketLaunchProblem, TestStandProblem
 #endregion
 
@@ -83,20 +84,26 @@ def main():
 		Layer(material=CFRP_T700, helical_angle_deg=20.0, efficiency=0.85),
 		# ^ Dynamically sized for remaining pressure
 	)
+
+	copv_press = LayeredWall(
+		Layer(material=AL_6061_T6, thickness=0.001),
+		Layer(material=CFRP_T700, helical_angle_deg=20.0, efficiency=0.85),
+	)
 	#endregion
 
 	#region Rocket optimization
 	prob_rocket = RocketLaunchProblem(
-		atm              = atm,
-		chem             = chem,
-		payload_mass     = cfg_rocket.cfg_global.payload_mass_kg,
-		nonprop_mass     = cfg_rocket.cfg_global.nonprop_mass_kg,
-		target_apogee    = cfg_rocket.cfg_global.target_altitude_m,
-		ox_wall_material = copv_ox,
-		seed_optim       = cfg_rocket.cfg_optim,
-		cfg_efficiencies = cfg_rocket.cfg_efficiencies,
-		reports          = True,
-		work_dir         = work_dir,
+		atm                 = atm,
+		chem                = chem,
+		payload_mass        = cfg_rocket.cfg_global.payload_mass_kg,
+		nonprop_mass        = cfg_rocket.cfg_global.nonprop_mass_kg,
+		target_apogee       = cfg_rocket.cfg_global.target_altitude_m,
+		ox_wall_material    = copv_ox,
+		press_wall_material = copv_press,
+		seed_optim          = cfg_rocket.cfg_optim,
+		cfg_efficiencies    = cfg_rocket.cfg_efficiencies,
+		reports             = True,
+		work_dir            = work_dir,
 	)
 
 	prob_rocket.setup()

@@ -4,8 +4,7 @@
 *_out
 *ltximg*
 
+stuff/*
 build/*
 work/*
 doc/*
-
-rocket-solver/recreate-env

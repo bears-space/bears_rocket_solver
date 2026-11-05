@@ -19,6 +19,11 @@ class TankConfig:
 	yield_factor_pa         : float # [Pa]
 	wall_density_kgm3       : float # [kg/m^3]
 	ullage_fraction         : float = 0.0
+	boss_opening_m          : float = 0.02  # [m]
+	boss_length_fwd_m       : float = 0.015 # [m]
+	boss_length_aft_m       : float = 0.015 # [m]
+	reg_margin_bar          : float = 20.0  # [bar]
+	ambient_temp_c          : float = 30.0  # [deg C]
 
 @dataclass(frozen=True)
 class InjectorConfig:
