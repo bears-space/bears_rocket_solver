@@ -1,13 +1,13 @@
 ---
 disclosure-default: ai-assisted
 models-used:
-  - gemini-3-7-flash
+  - gemini-3-8-flash
 providers:
   - Google
 scope: |
-  Code and documentation are mostly human-written; AI-generated code was used
-  for some placeholders and is clearly declared by surrounding comments.
-last-updated: 2026-09-01
+  Code mostly AI-generated with strict human verification; Documentation mostly
+  human-written with some minor use AI generation
+last-updated: 2026-11-06
 ---
 
 # AI Disclosure
