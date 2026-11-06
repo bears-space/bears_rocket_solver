@@ -29,6 +29,29 @@ class Layer:
 	@property
 	def is_composite(self) -> bool:
 		return self.helical_angle_deg is not None
+
+	@classmethod
+	def from_config(cls, cfg, materials: dict[str, Material]) -> "Layer":
+		mat = materials.get(cfg.material_id)
+		if mat is None:
+			lower_map = {k.lower(): v for k, v in materials.items()}
+			mat = lower_map.get(cfg.material_id.lower())
+
+		if mat is None:
+			avail = ", ".join(materials.keys())
+			raise KeyError(
+				f"Material '{cfg.material_id}' not found. "
+				f"Available materials: {avail}"
+			)
+
+		return cls(
+			material          = mat,
+			thickness         = cfg.thickness_m,
+			is_load_bearing   = cfg.is_load_bearing,
+			helical_angle_deg = cfg.helical_angle_deg,
+			efficiency        = cfg.efficiency,
+			fiber_volume_frac = cfg.fiber_volume_frac,
+		)
 #endregion
 
 #region LayeredWall
@@ -43,6 +66,11 @@ class LayeredWall:
 			raise ValueError("At most one Layer can be sized dynamically")
 
 		self.layers: tuple[Layer, ...] = tuple(layers)
+
+	@classmethod
+	def from_config(cls, cfg, materials: dict[str, Material]) -> "LayeredWall":
+		layers = tuple(Layer.from_config(lay, materials) for lay in cfg.layers)
+		return cls(*layers)
 
 	def size_layers(self, p_max, r_out, sf, r_boss=None):
 		p_fixed = 0.0

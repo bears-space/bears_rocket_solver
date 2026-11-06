@@ -20,6 +20,7 @@ class RocketGroup(Group):
 
 		self.options.declare("ox_wall_material",    default=None)
 		self.options.declare("press_wall_material", default=None)
+		self.options.declare("press_gas",           default=None)
 
 	def setup(self):
 		chem       = self.options["chem"]

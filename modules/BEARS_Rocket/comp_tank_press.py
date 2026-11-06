@@ -3,22 +3,27 @@ import numpy as np
 
 from math       import pi
 from .comp_tank import TankComponent
+
+from ..BEARS_Materials import Gas, NITROGEN
 # endregion
 
 class PressurantTankComponent(TankComponent):
 
 	def initialize(self):
 		super().initialize()
-		self.options.declare("r_gas",       default=296.8,  types=float)
-		self.options.declare("gamma_gas",   default=1.40,   types=float)
-		self.options.declare("t_ambient_k", default=303.15, types=float)
+		self.options.declare("gas",         default=NITROGEN, types=Gas)
 
-		# Compressibility factor
-		self.options.declare("z_factor",    default=1.15,   types=float)
+		# Alternative options for passing gas parameters
+		self.options.declare("r_gas",       default=296.8,    types=float)
+		self.options.declare("gamma_gas",   default=1.40,     types=float)
+		self.options.declare("t_ambient_k", default=303.15,   types=float)
 
-		# Saturation (vapor) pressure of the liquid oxidizer
+		# * Compressibility factor
+		self.options.declare("z_factor",    default=1.15,     types=float)
+
+		# * Saturation (vapor) pressure of the liquid oxidizer
 		# Used for pad gas sizing (Dalton's law)
-		self.options.declare("p_sat",       default=57.5e5, types=float)
+		self.options.declare("p_sat",       default=57.5e5,   types=float)
 
 	def setup_fluid_inputs(self):
 		self.add_input("v_ox_displace",  val=0.01, units="m**3")
@@ -46,9 +51,10 @@ class PressurantTankComponent(TankComponent):
 		uf       = inputs["ox_ullage_frac"][0]
 
 		t0    = self.options["t_ambient_k"]
-		r_gas = self.options["r_gas"]
-		gamma = self.options["gamma_gas"]
-		z     = self.options["z_factor"]
+		gas   = self.options["gas"]
+		r_gas = gas.r_specific if gas else self.options["r_gas"]
+		gamma = gas.gamma      if gas else self.options["gamma_gas"]
+		z     = gas.z_factor   if gas else self.options["z_factor"]
 		p_sat = self.options["p_sat"]
 
 		# 1. Pre-pressurization gas pad

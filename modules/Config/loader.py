@@ -7,6 +7,7 @@ import tomllib
 from .records import (
 	MaterialConfig,
 	GasConfig,
+	LayerConfig,
 	WallConfig,
 	MaterialsConfig,
 	FluidsConfig,

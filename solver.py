@@ -14,11 +14,17 @@ import openmdao.api as om
 import openmdao.utils.variable_table as vt
 import openmdao.core.system          as sys_mod
 
-from modules.Config          import load_configs, load_reactants
+from modules.Config import (
+	load_configs,
+	load_reactants,
+	load_materials,
+	load_fluids,
+)
+
 from modules.BEARS_Atmo      import BEARS_Atm
 from modules.BEARS_Chem      import BEARS_Chem
-from modules.BEARS_Materials import AL_6061_T6, CFRP_T700
-from modules.BEARS_Vessels   import Layer, LayeredWall
+from modules.BEARS_Materials import Material, Gas
+from modules.BEARS_Vessels   import LayeredWall
 from modules.BEARS_Rocket    import RocketLaunchProblem, TestStandProblem
 #endregion
 
@@ -79,16 +85,18 @@ def main():
 
 	chem = BEARS_Chem.from_config(cfg_reac)
 
-	copv_ox = LayeredWall(
-		Layer(material=AL_6061_T6, thickness=0.001),
-		Layer(material=CFRP_T700, helical_angle_deg=20.0, efficiency=0.85),
-		# ^ Dynamically sized for remaining pressure
-	)
+	cfg_mat    = load_materials("inputs/materials.toml")
+	cfg_fluids = load_fluids("inputs/fluids.toml")
 
-	copv_press = LayeredWall(
-		Layer(material=AL_6061_T6, thickness=0.001),
-		Layer(material=CFRP_T700, helical_angle_deg=20.0, efficiency=0.85),
-	)
+	materials = {m.id: Material.from_config(m) for m in cfg_mat.materials}
+	gases     = {g.id: Gas.from_config(g) for g in cfg_fluids.gases}
+	walls     = {
+		w.id: LayeredWall.from_config(w, materials) for w in cfg_mat.walls
+	}
+
+	copv_ox    = walls["copv_ox"]
+	copv_press = walls["copv_press"]
+	press_gas  = gases["N2"]
 	#endregion
 
 	#region Rocket optimization
@@ -100,6 +108,7 @@ def main():
 		target_apogee       = cfg_rocket.cfg_global.target_altitude_m,
 		ox_wall_material    = copv_ox,
 		press_wall_material = copv_press,
+		press_gas           = press_gas,
 		seed_optim          = cfg_rocket.cfg_optim,
 		cfg_efficiencies    = cfg_rocket.cfg_efficiencies,
 		reports             = True,

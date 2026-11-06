@@ -27,6 +27,7 @@ class RocketLaunchProblem(Problem):
 		target_apogee       : float = 3100.0,
 		ox_wall_material    = None,
 		press_wall_material = None,
+		press_gas           = None,
 		seed_optim          : OptimizationSeedConfig | None = None,
 		cfg_efficiencies    : EfficienciesConfig | None = None,
 		checks              : tuple[CheckFn, ...] = DEFAULT_ROCKET_CHECKS,
@@ -39,6 +40,7 @@ class RocketLaunchProblem(Problem):
 			chem                = chem,
 			ox_wall_material    = ox_wall_material,
 			press_wall_material = press_wall_material,
+			press_gas           = press_gas,
 		)
 
 		self.driver = om.ScipyOptimizeDriver()

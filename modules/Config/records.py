@@ -133,8 +133,8 @@ class GasConfig:
 
 @dataclass(frozen=True)
 class LayerConfig:
-	material          : Material
-	thickness         : float | None = None # None for pressure-sized
+	material_id       : str
+	thickness_m       : float | None = None # None for pressure-sized
 	is_load_bearing   : bool  = True        # False for thermal insulation
 	helical_angle_deg : float | None = None # None for isotropic or dynamic boss
 	efficiency        : float = 0.85        # Fiber translation efficiency

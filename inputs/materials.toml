@@ -1,5 +1,5 @@
 [[material]]
-id                = "Al_6061_T6"
+id                = "AL_6061_T6"
 name              = "Aluminum 6061-T6"
 density           = 2700.0
 density_units     = "kg/m^3"
