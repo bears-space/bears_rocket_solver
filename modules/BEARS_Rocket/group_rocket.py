@@ -83,13 +83,14 @@ class RocketGroup(Group):
 		ivc.add_output("nozzle_throat_area",     val=5.0e-4, units="m**2")
 		ivc.add_output("nozzle_expansion_ratio", val=40.0)
 		ivc.add_output("nozzle_length",          val=0.20,   units="m")
-		ivc.add_output("nozzle_eta_friction",    val=0.95)
 
-		# - Efficiencies
-		ivc.add_output("eta_combustion",         val=0.88)
-		ivc.add_output("eta_trajectory",         val=0.92)
-		ivc.add_output("eta_propellant",         val=0.92)
-		ivc.add_output("eta_regression",         val=0.60)
+		# Efficiencies:
+		evc = self.add_subsystem("EfficiencyVars", IndepVarComp())
+		evc.add_output("eta_combustion",         val=0.88)
+		evc.add_output("eta_trajectory",         val=0.92)
+		evc.add_output("eta_propellant",         val=0.92)
+		evc.add_output("eta_regression",         val=0.60)
+		evc.add_output("eta_nozzle_friction",    val=0.95)
 
 		# OptimizationVars:
 		# specific parameters that we wish to optimize against
@@ -154,7 +155,6 @@ class RocketGroup(Group):
 		# - Nozzle
 		self.connect("DesignVars.nozzle_expansion_ratio",  "Propulsion.nozzle_expansion_ratio")
 		self.connect("DesignVars.nozzle_length",           "Propulsion.nozzle_length")
-		self.connect("DesignVars.nozzle_eta_friction",     "Propulsion.nozzle_eta_friction")
 
 		# - Mass
 		self.connect("DesignVars.g_payload_mass",          "Mass.payload_mass")
@@ -169,14 +169,14 @@ class RocketGroup(Group):
 		self.connect("Propulsion.prop_thrust",             "Trajectory.thrust")
 		self.connect("Mass.initial_mass",                  "Trajectory.initial_mass")
 
-		self.connect("OptimizationVars.o_propellant_mass", "Trajectory.propellant_mass")
-
 		# - Efficiencies
-		self.connect("DesignVars.eta_regression",          "Propulsion.fuel_eta_reg")
-		self.connect("DesignVars.eta_combustion",          "Propulsion.chem_eta_cstar")
-		self.connect("DesignVars.eta_propellant",          "Mass.eta_prop")
+		self.connect("EfficiencyVars.eta_regression",      "Propulsion.fuel_eta_reg")
+		self.connect("EfficiencyVars.eta_combustion",      "Propulsion.chem_eta_cstar")
+		self.connect("EfficiencyVars.eta_propellant",      "Mass.eta_prop")
+		self.connect("EfficiencyVars.eta_nozzle_friction", "Propulsion.nozzle_eta_friction")
 
 		# - Optimization
+		self.connect("OptimizationVars.o_propellant_mass",    "Trajectory.propellant_mass")
 		self.connect("OptimizationVars.o_mixture_ratio",      "Propulsion.prop_mixture_ratio")
 		self.connect("OptimizationVars.o_propellant_mass",    "Propulsion.prop_prop_mass_init")
 		self.connect("OptimizationVars.o_propellant_mass",    "Mass.propellant_mass")

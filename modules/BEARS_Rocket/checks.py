@@ -72,7 +72,7 @@ def check_target_apogee(prob: Problem) -> tuple[CheckResult, ...]:
 	ap     = prob.get_val("Trajectory.apogee",            units="m")[0]
 	target = prob.get_val("DesignVars.g_target_altitude", units="m")[0]
 
-	eta_t = prob.get_val("DesignVars.eta_trajectory")[0]
+	eta_t = prob.get_val("EfficiencyVars.eta_trajectory")[0]
 	ap_3d = ap * eta_t
 	err = abs(ap_3d - target)
 

@@ -146,11 +146,11 @@ class RocketLaunchProblem(Problem):
 		eta_r = 0.60 if ef is None else ef.regression_correction
 		eta_n = 0.95 if ef is None else ef.nozzle_friction
 
-		self.set_val("DesignVars.eta_combustion",             eta_c)
-		self.set_val("DesignVars.eta_trajectory",             eta_t)
-		self.set_val("DesignVars.eta_propellant",             eta_p)
-		self.set_val("DesignVars.eta_regression",             eta_r)
-		self.set_val("DesignVars.nozzle_eta_friction",        eta_n)
+		self.set_val("EfficiencyVars.eta_combustion",          eta_c)
+		self.set_val("EfficiencyVars.eta_trajectory",          eta_t)
+		self.set_val("EfficiencyVars.eta_propellant",          eta_p)
+		self.set_val("EfficiencyVars.eta_regression",          eta_r)
+		self.set_val("EfficiencyVars.eta_nozzle_friction",     eta_n)
 
 		so = self.seed_optim
 		m_init  = 5.0    if so is None else so.propellant_mass_kg

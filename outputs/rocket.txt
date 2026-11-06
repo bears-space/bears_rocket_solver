@@ -35,11 +35,12 @@ DesignVars
   nozzle_throat_area      [0.0005]              m**2       DesignVars.nozzle_throat_area                 
   nozzle_expansion_ratio  [5.]                  None       DesignVars.nozzle_expansion_ratio             
   nozzle_length           [0.2]                 m          DesignVars.nozzle_length                      
-  nozzle_eta_friction     [0.95]                None       DesignVars.nozzle_eta_friction                
-  eta_combustion          [0.88]                None       DesignVars.eta_combustion                     
-  eta_trajectory          [0.92]                None       DesignVars.eta_trajectory                     
-  eta_propellant          [0.92]                None       DesignVars.eta_propellant                     
-  eta_regression          [0.6]                 None       DesignVars.eta_regression                     
+EfficiencyVars
+  eta_combustion          [0.88]                None       EfficiencyVars.eta_combustion                 
+  eta_trajectory          [0.92]                None       EfficiencyVars.eta_trajectory                 
+  eta_propellant          [0.92]                None       EfficiencyVars.eta_propellant                 
+  eta_regression          [0.6]                 None       EfficiencyVars.eta_regression                 
+  eta_nozzle_friction     [0.95]                None       EfficiencyVars.eta_nozzle_friction            
 OptimizationVars
   o_propellant_mass       [2.61265687]          kg         OptimizationVars.o_propellant_mass            
   o_mixture_ratio         [9.17213766]          None       OptimizationVars.o_mixture_ratio              
