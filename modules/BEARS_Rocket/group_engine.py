@@ -89,7 +89,7 @@ class HybridEngineGroup(Group):
 				("eta_cstar",       "chem_eta_cstar"),
 			],
 			promotes_outputs=[
-				("isp",             "engine_isp"),
+				("isp",             "engine_chem_isp"),
 				("cstar",           "engine_cstar"),
 				("t_chamber",       "engine_chamber_temp"),
 			],
@@ -108,6 +108,7 @@ class HybridEngineGroup(Group):
 			],
 			promotes_outputs=[
 				("thrust",          "engine_thrust"),
+				("isp_delivered",   "engine_isp"),
 				("p_chamber",       "engine_chamber_pressure"),
 				("mdot_prop",       "engine_mdot_prop"),
 				("eta_nozzle",      "nozzle_efficiency"),
@@ -122,7 +123,7 @@ class HybridEngineGroup(Group):
 		self.connect("engine_mdot_ox",          "Fuel.mdot_ox")
 		self.connect("engine_mdot_ox",          "Nozzle.mdot_ox")
 		self.connect("engine_cstar",            "Nozzle.cstar")
-		self.connect("engine_isp",              "Nozzle.isp")
+		self.connect("engine_chem_isp",         "Nozzle.isp")
 		#endregion
 
 		#region Solvers

@@ -49,7 +49,6 @@ thermite_density_kgm3   = 3800.0
 throat_area_m2          = 0.0005
 expansion_ratio         = 5.0
 length_m                = 0.2
-eta_friction            = 0.95
 
 [efficiencies]
 combustion              = 0.88

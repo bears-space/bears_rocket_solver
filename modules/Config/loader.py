@@ -116,7 +116,7 @@ def load_configs(
 		trajectory             = eff.get("trajectory",             0.92),
 		propellant_utilization = eff.get("propellant_utilization", 0.92),
 		regression_correction  = eff.get("regression_correction",  0.60),
-		nozzle_friction        = eff.get("nozzle_friction",        0.60),
+		nozzle_friction        = eff.get("nozzle_friction",        0.95),
 	)
 
 	cfg = RocketConfig(

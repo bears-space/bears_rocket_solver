@@ -32,6 +32,7 @@ class NozzleComponent(ExplicitComponent):
 		self.add_output("p_chamber",       val=20e5,   units="Pa")
 		self.add_output("mdot_prop",       val=1.16,   units="kg/s")
 		self.add_output("thrust",          val=3000.0, units="N")
+		self.add_output("isp_delivered",   val=280.0,  units="s")
 		self.add_output("eta_nozzle",      val=0.96)
 		self.add_output("exit_half_angle", val=15.0,   units="deg")
 
@@ -69,7 +70,8 @@ class NozzleComponent(ExplicitComponent):
 			case _:
 				lam, theta_e = self._compute_conical(r_t, r_e, length)
 
-		eta_nozzle = lam * eta_fr
+		eta_nozzle    = lam * eta_fr
+		isp_delivered = isp * eta_nozzle
 
 		# Choked flow mass and chamber pressure
 		mdot_prop = mdot_ox * (mr + 1.0) / mr
@@ -77,11 +79,12 @@ class NozzleComponent(ExplicitComponent):
 
 		# Isp = v_e / g = F / (mdot * g)  =>  F = mdot * Isp * g
 		# Modulate with nozzle efficiency
-		thrust = mdot_prop * isp * g * eta_nozzle
+		thrust = mdot_prop * isp_delivered * g
 
 		outputs["mdot_prop"]       = mdot_prop
 		outputs["p_chamber"]       = p_c
 		outputs["thrust"]          = thrust
+		outputs["isp_delivered"]   = isp_delivered
 		outputs["eta_nozzle"]      = eta_nozzle
 		outputs["exit_half_angle"] = theta_e * RAD2DEG
 

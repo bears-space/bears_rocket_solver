@@ -50,7 +50,6 @@ class NozzleConfig:
 	throat_area_m2          : float # [m^2]
 	expansion_ratio         : float
 	length_m                : float # [m]
-	eta_friction            : float
 
 @dataclass(frozen=True)
 class OptimizationSeedConfig:
@@ -61,11 +60,11 @@ class OptimizationSeedConfig:
 
 @dataclass(frozen=True)
 class EfficienciesConfig:
-	combustion              : float # [kg]
+	combustion              : float
 	trajectory              : float
-	propellant_utilization  : float # [m^2]
-	regression_correction   : float # [m^2]
-	nozzle_friction         : float # [m^2]
+	propellant_utilization  : float
+	regression_correction   : float
+	nozzle_friction         : float
 #endregion
 
 #region Chemistry
