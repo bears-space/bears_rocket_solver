@@ -6,7 +6,7 @@ providers:
   - Google
 scope: |
   Code mostly AI-generated with strict human verification; Documentation mostly
-  human-written with some minor use AI generation
+  human-written with some minor AI use
 last-updated: 2026-11-06
 ---
 
