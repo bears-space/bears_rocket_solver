@@ -4,13 +4,8 @@ import numpy as np
 from math         import pi
 from openmdao.api import ExplicitComponent
 
-from ..BEARS_Thermo import (
-	mass_flow_parameter,
-	pressure_ratio,
-	temperature_ratio,
-	supersonic_mach_from_area_ratio,
-)
-from ..Config import CONSTANTS
+from ..Config       import CONSTANTS
+from ..BEARS_Thermo import IsentropicState
 #endregion
 
 g = CONSTANTS.universal.standard_gravity  # Standard gravity [m/s^2]
@@ -106,21 +101,24 @@ class NozzleComponent(ExplicitComponent):
 		eta_nozzle    = 0.5 * (1.0 + np.cos(inputs["half_angle"])) * inputs["eta_friction"]
 		isp_delivered = inputs["isp"] * eta_nozzle
 
-		# Choked flow through the sonic throat sets the chamber pressure
-		r_gas     = CONSTANTS.universal.molar_gas_constant / inputs["molar_mass"]
-		cstar     = inputs["eta_cstar"] * np.sqrt(r_gas * t_c) / mass_flow_parameter(MACH_THROAT, gamma)
+		# Choked flow at the sonic throat sets the chamber pressure
+		throat    = IsentropicState.from_mach(MACH_THROAT, gamma)
+		r_uni     = CONSTANTS.universal.molar_gas_constant
+		r_gas     = r_uni / inputs["molar_mass"]
+		cstar     = inputs["eta_cstar"] * np.sqrt(r_gas * t_c) / throat.mfp
 		mdot_prop = inputs["mdot_ox"] * (mr + 1.0) / mr
 		p_c       = mdot_prop * cstar / a_t
 
-		# Isentropic expansion to the supersonic exit, A_e / A_t = eps
-		mach_e = supersonic_mach_from_area_ratio(inputs["expansion_ratio"], gamma)
+		# Isentropic expansion to supersonic exit, A_e/A_t = eps
+		eps       = inputs["expansion_ratio"]
+		exit_flow = IsentropicState.from_eps_sup(eps, gamma)
 
-		outputs["mach_exit"]     = mach_e
+		outputs["mach_exit"]     = exit_flow.mach
 		outputs["cstar"]         = cstar
 		outputs["p_chamber"]     = p_c
-		outputs["p_throat"]      = p_c * pressure_ratio(MACH_THROAT, gamma)
-		outputs["t_throat"]      = t_c * temperature_ratio(MACH_THROAT, gamma)
-		outputs["p_exit"]        = p_c * pressure_ratio(mach_e, gamma)
+		outputs["p_throat"]      = p_c * throat.p_ratio
+		outputs["t_throat"]      = t_c * throat.t_ratio
+		outputs["p_exit"]        = p_c * exit_flow.p_ratio
 		outputs["mdot_prop"]     = mdot_prop
 		outputs["thrust"]        = mdot_prop * isp_delivered * g  # F = mdot * Isp * g0
 		outputs["isp_delivered"] = isp_delivered

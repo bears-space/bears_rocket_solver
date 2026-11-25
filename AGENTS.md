@@ -97,7 +97,7 @@ The code holds no physical or design numbers of its own. Each input file maps
 - Guard real-valued clamps, branches, and signs using `np.iscomplexobj(...)`
   or `np.real(...)` so imaginary parts pass through cleanly.
 - For scalar root-finding helpers used under complex step (e.g.,
-  `BEARS_Isentropic.supersonic_mach_from_area_ratio`), solve the real root and
+  `BEARS_Thermo.IsentropicState.from_eps_sup`), solve the real root and
   propagate the imaginary part with one analytic Newton step.
 - Declare all design variables, constraints, and objectives before calling
   `prob.setup()`.

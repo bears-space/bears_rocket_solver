@@ -10,18 +10,16 @@ gas). See doc/pressurant_blowdown_thermodynamics.pdf
 #region Imports
 from dataclasses    import dataclass
 from importlib.util import find_spec
-from typing         import Protocol, TypeAlias, runtime_checkable
+from typing         import Protocol, runtime_checkable
 
 import numpy as np
 
-from ..Config        import Gas
+from ..Config        import Gas, Scalar
 from ..BEARS_Vessels import ullage_volume
 #endregion
 
 # Pressure steps of the real-gas blowdown integration
 COOLPROP_STEPS = 40
-
-Scalar: TypeAlias = float | complex
 
 #region Interface
 @dataclass(frozen=True)
@@ -29,21 +27,21 @@ class BlowdownResult:
 	"""Pressurant sizing, in SI units"""
 	m_press     : Scalar   # Pressurant mass to load, margin included [kg]
 	rho_press   : Scalar   # Pressurant density in the full bottle [kg/m^3]
-	m_pad       : Scalar   # Gas that tops the ullage up above the vapor pressure [kg]
+	m_pad       : Scalar   # Pad gas above vapor pressure in ullage [kg]
 	m_burn      : Scalar   # Gas that replaces the drained oxidizer [kg]
-	f_delivered : Scalar   # Share of the bottle mass that leaves it before burnout [-]
+	f_delivered : Scalar   # Delivered share of initial bottle mass [-]
 
 @runtime_checkable
 class PressurantThermoModel(Protocol):
 	"""Pressurant blowdown model"""
-	supports_complex_step : bool  # True if `compute` accepts complex inputs
+	supports_complex_step : bool # True if `compute` accepts complex inputs
 
 	def compute(
 		self,
 		gas      : Gas,    # Pressurant gas
 		p_bottle : Scalar, # Bottle fill pressure [Pa]
 		p_ox     : Scalar, # Regulated oxidizer tank pressure [Pa]
-		p_margin : Scalar, # Bottle pressure left over p_ox at burnout [Pa]
+		p_margin : Scalar, # Bottle margin over p_ox at burnout [Pa]
 		p_sat    : Scalar, # Oxidizer vapor pressure [Pa]
 		t0       : Scalar, # Bottle temperature at fill [K]
 		v_ox     : Scalar, # Oxidizer volume to replace [m^3]
@@ -63,13 +61,13 @@ def _pad_pressure(p_ox: Scalar, p_sat: Scalar) -> Scalar:
 class IdealGasBlowdown:
 	"""Isentropic ideal-gas blowdown with a fixed bottle compressibility"""
 	# Pressurant loaded over the computed need, as a factor [-]
-	mass_margin           : float         
+	mass_margin           : float
 	# Plain arithmetic, so complex step works
 	supports_complex_step : bool = True
 
 	def compute(
 		self,
-		gas      : Scalar,
+		gas      : Gas,
 		p_bottle : Scalar,
 		p_ox     : Scalar,
 		p_margin : Scalar,
@@ -108,7 +106,7 @@ class CoolPropBlowdown:
 
 	def compute(
 		self,
-		gas      : Scalar,
+		gas      : Gas,
 		p_bottle : Scalar,
 		p_ox     : Scalar,
 		p_margin : Scalar,

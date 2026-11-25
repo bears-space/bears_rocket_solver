@@ -1,4 +1,5 @@
 from .constants  import CONSTANTS
+from .types      import Array, Numeric, Scalar
 from .validation import ConfigValidationError
 
 from .materials import (
