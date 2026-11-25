@@ -8,3 +8,6 @@ stuff/*
 build/*
 work/*
 doc/*
+
+*.gemini*
+*.claude*
