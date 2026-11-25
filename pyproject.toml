@@ -3,16 +3,16 @@ requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bears_rocket_solver"
+name    = "bears_rocket_solver"
 version = "2026.11.05"
 license = "GPL-3.0-or-later"
-readme = "README.md"
+readme  = "README.md"
 dependencies = [
 	"openmdao",
 	"cea",
 	"rocketcea",
 	"coolprop",
-	"isacalc"
+	"isacalc",
 ]
 authors = [
 	{ name = "Andrii Kozytskyi", email = "kozytskyi.andrii.d@gmail.com" }
@@ -23,15 +23,27 @@ verification = [
 	"mypy",
 	"pydot",
 	"graphviz",
-	"scipy-stubs"
+	"scipy-stubs",
 ]
 
 [tool.setuptools.packages.find]
-where = ["."]
+where   = ["."]
 include = ["modules*"]
 
 [tool.distutils.egg_info]
 egg_base = "build"
 
 [tool.mypy]
-mypy_path = ["./stubs"]
+check_untyped_defs   = true
+warn_unused_ignores  = true
+warn_redundant_casts = true
+
+[[tool.mypy.overrides]]
+module = [
+	"openmdao.*",
+	"cea",
+	"rocketcea.*",
+	"CoolProp.*",
+	"isacalc",
+]
+ignore_missing_imports = true

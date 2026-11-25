@@ -10,11 +10,11 @@ gas). See doc/pressurant_blowdown_thermodynamics.pdf
 #region Imports
 from dataclasses    import dataclass
 from importlib.util import find_spec
-from typing         import Protocol, runtime_checkable
+from typing         import Generic, Protocol, runtime_checkable
 
 import numpy as np
 
-from ..Config        import Gas, Scalar
+from ..Config        import Gas, DiffFloat, clamp_nonneg
 from ..BEARS_Vessels import ullage_volume
 #endregion
 
@@ -23,13 +23,13 @@ COOLPROP_STEPS = 40
 
 #region Interface
 @dataclass(frozen=True)
-class BlowdownResult:
+class BlowdownResult(Generic[DiffFloat]):
 	"""Pressurant sizing, in SI units"""
-	m_press     : Scalar   # Pressurant mass to load, margin included [kg]
-	rho_press   : Scalar   # Pressurant density in the full bottle [kg/m^3]
-	m_pad       : Scalar   # Pad gas above vapor pressure in ullage [kg]
-	m_burn      : Scalar   # Gas that replaces the drained oxidizer [kg]
-	f_delivered : Scalar   # Delivered share of initial bottle mass [-]
+	m_press     : DiffFloat # Pressurant mass to load, margin included [kg]
+	rho_press   : DiffFloat # Pressurant density in the full bottle [kg/m^3]
+	m_pad       : DiffFloat # Pad gas above vapor pressure in ullage [kg]
+	m_burn      : DiffFloat # Gas that replaces the drained oxidizer [kg]
+	f_delivered : DiffFloat # Delivered share of initial bottle mass [-]
 
 @runtime_checkable
 class PressurantThermoModel(Protocol):
@@ -38,23 +38,20 @@ class PressurantThermoModel(Protocol):
 
 	def compute(
 		self,
-		gas      : Gas,    # Pressurant gas
-		p_bottle : Scalar, # Bottle fill pressure [Pa]
-		p_ox     : Scalar, # Regulated oxidizer tank pressure [Pa]
-		p_margin : Scalar, # Bottle margin over p_ox at burnout [Pa]
-		p_sat    : Scalar, # Oxidizer vapor pressure [Pa]
-		t0       : Scalar, # Bottle temperature at fill [K]
-		v_ox     : Scalar, # Oxidizer volume to replace [m^3]
-		u_frac   : Scalar, # Oxidizer tank ullage fraction [-]
-	) -> BlowdownResult: ...
+		gas      : Gas,       # Pressurant gas
+		p_bottle : DiffFloat, # Bottle fill pressure [Pa]
+		p_ox     : DiffFloat, # Regulated oxidizer tank pressure [Pa]
+		p_margin : DiffFloat, # Bottle margin over p_ox at burnout [Pa]
+		p_sat    : DiffFloat, # Oxidizer vapor pressure [Pa]
+		t0       : DiffFloat, # Bottle temperature at fill [K]
+		v_ox     : DiffFloat, # Oxidizer volume to replace [m^3]
+		u_frac   : DiffFloat, # Oxidizer tank ullage fraction [-]
+	) -> BlowdownResult[DiffFloat]: ...
 #endregion
 
-def _pad_pressure(p_ox: Scalar, p_sat: Scalar) -> Scalar:
+def _pad_pressure(p_ox: DiffFloat, p_sat: DiffFloat) -> DiffFloat:
 	"""Partial pressure the pad gas adds over the vapor, clamped at 0 [Pa]"""
-	diff = p_ox - p_sat
-	if np.iscomplexobj(diff):
-		return diff if diff.real > 0.0 else 0.0
-	return max(0.0, diff)
+	return clamp_nonneg(p_ox - p_sat)
 
 #region Models
 @dataclass(frozen=True)
@@ -68,14 +65,14 @@ class IdealGasBlowdown:
 	def compute(
 		self,
 		gas      : Gas,
-		p_bottle : Scalar,
-		p_ox     : Scalar,
-		p_margin : Scalar,
-		p_sat    : Scalar,
-		t0       : Scalar,
-		v_ox     : Scalar,
-		u_frac   : Scalar,
-	) -> BlowdownResult:
+		p_bottle : DiffFloat,
+		p_ox     : DiffFloat,
+		p_margin : DiffFloat,
+		p_sat    : DiffFloat,
+		t0       : DiffFloat,
+		v_ox     : DiffFloat,
+		u_frac   : DiffFloat,
+	) -> BlowdownResult[DiffFloat]:
 		r, g = gas.r_specific, gas.gamma
 
 		v_ull = ullage_volume(v_ox, u_frac)
@@ -107,14 +104,14 @@ class CoolPropBlowdown:
 	def compute(
 		self,
 		gas      : Gas,
-		p_bottle : Scalar,
-		p_ox     : Scalar,
-		p_margin : Scalar,
-		p_sat    : Scalar,
-		t0       : Scalar,
-		v_ox     : Scalar,
-		u_frac   : Scalar,
-	) -> BlowdownResult:
+		p_bottle : DiffFloat,
+		p_ox     : DiffFloat,
+		p_margin : DiffFloat,
+		p_sat    : DiffFloat,
+		t0       : DiffFloat,
+		v_ox     : DiffFloat,
+		u_frac   : DiffFloat,
+	) -> BlowdownResult[DiffFloat]:
 		from CoolProp.CoolProp import PropsSI
 		from scipy.optimize    import brentq
 
@@ -122,8 +119,8 @@ class CoolPropBlowdown:
 		t0       = float(np.real(t0))
 		p_bottle = float(np.real(p_bottle))
 		p_ox     = float(np.real(p_ox))
-		v_ox     = float(v_ox)
-		p_end = p_ox + float(np.real(p_margin))
+		v_ox     = float(np.real(v_ox))
+		p_end    = p_ox + float(np.real(p_margin))
 
 		# Isentropic expansion of the bottle, and the mean enthalpy of the gas
 		# that leaves it
@@ -157,7 +154,7 @@ class CoolPropBlowdown:
 		p_pad   = _pad_pressure(p_ox, float(np.real(p_sat)))
 		m_pad   = p_pad * v_u0 / (gas.r_specific * t0)
 		m_press = self.mass_margin * (m_burn + m_pad) / f_del
-		return BlowdownResult(m_press, rho0, m_pad, m_burn, f_del)
+		return BlowdownResult[DiffFloat](m_press, rho0, m_pad, m_burn, f_del)
 #endregion
 
 def create_pressurant_thermo(

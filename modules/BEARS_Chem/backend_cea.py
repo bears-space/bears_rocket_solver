@@ -1,4 +1,5 @@
 #region Imports
+from typing import Any
 import numpy as np
 
 from ..Config      import CONSTANTS, Propellants, Species
@@ -10,7 +11,7 @@ J_PER_KJ                  = 1e3
 PA_TO_BAR                 = 1e-5
 KG_PER_KMOL_TO_KG_PER_MOL = 1e-3
 
-def to_cea_reactant(species: Species):
+def to_cea_reactant(species: Species) -> Any:
 	"""NASA CEA reactant for a species"""
 	import cea
 
@@ -32,7 +33,7 @@ def to_cea_reactant(species: Species):
 class CEABackend:
 	"""NASA CEA v3 Python backend, solved in memory"""
 
-	def __init__(self, propellants: Propellants):
+	def __init__(self, propellants: Propellants) -> None:
 		import cea
 		self._cea = cea
 
@@ -50,15 +51,29 @@ class CEABackend:
 
 		# Mass shares of each fuel within the fuel blend
 		fuel_total       = sum(f.mass_fraction for f in propellants.fuels)
-		self._fuel_share = np.array([f.mass_fraction / fuel_total for f in propellants.fuels])
+		self._fuel_share = np.array([
+			f.mass_fraction / fuel_total for f in propellants.fuels
+		])
 		self._temps      = np.array([r.temperature for r in reactants])
 
-	def evaluate(self, pc_pa: float, mr: float, eps: float) -> CombustionState:
+	def evaluate(
+		self,
+		pc_pa : float,
+		mr    : float,
+		eps   : float,
+	) -> CombustionState:
 		# CEA is real-valued only
-		pc_pa, mr, eps = float(np.real(pc_pa)), float(np.real(mr)), float(np.real(eps))
+		pc_pa = float(np.real(pc_pa))
+		mr    = float(np.real(mr))
+		eps   = float(np.real(eps))
 
-		weights = np.concatenate([[mr / (mr + 1.0)], self._fuel_share / (mr + 1.0)])
-		h = self._reac_mix.calc_property(self._cea.ENTHALPY, weights, self._temps)
+		weights = np.concatenate([
+			[mr / (mr + 1.0)],
+			self._fuel_share / (mr + 1.0),
+		])
+		h = self._reac_mix.calc_property(
+			self._cea.ENTHALPY, weights, self._temps,
+		)
 
 		# The stations are the chamber [0], the throat [1] and the nozzle exit
 		# at area ratio eps [-1]

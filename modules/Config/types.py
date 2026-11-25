@@ -1,19 +1,24 @@
 """
-Shared numeric type aliases used across physics and component modules
+Shared numeric types and differentiable helpers across physics modules
 
-All analytic physics functions accept complex numbers (and optionall NumPy
-arrays) so OpenMDAO complex-step differentiation works without casts
+Analytic physics functions are polymorphic over real scalars and complex-step
+dual numbers (`DiffFloat`) so OpenMDAO complex-step differentiation works
+without casts or runtime wrappers
 """
 
 #region Imports
-from typing import Any, TypeAlias
-
-import numpy as np
-from numpy.typing import NDArray
+from typing import TypeVar
 #endregion
 
-#region Numeric types
-Scalar  : TypeAlias = float | complex
-Array   : TypeAlias = NDArray[np.floating[Any] | np.complexfloating[Any, Any]]
-Numeric : TypeAlias = Scalar | Array
+#region Types
+# Differentiable scalar: real float or complex-step dual number
+DiffFloat = TypeVar("DiffFloat", float, complex)
+#endregion
+
+#region Helpers
+def clamp_nonneg(x: DiffFloat) -> DiffFloat:
+	"""max(0, x) on the real part, preserving complex-step derivatives"""
+	if isinstance(x, complex):
+		return x if x.real > 0.0 else 0.0
+	return max(0.0, x)
 #endregion

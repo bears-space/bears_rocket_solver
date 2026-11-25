@@ -6,7 +6,7 @@ from typing      import Protocol, runtime_checkable
 @dataclass(frozen=True)
 class CombustionState:
 	"""Equilibrium combustion result, in SI units"""
-	isp        : float  # Ideal specific impulse at sea-level ambient pressure [s]
+	isp        : float  # Ideal sea-level specific impulse [s]
 	t_chamber  : float  # Adiabatic flame temperature in the chamber [K]
 	molar_mass : float  # Molar mass of the chamber gas [kg/mol]
 	gamma      : float  # Ratio of specific heats of the chamber gas [-]

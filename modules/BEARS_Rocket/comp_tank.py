@@ -4,7 +4,7 @@ import numpy as np
 from math         import pi
 from openmdao.api import ExplicitComponent
 
-from ..Config        import Wall
+from ..Config        import Wall, clamp_nonneg
 from ..BEARS_Vessels import (
 	domes_internal_volume,
 	domes_length,
@@ -58,11 +58,7 @@ class TankComponent(ExplicitComponent):
 		# The cylinder holds whatever the domes do not, never a negative volume
 		v_fluid = m_fluid / rho_fluid
 		v_int   = tank_internal_volume(v_fluid, ullage_frac)
-		diff_v  = v_int - domes_internal_volume(r_in)
-		if np.iscomplexobj(diff_v):
-			v_cyl = diff_v if diff_v.real > 0.0 else 0.0
-		else:
-			v_cyl = max(0.0, diff_v)
+		v_cyl   = clamp_nonneg(v_int - domes_internal_volume(r_in))
 
 		l_cyl = v_cyl / (pi * r_in**2)
 		l_tot = l_cyl + domes_length(r_in) + inputs["boss_len_fwd"][0] + inputs["boss_len_aft"][0]

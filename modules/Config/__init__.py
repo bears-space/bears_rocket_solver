@@ -1,5 +1,5 @@
 from .constants  import CONSTANTS
-from .types      import Array, Numeric, Scalar
+from .types      import DiffFloat, clamp_nonneg
 from .validation import ConfigValidationError
 
 from .materials import (

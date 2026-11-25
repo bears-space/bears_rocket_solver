@@ -3,7 +3,18 @@ Thin-wall thickness of a pressure-loaded cylinder layer, see
 doc/hoop_stress_derivation.pdf
 """
 
-def size_composite_layer(p_design, r_out, sigma_safe, cos_sq, tan_sq, v_f):
+#region Imports
+from ..Config import DiffFloat
+#endregion
+
+def size_composite_layer(
+	p_design   : DiffFloat,
+	r_out      : DiffFloat,
+	sigma_safe : DiffFloat,
+	cos_sq     : DiffFloat,
+	tan_sq     : DiffFloat,
+	v_f        : DiffFloat,
+) -> DiffFloat:
 	"""
 	Thickness [m] of a filament-wound layer by netting theory: helical fibers
 	at angle alpha carry the axial load, hoop fibers the remaining hoop load
@@ -19,7 +30,11 @@ def size_composite_layer(p_design, r_out, sigma_safe, cos_sq, tan_sq, v_f):
 	t_hoop = (p_design * r_out / sigma_safe) * (1.0 - 0.5 * tan_sq)
 	return (t_hel + t_hoop) / v_f
 
-def size_metal_layer(p_design, r_out, sigma_safe):
+def size_metal_layer(
+	p_design   : DiffFloat,
+	r_out      : DiffFloat,
+	sigma_safe : DiffFloat,
+) -> DiffFloat:
 	"""
 	Thickness [m] of an isotropic layer from the hoop stress
 

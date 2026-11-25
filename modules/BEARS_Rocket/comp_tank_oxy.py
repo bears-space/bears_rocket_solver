@@ -15,4 +15,10 @@ class OxidizerTankComponent(TankComponent):
 		self.add_input("ullage_frac", val=0.1)               # Gas-filled share of the tank volume at loading [-]
 
 	def compute(self, inputs, outputs):
-		self.size_tank(inputs, outputs, inputs["m_oxy"], self.options["rho_ox"], inputs["ullage_frac"])
+		self.size_tank(
+			inputs,
+			outputs,
+			inputs["m_oxy"][0],
+			self.options["rho_ox"],
+			inputs["ullage_frac"][0]
+		)

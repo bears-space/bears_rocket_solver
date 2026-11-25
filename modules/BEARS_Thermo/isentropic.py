@@ -2,21 +2,23 @@
 Isentropic flow relations of a calorically perfect ideal gas
 
 Every ratio is static over total (stagnation) as a function of Mach number M
-and specific heat ration gamma. All methods accept real or complex scalars
-and NumPy arrays for complex-step OpenMDAO components
+and specific heat ration gamma. All methods are polymorphic over real scalars
+and complex-step dual numbers (`DiffFloat`)
 
 Reference: NASA Glenn Research Center, "Isentropic Flow Equations"
 https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/isentrop/
 """
 
 #region Imports
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing      import Self
+from typing      import Generic
 
 import numpy as np
 from scipy.optimize import brentq
 
-from ..Config            import Numeric
+from ..Config            import DiffFloat
 from ..Config.validation import require
 #endregion
 
@@ -24,68 +26,82 @@ _M_MAX = 1e8 # Upper limit of the bracket search [-]
 
 #region State
 @dataclass(frozen=True)
-class IsentropicState:
+class IsentropicState(Generic[DiffFloat]):
 	"""
-	Isentropic flow state of a caloricall perfect ideal gas
+	Isentropic flow state of a calorically perfect ideal gas
 
-	Construct from Mach number with `from_mach`, or from supersonic area ratio
-	A/A* >= 1 with `from_eps_sup`. All ratio properties are complex-step safe
+	Construct using
+	- the Mach number with `from_mach`, or
+	- the supersonic area ratio A/A* >= 1 with `from_eps_sup`
+
+	All properties are complex-step safe
 	"""
 	mach  : Numeric # Mach number M [-]
 	gamma : Numeric # Ratio of specific heats cp/cv [-]
 
 	def __post_init__(self) -> None:
 		require(
-			bool(np.all(np.real(self.gamma) > 1.0)),
+			self.gamma.real > 1.0,
 			f"IsentropicState.gamma must be > 1 (got {self.gamma})",
 		)
 		require(
-			bool(np.all(np.real(self.mach) >= 0.0)),
+			self.mach.real >= 0.0,
 			f"IsentropicState.mach must be >= 0 (got {self.mach})",
 		)
 
 	@classmethod
-	def from_mach(cls, mach: Numeric, gamma: Numeric) -> Self:
+	def from_mach(
+		cls,
+		mach  : DiffFloat,
+		gamma : DiffFloat,
+	) -> IsentropicState[DiffFloat]:
 		"""Construct an isentropic state from Mach number and gamma"""
 		return cls(mach=mach, gamma=gamma)
 
 	@classmethod
-	def from_eps_sup(cls, eps: Numeric, gamma: Numeric) -> Self:
+	def from_eps_sup(
+		cls,
+		eps   : DiffFloat,
+		gamma : DiffFloat,
+	) -> IsentropicState[DiffFloat]:
 		"""Construct a supersonic state (M >= 1) from area ratio A/A*"""
 		require(
-			bool(np.all(np.real(gamma) > 1.0)),
+			gamma.real > 1.0,
 			f"IsentropicState.gamma must be > 1 (got {gamma})",
 		)
 		m = _solve_supersonic_mach(eps, gamma)
 		return cls(mach=m, gamma=gamma)
 
 	@property
-	def t_ratio(self) -> Numeric:
+	def t_ratio(self) -> DiffFloat:
 		"""Static over total temperature T/T_t [-]"""
 		return 1.0 / _stagnation_factor(self.mach, self.gamma)
 
 	@property
-	def p_ratio(self) -> Numeric:
+	def p_ratio(self) -> DiffFloat:
 		"""Static over total pressure p/p_t [-]"""
 		return self.t_ratio ** (self.gamma / (self.gamma - 1.0))
 
 	@property
-	def area_ratio(self) -> Numeric:
+	def area_ratio(self) -> DiffFloat:
 		"""Local over sonic throat area A/A* [-]"""
 		return _area_ratio(self.mach, self.gamma)
 
 	@property
-	def mfp(self) -> Numeric:
-		"""Dimensionless mass flow parameter mdot*sqrt(R*T_t)(A*p_t) [-]"""
+	def mfp(self) -> DiffFloat:
+		"""Dimensionless mass flow parameter mdot*sqrt(R*T_t)/(A*p_t) [-]"""
 		stag = _stagnation_factor(self.mach, self.gamma)
 		return (
-			np.sqrt(self.gamma) * self.mach
+			self.gamma**0.5 * self.mach
 			* stag ** -_area_exponent(self.gamma)
 		)
 #endregion
 
 #region Inverse
-def _solve_supersonic_mach(eps: Numeric, gamma: Numeric) -> Numeric:
+def _solve_supersonic_mach(
+	eps   : DiffFloat,
+	gamma : DiffFloat,
+) -> DiffFloat:
 	"""
 	Supersonic Mach number M >= 1 satisfying A / A* = eps
 
@@ -94,16 +110,19 @@ def _solve_supersonic_mach(eps: Numeric, gamma: Numeric) -> Numeric:
 	exactly
 	"""
 	require(
-		bool(np.all(np.real(eps) >= 1.0)),
+		eps.real >= 1.0,
 		f"Area ratio A/A* must be >= 1 (got {eps})",
 	)
 
-	def solve_real(eps_r: float, gamma_r: float) -> float:
-		def residual(m: float) -> float:
-			return float(_area_ratio(m, gamma_r)) - eps_r
+	eps_r   = eps.real
+	gamma_r = gamma.real
 
-		if residual(1.0) == 0.0: return 1.0
+	def residual(m: float) -> float:
+		return _area_ratio(m, gamma_r) - eps_r
 
+	if residual(1.0) == 0.0:
+		mach_r = 1.0
+	else:
 		# Double the upper bracket until it holds the root
 		m_hi = 2.0
 		while residual(m_hi) < 0.0:
@@ -112,37 +131,30 @@ def _solve_supersonic_mach(eps: Numeric, gamma: Numeric) -> Numeric:
 				raise ValueError(
 					f"No Mach number found for A/A* = {eps_r}"
 				)
+		mach_r = float(brentq(residual, 1.0, m_hi, xtol=1e-15, rtol=1e-15))
 
-		return float(brentq(residual, 1.0, m_hi, xtol=1e-15, rtol=1e-15))
+	if isinstance(eps, complex) or isinstance(gamma, complex):
+		slope = _d_area_ratio(mach_r, gamma_r)
+		return mach_r - (_area_ratio(mach_r, gamma) - eps) / slope
 
-	mach = np.vectorize(solve_real, otypes=[float])(
-		np.real(eps),
-		np.real(gamma),
-	)
-
-	if np.iscomplexobj(eps) or np.iscomplexobj(gamma):
-		slope = _d_area_ratio(mach, np.real(gamma))
-		mach  = mach - (_area_ratio(mach, gamma) - eps) / slope
-
-	return mach[()]
+	return mach_r
 #endregion
 
 #region Helpers
-
-def _area_exponent(gamma: Numeric) -> Numeric:
+def _area_exponent(gamma: DiffFloat) -> DiffFloat:
 	"""(gamma + 1) / (2 * (gamma - 1)), shared by A/A* and mass flow"""
 	return (gamma + 1.0) / (2.0 * (gamma - 1.0))
 
-def _stagnation_factor(mach: Numeric, gamma: Numeric) -> Numeric:
+def _stagnation_factor(mach: DiffFloat, gamma: DiffFloat) -> DiffFloat:
 	"""T_t / T = 1 + (gamma - 1) * M^2 / 2"""
 	return 1.0 + 0.5 * (gamma - 1.0) * mach**2
 
-def _area_ratio(mach: Numeric, gamma: Numeric) -> Numeric:
+def _area_ratio(mach: DiffFloat, gamma: DiffFloat) -> DiffFloat:
 	"""A / A* from Mach number and gamma"""
 	base = 2.0 / (gamma + 1.0) * _stagnation_factor(mach, gamma)
 	return base ** _area_exponent(gamma) / mach
 
-def _d_area_ratio(mach: Numeric, gamma: Numeric) -> Numeric:
+def _d_area_ratio(mach: DiffFloat, gamma: DiffFloat) -> DiffFloat:
 	"""d(A/A*)/dM = A/A* * (M^2 - 1) / (M * (1 + (gamma - 1) / 2 * M^2))"""
 	num = _area_ratio(mach, gamma) * (mach**2 - 1.0)
 	den = mach * _stagnation_factor(mach, gamma)

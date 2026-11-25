@@ -94,7 +94,7 @@ class NozzleComponent(ExplicitComponent):
 	def compute(self, inputs, outputs):
 		mr    = inputs["mixture_ratio"]
 		t_c   = inputs["t_chamber"]
-		gamma = inputs["gamma"]
+		gamma = inputs["gamma"][0]
 		a_t   = inputs["a_throat"]
 
 		# Conical divergence loss and wall friction
@@ -110,7 +110,7 @@ class NozzleComponent(ExplicitComponent):
 		p_c       = mdot_prop * cstar / a_t
 
 		# Isentropic expansion to supersonic exit, A_e/A_t = eps
-		eps       = inputs["expansion_ratio"]
+		eps       = inputs["expansion_ratio"][0]
 		exit_flow = IsentropicState.from_eps_sup(eps, gamma)
 
 		outputs["mach_exit"]     = exit_flow.mach
