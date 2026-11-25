@@ -4,7 +4,7 @@ import numpy as np
 from math         import pi
 from openmdao.api import ExplicitComponent
 
-from ..BEARS_Isentropic import (
+from ..BEARS_Thermo import (
 	mass_flow_parameter,
 	pressure_ratio,
 	temperature_ratio,

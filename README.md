@@ -23,13 +23,17 @@ its target apogee with the least propellant.
 4. **One component, one job.** Each `comp_`/`group_` file models one physical
    subsystem. Dependencies such as the chemistry or atmosphere model are passed
    in as options, never reached for as globals.
-5. **Make invalid staes impossible.** Design your types so that the only values the compiler or constructor will accept are valid ones, which moves checks out of scattered runtime `if` statements and into the structure of the data itself. 
+5. **Make invalid staes impossible.** Design your types so that the only values
+   the compiler or constructor will accept are valid ones, which moves checks
+   out of scattered runtime `if` statements and into the structure of the data
+   itself. 
 6. **Keep components differentiable.** Partials are computed by complex step,
    so component code must accept complex inputs (no `float()` casts, no
    branching on values without handling the complex case).
-7. **Mark placeholders.** Any model or value that is not validated carries a `TODO` saying so.
-8. **All variables are explained.** Any input variable and output variable should have a #comment explaining exactly what it is.
-9. **Only write code you need** Code you don’t write never needs to be read, tested or maintained.
+7. **Mark placeholders.** Any model or value that is not validated carries a
+   `TODO` saying so.
+8. **All variables are explained.** Any input variable and output variable
+   should have a #comment explaining exactly what it is.
 
 ## Running the solver
 
@@ -95,9 +99,8 @@ modules/
 ├── Config/              # Input records, one module per input file, each checking its own values
 ├── BEARS_Rocket/        # OpenMDAO components (comp_), groups (group_), problem (prob_)
 ├── BEARS_Chem/          # Propellant chemistry, CEA and RocketCEA backends
-├── BEARS_Isentropic/    # Isentropic flow relations
 ├── BEARS_Atmo/          # Standard atmosphere
-├── BEARS_Thermo/        # Pressurant blowdown thermodynamics
+├── BEARS_Thermo/        # Pressurant blowdown and isentropic flow
 └── BEARS_Vessels/       # Pressure vessel walls, domes and volumes
 outputs/                 # Solver output tables
 figures/                 # Model graphs
@@ -121,8 +124,10 @@ The backend for each model is chosen under `[models]` in
 `inputs/rocket_inputs.toml`.
 
 ## Citations and Credit to useful Papers/resources
-- [Glenn Resaerch Center](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/isentrop/): Isentropic Calculation source
-- [NASA CEA Tutorial](https://ntrs.nasa.gov/api/citations/20240016039/downloads/CEA_SciTech_2025_Leader.pdf): NASA CEA Explanation and Tutorial
+- [Glenn Resaerch Center][grc]: Isentropic Calculation source
+  [grc]: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/isentrop/
+- [NASA CEA Tutorial][cea]: NASA CEA Explanation and Tutorial
+  [cea]: https://ntrs.nasa.gov/api/citations/20240016039/downloads/CEA_SciTech_2025_Leader.pdf
 
 ## TODO
 - [ ] Fuel Grain calculation Module

@@ -50,7 +50,7 @@ The code holds no physical or design numbers of its own. Each input file maps
 
 1. **Package boundaries**
    - Keep pure physics in standalone packages (`BEARS_Atmo`, `BEARS_Chem`,
-     `BEARS_Isentropic`, `BEARS_Thermo`, `BEARS_Vessels`).
+     `BEARS_Thermo`, `BEARS_Vessels`).
    - Keep OpenMDAO wrappers in `modules/BEARS_Rocket/` using prefixes
      `comp_*` (components), `group_*` (groups), and `prob_*` (problems).
    - Pass physical geometry as inputs; let components compute the resulting
