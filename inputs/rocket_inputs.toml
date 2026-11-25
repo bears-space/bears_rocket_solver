@@ -5,13 +5,21 @@
 # physical constants in constants.toml. Every key is required
 
 [global]
-non_propulsion_mass_kg      = 8.0    # Mass of everything but the propulsion system, payload included [kg]
-engine_dry_mass_kg          = 4.0    # Engine hardware without propellant: injector, chamber, nozzle [kg]. TODO: placeholder until the engine mass model exists
-target_altitude_m           = 3000.0 # Apogee the rocket has to reach [m]
-target_thrust_N             = 3000.0 # Liftoff thrust the engine is sized for [N]
-target_chamber_pressure_bar = 30.0   # Chamber pressure the engine is sized for [bar]
-inner_rocket_diameter_m     = 0.12   # Airframe bore, the engine has to fit inside it [m]
-outer_rocket_diameter_m     = 0.125  # Airframe skin: the tanks are structural and use it, and it sets the drag area [m]
+# Mass of everything but the propulsion system, payload included [kg]
+non_propulsion_mass_kg      = 8.0
+# Engine hardware without propellant: injector, chamber, nozzle [kg]
+# TODO: placeholder until the engine mass model exists
+engine_dry_mass_kg          = 4.0
+# Apogee the rocket has to reach [m]
+target_altitude_m           = 3000.0
+# Target liftoff thrust [N]
+target_thrust_N             = 3000.0
+# Chamber pressure the engine is sized for [bar]
+target_chamber_pressure_bar = 30.0
+# Airframe bore, the engine has to fit inside it [m]
+inner_rocket_diameter_m     = 0.12
+# Airframe skin: tanks are structural and use it; sets the drag area [m]
+outer_rocket_diameter_m     = 0.125
 
 [aerodynamics]
 # Drag coefficient against Mach number, linearly interpolated and held
@@ -24,7 +32,8 @@ drag_cd   = [0.48, 0.85, 0.65] # Drag coefficient at each Mach number [-]
 wall              = "copv_ox" # Wall layup id from materials.toml
 pressure_bar      = 70.0      # Maximum operating pressure [bar]
 safety_factor     = 3.0       # Burst pressure over operating pressure [-]
-ullage_fraction   = 0.1       # Gas-filled share of the tank volume at loading [-]
+# Gas-filled share of the tank volume at loading [-]
+ullage_fraction   = 0.1
 boss_length_fwd_m = 0.015     # Forward boss fitting length [m]
 boss_length_aft_m = 0.019     # Aft boss fitting length [m]
 
@@ -33,47 +42,62 @@ wall              = "copv_press" # Wall layup id from materials.toml
 gas               = "N2"         # Pressurant gas id from materials.toml
 pressure_bar      = 200.0        # Fill pressure of the bottle [bar]
 safety_factor     = 3.0          # Burst pressure over fill pressure [-]
-mass_margin       = 1.10         # Pressurant loaded over the computed need, as a factor [-]
+# Pressurant loaded over the computed need, as a factor [-]
+mass_margin       = 1.10
 boss_length_fwd_m = 0.015        # Forward boss fitting length [m]
 boss_length_aft_m = 0.015        # Aft boss fitting length [m]
-reg_margin_bar    = 20.0         # Bottle pressure left over the oxidizer tank pressure at burnout [bar]
+# Bottle pressure left over the oxidizer tank pressure at burnout [bar]
+reg_margin_bar    = 20.0
 ambient_temp_c    = 30.0         # Bottle temperature at fill [degC]
 
 [injector]
 cd = 0.25 # Discharge coefficient of the injector orifices [-]
 
 [fuel]
-port_diam_m             = 0.05   # Initial diameter of the fuel grain port [m]
-reg_exponent            = 0.5    # Exponent n of the regression law r = a * (G_ox / G_ref)^n [-]
-reg_ref_ms              = 0.0001 # Regression rate a at the reference oxidizer flux [m/s]
-oxy_mass_flux_ref_kgm2s = 1.0    # Reference oxidizer mass flux G_ref [kg/(m^2*s)]
+# Initial diameter of the fuel grain port [m]
+port_diam_m             = 0.05
+# Exponent of the regression law r = a * (G_ox / G_ref)^n [-]
+reg_exponent            = 0.5
+# Regression rate a at the reference oxidizer flux [m/s]
+reg_ref_ms              = 0.0001
+# Reference oxidizer mass flux G_ref [kg/(m^2*s)]
+oxy_mass_flux_ref_kgm2s = 1.0
 
 [nozzle]
-nozzle_exit_diameter_m        = 0.09 # Fixed exit diameter, the expansion ratio A_exit / A_throat follows from it [m]
-conical_nozzle_half_angle_deg = 15.0 # Half angle of the conical divergent section, sets its length [deg]
+# Fixed exit diameter, the expansion ratio A_exit / A_throat follows from it [m]
+nozzle_exit_diameter_m        = 0.09
+# Half angle of the conical divergent section, sets its length [deg]
+conical_nozzle_half_angle_deg = 15.0
 
 [models]
-atmosphere        = "auto" # Atmosphere model: "auto", "isacalc" or "standalone"
-chemistry         = "auto" # Combustion chemistry backend: "auto", "cea" or "rocketcea"
-pressurant_thermo = "auto" # Pressurant blowdown model: "auto", "coolprop" or "ideal"
+atmosphere        = "auto" # "auto", "isacalc" or "standalone"
+chemistry         = "auto" # "auto", "cea" or "rocketcea"
+pressurant_thermo = "auto" # "auto", "coolprop" or "ideal"
 
 [efficiencies]
-combustion             = 0.88 # Delivered over ideal characteristic velocity c* [-]
-trajectory             = 0.92 # Real apogee over the 1D apogee, for 3D flight losses [-]
+combustion             = 0.88 # Delivered over ideal c* [-]
+trajectory             = 0.92 # Real over the 1D apogee (3D flight losses) [-]
 propellant_utilization = 0.92 # Burned over loaded propellant mass [-]
-regression_correction  = 0.60 # Real over modeled fuel regression rate [-]
-nozzle_friction        = 0.95 # Thrust left after nozzle wall friction losses [-]
+regression_correction  = 0.60 # Real over modeled regression rate [-]
+nozzle_friction        = 0.95 # Thrust fraction after wall friction losses [-]
 
 [optimization]
-# Design variables: the value the optimizer starts from, and its bounds
-propellant_mass_kg    = { start = 5.0,    lower = 1.0,    upper = 10.0   } # Burned propellant mass [kg]
-mixture_ratio         = { start = 7.0,    lower = 4.0,    upper = 10.0   } # Oxidizer over fuel mass flow [-]
-injector_area_m2      = { start = 1.0e-4, lower = 0.5e-5, upper = 3.0e-4 } # Total injector orifice area [m^2]
-nozzle_throat_area_m2 = { start = 7.0e-4, lower = 1.0e-4, upper = 6.0e-3 } # Nozzle throat area, below the exit area [m^2]
+# Design variables: optimizer starting value and bounds
+# Burned propellant mass [kg]
+propellant_mass_kg    = { start = 5.0,    lower = 1.0,    upper = 10.0   }
+# Oxidizer over fuel mass flow [-]
+mixture_ratio         = { start = 7.0,    lower = 4.0,    upper = 10.0   }
+# Total injector orifice area [m^2]
+injector_area_m2      = { start = 1.0e-4, lower = 0.5e-5, upper = 3.0e-4 }
+# Nozzle throat area, below the exit area [m^2]
+nozzle_throat_area_m2 = { start = 7.0e-4, lower = 1.0e-4, upper = 6.0e-3 }
 
 [constraints]
-max_burn_time_s                = 15.0 # Longest allowed burn [s]
-min_injector_pressure_drop_bar = 20.0 # Smallest allowed injector pressure drop [bar]
+# Longest allowed burn [s]
+max_burn_time_s                = 15.0
+# Smallest allowed injector pressure drop [bar]
+min_injector_pressure_drop_bar = 20.0
 
 [sweep]
-outer_diameters_m = [0.125, 0.140, 0.150, 0.160, 0.170] # Outer airframe diameters to re-optimize at with --sweep [m]
+# Outer airframe diameters to re-optimize at with --sweep [m]
+outer_diameters_m = [0.125, 0.140, 0.150, 0.160, 0.170]

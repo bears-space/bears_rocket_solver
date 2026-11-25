@@ -7,13 +7,16 @@
 # Values are in SI units. Every key is required
 
 [universal]
-standard_gravity   = 9.80665          # Standard gravitational acceleration g0 [m/s^2], exact by definition
-molar_gas_constant = 8.31446261815324 # Molar gas constant R = N_A * k [J/(mol*K)], exact since the 2019 SI
-zero_celsius       = 273.15           # 0 degC on the absolute scale [K], exact by definition
+# Standard gravitational acceleration g0 [m/s^2], exact by definition
+standard_gravity   = 9.80665
+# Molar gas constant R = N_A * k [J/(mol*K)], exact since the 2019 SI
+molar_gas_constant = 8.31446261815324
+# 0 degC on the absolute scale [K], exact by definition
+zero_celsius       = 273.15
 
 [atmosphere]
 # International Standard Atmosphere (ISO 2533), sea level and troposphere
 sea_level_pressure     = 101325.0 # Pressure at sea level [Pa]
 sea_level_temperature  = 288.15   # Temperature at sea level [K]
-lapse_rate             = 0.0065   # Temperature drop with altitude in the troposphere [K/m]
+lapse_rate             = 0.0065   # Troposphere tempreature lapse rate [K/m]
 tropopause_temperature = 216.65   # Temperature from the tropopause up [K]

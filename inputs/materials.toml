@@ -16,7 +16,7 @@ gamma      = 1.4       # Ratio of specific heats cp / cv [-]
 #   id                 Name the wall layers below refer to
 #   name               Display name
 #   density            Density, in density_units ("kg/m^3" or "g/cm^3")
-#   yield_strength     Stress at the onset of plastic flow, in strength_units ("Pa" or "MPa")
+#   yield_strength     Yield strength, in strength_units ("Pa" or "MPa")
 #   ultimate_strength  Stress at failure, in strength_units
 
 [[material]]
@@ -41,9 +41,9 @@ strength_units    = "MPa"
 #   material           Material id from above
 #   thickness_m        Fixed thickness [m]. Optional: one layer per wall may
 #                      leave it out to be sized to the tank pressure
-#   helical_angle_deg  Composite only: winding angle of the helical fibers to the tank axis [deg]
-#   efficiency         Composite only: share of the fiber strength the layer realizes [-]
-#   fiber_volume_frac  Composite only: fiber share of the layer volume [-]
+#   helical_angle_deg  Composite: helical fiber angle to tank axis [deg]
+#   efficiency         Composite: realized share of fiber strength [-]
+#   fiber_volume_frac  Composite: fiber share of the layer volume [-]
 # A layer with a helical_angle_deg is a composite, one without is a metal
 
 [[wall]]
@@ -78,7 +78,7 @@ id = "copv_ox" # Wall id the rocket inputs refer to
 #   coolprop_name  Fluid name in CoolProp, for the real-gas model
 #   molar_mass     Molar mass [kg/mol]
 #   gamma          Ratio of specific heats cp / cv [-]
-#   z_factor       Compressibility factor in the full bottle, for the ideal-gas model [-]
+#   z_factor       Full-bottle compressibility factor (ideal gas) [-]
 
 [[gas]]
 id            = "N2"
@@ -99,13 +99,13 @@ z_factor      = 1.05
 # Propellant reactants: [[fuel]] entries blend into the fuel grain, exactly one
 # [[oxid]] is the liquid oxidizer. Keys of each entry:
 #   name                CEA species name, or a new name for a custom species
-#   mass_fraction       Share by mass among the species of the same role, relative [-]
-#   formula_parts       Atom counts, as a list of parts that are summed, e.g. the monomers of a copolymer
+#   mass_fraction       Relative mass share within the same role [-]
+#   formula_parts       List of atom-count dicts summed into a formula
 #   temperature_k       Temperature at injection [K]
-#   enthalpy            Enthalpy of formation, in enthalpy_units ("j/mol" or "kj/mol").
-#                       Optional: leave both out to take it from the CEA library
+#   enthalpy            Enthalpy of formation ("j/mol" or "kj/mol");
+#                       Optional: omit with enthalpy_units to use CEA library
 #   density             Density, in density_units ("kg/m^3" or "g/cm^3")
-#   vapor_pressure_bar  Oxidizer only: saturation pressure at storage temperature [bar]
+#   vapor_pressure_bar  Oxidizer: saturation pressure [bar]
 
 [[fuel]]
 name           = "Paraffin"
@@ -138,4 +138,5 @@ formula_parts      = [{ N = 2, O = 1 }]
 temperature_k      = 298.15
 density            = 0.6881
 density_units      = "g/cm^3"
-vapor_pressure_bar = 63.08 # At 30 degC, the pressurizer_tank ambient_temp_c
+# Saturation pressure at 30 degC (pressurizer_tank ambient_temp_c) [bar]
+vapor_pressure_bar = 63.08
