@@ -38,7 +38,8 @@ its target apogee with the least propellant.
 ## Running the solver
 
 Requires Python 3.11+. Graph output additionally needs the system
-[Graphviz](https://graphviz.org/) install (`dot` on the `PATH`).
+[Graphviz][gvz] install (`dot` on the `PATH`).
+[gvz]: https://graphviz.org/
 
 ```powershell
 python -m venv env
@@ -99,8 +100,10 @@ maximum burn time and the grain fitting the bore.
 solver.py                # Entry point
 inputs/                  # Input TOML files
 modules/
-├── Config/              # Input records, one module per input file, each checking its own values
-├── BEARS_Rocket/        # OpenMDAO components (comp_), groups (group_), problem (prob_)
+├── Config/              # Input records, one module per input file,
+│                        # each checking its own values
+├── BEARS_Rocket/        # OpenMDAO components (comp_*),
+│                        # groups (group_*), problems (prob_*)
 ├── BEARS_Chem/          # Propellant chemistry, CEA and RocketCEA backends
 ├── BEARS_Atmo/          # Standard atmosphere
 ├── BEARS_Thermo/        # Pressurant blowdown and isentropic flow
@@ -133,12 +136,3 @@ The backend for each model is chosen under `[models]` in
   [grc]: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/isentrop/
 - [NASA CEA Tutorial][cea]: NASA CEA Explanation and Tutorial
   [cea]: https://ntrs.nasa.gov/api/citations/20240016039/downloads/CEA_SciTech_2025_Leader.pdf
-
-## TODO
-- [ ] Fuel Grain calculation Module
-- [ ] rework checks to physical checks and EUROC Requirements envelope
-- [ ] Igniter calculation Module
-- [ ] use/integrate rocketpal for Drag and trajectory calculations
-- [ ] Proper mass model for the subcomponent assemblies
-- [ ] Useful graphs for all optimized values
-- [ ] Better looking custom graphs of code buildup
