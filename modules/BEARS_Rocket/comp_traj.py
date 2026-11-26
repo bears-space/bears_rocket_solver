@@ -1,8 +1,8 @@
 #region Imports
-from collections.abc import Sequence
-from math            import pi
+from math import pi
 
 import numpy as np
+from numpy.typing    import NDArray
 from openmdao.api    import ExplicitComponent
 from scipy.integrate import solve_ivp
 
@@ -57,7 +57,7 @@ def ballistic_apogee(
 	t_burn    = m_prop / mdot
 	m_burnout = m_i - m_prop
 
-	def dynamics_boost(t: float, y: Sequence[float]) -> list[float]:
+	def dynamics_boost(t: float, y: NDArray[np.float64]) -> list[float]:
 		h, v = y[0], y[1]
 		m = m_i - mdot * t
 
@@ -69,14 +69,14 @@ def ballistic_apogee(
 			return [max(0.0, v), 0.0]
 		return [v, (f_net / m) - g]
 
-	def dynamics_coast(t: float, y: Sequence[float]) -> list[float]:
+	def dynamics_coast(t: float, y: NDArray[np.float64]) -> list[float]:
 		h, v = y[0], y[1]
 		_, _, rho, a = atm(max(0.0, h))
 		return [v, -drag_force(v, diam, rho, a, aero) / m_burnout - g]
 
 	# Apogee is where the climb speed falls through zero
-	def apogee_event(t: float, y: Sequence[float]) -> float:
-		return y[1]
+	def apogee_event(t: float, y: NDArray[np.float64]) -> float:
+		return float(y[1])
 
 	setattr(apogee_event, "terminal", True)
 	setattr(apogee_event, "direction", -1)

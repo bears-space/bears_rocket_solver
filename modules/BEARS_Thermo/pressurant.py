@@ -34,7 +34,11 @@ class BlowdownResult(Generic[DiffFloat]):
 @runtime_checkable
 class PressurantThermoModel(Protocol):
 	"""Pressurant blowdown model"""
-	supports_complex_step : bool # True if `compute` accepts complex inputs
+
+	@property
+	def supports_complex_step(self) -> bool:
+		"""True if `compute` accepts complex inputs"""
+		...
 
 	def compute(
 		self,

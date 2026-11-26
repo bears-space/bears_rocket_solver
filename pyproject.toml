@@ -34,16 +34,23 @@ include = ["modules*"]
 egg_base = "build"
 
 [tool.mypy]
-check_untyped_defs   = true
-warn_unused_ignores  = true
-warn_redundant_casts = true
+explicit_package_bases = true
+files                  = ["modules", "solver.py"]
+check_untyped_defs     = true
+warn_unused_ignores    = true
+warn_redundant_casts   = true
 
 [[tool.mypy.overrides]]
 module = [
 	"openmdao.*",
-	"cea",
 	"rocketcea.*",
 	"CoolProp.*",
 	"isacalc",
 ]
 ignore_missing_imports = true
+
+# Upstream cea/lib/libcea.pyi ships invalid stub syntax; skip its stubs
+[[tool.mypy.overrides]]
+module                   = ["cea", "cea.*"]
+follow_imports           = "skip"
+follow_imports_for_stubs = true

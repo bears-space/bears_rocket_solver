@@ -230,7 +230,7 @@ class EfficienciesConfig:
 
 #region Optimization
 @dataclass(frozen=True)
-class DesignVariable:
+class OptimizationVar:
 	start : float  # Value the optimizer starts from
 	lower : float  # Lower bound
 	upper : float  # Upper bound
@@ -238,15 +238,16 @@ class DesignVariable:
 	def __post_init__(self) -> None:
 		require(
 			0.0 < self.lower <= self.start <= self.upper,
-			f"Design variable needs 0 < lower <= start <= upper (got {self})",
+			f"Optimization variable needs 0 < lower <= start <= upper "
+			f"(got {self})",
 		)
 
 @dataclass(frozen=True)
 class OptimizationConfig:
-	propellant_mass_kg    : DesignVariable  # Burned propellant mass [kg]
-	mixture_ratio         : DesignVariable  # Oxidizer over fuel flow [-]
-	injector_area_m2      : DesignVariable  # Total injector area [m^2]
-	nozzle_throat_area_m2 : DesignVariable  # Nozzle throat area [m^2]
+	propellant_mass_kg    : OptimizationVar  # Burned propellant mass [kg]
+	mixture_ratio         : OptimizationVar  # Oxidizer over fuel flow [-]
+	injector_area_m2      : OptimizationVar  # Total injector area [m^2]
+	nozzle_throat_area_m2 : OptimizationVar  # Nozzle throat area [m^2]
 
 @dataclass(frozen=True)
 class ConstraintsConfig:
@@ -351,7 +352,7 @@ def _load_section(name: str, cls: type[T], table: dict[str, Any]) -> T:
 		req = {f.name for f in fields(cast(Any, cls))}
 		check_keys(table, name, req)
 		return cast(T, OptimizationConfig(**{
-			key: build(DesignVariable, value, f"{name}.{key}")
+			key: build(OptimizationVar, value, f"{name}.{key}")
 			for key, value in table.items()
 		}))
 

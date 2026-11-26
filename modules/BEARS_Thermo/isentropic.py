@@ -36,8 +36,8 @@ class IsentropicState(Generic[DiffFloat]):
 
 	All properties are complex-step safe
 	"""
-	mach  : Numeric # Mach number M [-]
-	gamma : Numeric # Ratio of specific heats cp/cv [-]
+	mach  : DiffFloat  # Mach number M [-]
+	gamma : DiffFloat  # Ratio of specific heats cp/cv [-]
 
 	def __post_init__(self) -> None:
 		require(

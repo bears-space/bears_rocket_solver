@@ -5,7 +5,7 @@ rocket, built on [OpenMDAO](https://openmdao.org/). The solver sizes the
 propellant load, mixture ratio, injector and nozzle throat so the rocket reaches
 its target apogee with the least propellant.
 
-## Software design principles
+## Design principles
 
 > Programs must be written for people to read, and only incidentally for
 > machines to execute.
@@ -23,10 +23,10 @@ its target apogee with the least propellant.
 4. **One component, one job.** Each `comp_`/`group_` file models one physical
    subsystem. Dependencies such as the chemistry or atmosphere model are passed
    in as options, never reached for as globals.
-5. **Make invalid staes impossible.** Design your types so that the only values
-   the compiler or constructor will accept are valid ones, which moves checks
-   out of scattered runtime `if` statements and into the structure of the data
-   itself. 
+5. **Make invalid states impossible.** Design your types so that the only
+   values the compiler or constructor will accept are valid ones, which moves
+   checks out of scattered runtime `if` statements and into the structure of
+   the data itself. 
 6. **Keep components differentiable.** Partials are computed by complex step,
    so component code must accept complex inputs (no `float()` casts, no
    branching on values without handling the complex case).
@@ -42,11 +42,14 @@ Requires Python 3.11+. Graph output additionally needs the system
 
 ```powershell
 python -m venv env
-.\env\Scripts\Activate.ps1      # Windows, or: source env/bin/activate
-pip install .                   # Add ".[verification]" for pydot, graphviz, mypy
+.\env\Scripts\Activate.ps1      # Windows, or
+source env/bin/activate         # Linux/Mac
+pip install .                   # Install required dependencies
+pip install .[verification]     # Optional: MyPy
+pip install .[visualization]    # Optional: pydot, GraphViz
 
-python solver.py                # Optimize and write the outputs
-python solver.py --sweep        # Also re-optimize over the [sweep] diameters
+python solver.py                # Optimize and write the outputs, or
+python solver.py --sweep        # Run an airframe diameter sweep
 ```
 
 Results are printed to the terminal, all model variables are written to
@@ -109,16 +112,18 @@ doc/                     # Derivations and reports
 
 ## Dependencies
 
-- [OpenMDAO](https://openmdao.org/): optimization framework.
-- [CEA](https://nasa.github.io/cea/interfaces/python_api.html) /
-  [RocketCEA](https://rocketcea.readthedocs.io/): NASA chemical equilibrium
-  solver for the combustion products. Polymer fuels are modelled as
-  pseudo-species of fixed chain length
-  ([ABS properties](https://pubchem.ncbi.nlm.nih.gov/compound/ACRYLONITRILE-BUTADIENE-STYRENE#section=Computed-Properties)).
-- [CoolProp](http://www.coolprop.org/): real-gas pressurant properties, with an
-  ideal-gas fallback.
-- [isacalc](https://github.com/LukeDeWaal/ISA_Calculator): ISA atmosphere,
-  with a built-in standalone fallback.
+- [OpenMDAO][omd]: optimization framework.
+  [omd]: https://openmdao.org/
+- [CEA][cea]/[RocketCEA][rce]: NASA chemical equilibrium solver for the
+  combustion products. Polymer fuels are modelled as pseudo-species of fixed
+  chain length ([ABS properties][abs]).
+  [cea]: https://nasa.github.io/cea/interfaces/python_api.html
+  [rce]: https://rocketcea.readthedocs.io/
+  [abs]: https://pubchem.ncbi.nlm.nih.gov/compound/ACRYLONITRILE-BUTADIENE-STYRENE#section=Computed-Properties
+- [CoolProp][cpr]: real-gas pressurant properties, with an ideal-gas fallback.
+  [cpr]: http://www.coolprop.org/
+- [isacalc][isc]: ISA atmosphere, with a built-in standalone fallback.
+  [isc]: https://github.com/LukeDeWaal/ISA_Calculator
 
 The backend for each model is chosen under `[models]` in
 `inputs/rocket_inputs.toml`.
