@@ -6,24 +6,33 @@ from ..BEARS_Chem import BEARS_Chem
 
 class ChemComponent(ExplicitComponent):
 	"""
-	Equilibrium chamber state and specific impulse from the chemistry backend
+	Equilibrium chamber state and specific impulse from chemistry backend
 
 	CEA is real-valued only, so the partials are finite differences
 	"""
 
 	def initialize(self):
-		self.options.declare("chem", types=BEARS_Chem)  # Chemistry of the propellant combination
+		# Chemistry of the propellant combination
+		self.options.declare("chem", types=BEARS_Chem)
 
 	def setup(self):
-		self.add_input("chamber_pressure", val=35e5, units="Pa")  # Chamber pressure
-		self.add_input("mixture_ratio",    val=6.0)               # Oxidizer over fuel mass flow [-]
-		self.add_input("expansion_ratio",  val=5.0)               # Nozzle exit over throat area [-]
-		self.add_input("eta_cstar",        val=1.0)               # Combustion efficiency on c* and Isp [-]
+		# Chamber pressure [Pa]
+		self.add_input("chamber_pressure", val=35e5, units="Pa")
+		# Oxidizer over fuel mass flow [-]
+		self.add_input("mixture_ratio",    val=6.0)
+		# Nozzle exit over throat area [-]
+		self.add_input("expansion_ratio",  val=5.0)
+		# Combustion efficiency on c* and Isp [-]
+		self.add_input("eta_cstar",        val=1.0)
 
-		self.add_output("isp",        val=200.0,  units="s")       # Sea-level Isp, combustion losses included
-		self.add_output("t_chamber",  val=3000.0, units="K")       # Adiabatic flame temperature
-		self.add_output("gamma",      val=1.2)                     # Ratio of specific heats of the chamber gas [-]
-		self.add_output("molar_mass", val=0.025,  units="kg/mol")  # Molar mass of the chamber gas
+		# Sea-level Isp, combustion losses included [s]
+		self.add_output("isp",        val=200.0,  units="s")
+		# Adiabatic flame temperature [K]
+		self.add_output("t_chamber",  val=3000.0, units="K")
+		# Ratio of specific heats of the chamber gas [-]
+		self.add_output("gamma",      val=1.2)
+		# Molar mass of the chamber gas [kg/mol]
+		self.add_output("molar_mass", val=0.025,  units="kg/mol")
 
 	def setup_partials(self):
 		self.declare_partials(
@@ -33,8 +42,10 @@ class ChemComponent(ExplicitComponent):
 			step=1e-4,
 		)
 
-		# Only the Isp depends on the expansion ratio, the chamber state does not
-		self.declare_partials("isp", "expansion_ratio", method="fd", step=1e-4)
+		# Only Isp depends on expansion ratio; chamber state does not
+		self.declare_partials(
+			"isp", "expansion_ratio", method="fd", step=1e-4,
+		)
 
 	def compute(self, inputs, outputs):
 		state = self.options["chem"].evaluate(

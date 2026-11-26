@@ -41,7 +41,11 @@ class RocketCEABackend:
 	"""RocketCEA backend, wrapping the Fortran CEA2"""
 
 	def __init__(self, propellants: Propellants) -> None:
-		from rocketcea.cea_obj     import CEA_Obj, add_new_fuel, add_new_oxidizer
+		from rocketcea.cea_obj import (
+			CEA_Obj,
+			add_new_fuel,
+			add_new_oxidizer,
+		)
 		from rocketcea.input_cards import fuelCards, oxCards
 
 		# Add blends RocketCEA does not know under joined names

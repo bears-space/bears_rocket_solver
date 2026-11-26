@@ -12,16 +12,23 @@ class InjectorComponent(ExplicitComponent):
 	"""
 
 	def initialize(self):
-		self.options.declare("rho_ox", types=float)  # Liquid oxidizer density [kg/m^3]
+		# Liquid oxidizer density [kg/m^3]
+		self.options.declare("rho_ox", types=float)
 
 	def setup(self):
-		self.add_input("p_tank",    val=30e5,   units="Pa")    # Oxidizer tank pressure, upstream
-		self.add_input("p_chamber", val=20e5,   units="Pa")    # Chamber pressure, downstream
-		self.add_input("a_inj",     val=4.5e-5, units="m**2")  # Total orifice area
-		self.add_input("cd",        val=0.7)                   # Discharge coefficient [-]
+		# Oxidizer tank pressure, upstream [Pa]
+		self.add_input("p_tank",    val=30e5,   units="Pa")
+		# Chamber pressure, downstream [Pa]
+		self.add_input("p_chamber", val=20e5,   units="Pa")
+		# Total orifice area [m^2]
+		self.add_input("a_inj",     val=4.5e-5, units="m**2")
+		# Discharge coefficient [-]
+		self.add_input("cd",        val=0.7)
 
-		self.add_output("mdot_ox", val=1.0,  units="kg/s")     # Oxidizer mass flow
-		self.add_output("delta_p", val=10e5, units="Pa")       # Pressure drop across the injector
+		# Oxidizer mass flow [kg/s]
+		self.add_output("mdot_ox", val=1.0,  units="kg/s")
+		# Pressure drop across the injector [Pa]
+		self.add_output("delta_p", val=10e5, units="Pa")
 
 	def setup_partials(self):
 		self.declare_partials("mdot_ox", "*", method="cs")
@@ -38,5 +45,6 @@ class InjectorComponent(ExplicitComponent):
 		# still carries the derivative through sqrt(sign * dp)
 		sign = np.sign(np.real(delta_p))
 
-		outputs["mdot_ox"] = sign * inputs["cd"] * inputs["a_inj"] * np.sqrt(2.0 * rho * sign * delta_p)
+		v_term = np.sqrt(2.0 * rho * sign * delta_p)
+		outputs["mdot_ox"] = sign * inputs["cd"] * inputs["a_inj"] * v_term
 		outputs["delta_p"] = delta_p

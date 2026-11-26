@@ -9,12 +9,17 @@ The rocket optimization script using OpenMDAO for the framework
 #region Imports
 import argparse
 import os
-import numpy as np
+from typing import Any
 
+import numpy as np
 import openmdao.utils.variable_table as vt
 import openmdao.core.system          as sys_mod
 
-from modules.Config       import load_rocket_inputs, load_materials, load_checks
+from modules.Config       import (
+	load_checks,
+	load_materials,
+	load_rocket_inputs,
+)
 from modules.BEARS_Atmo   import BEARS_Atm
 from modules.BEARS_Chem   import BEARS_Chem
 from modules.BEARS_Thermo import create_pressurant_thermo
@@ -26,7 +31,7 @@ from modules.BEARS_Rocket import (
 #endregion
 
 #region Helpers
-def patch_variable_table():
+def patch_variable_table() -> None:
 	"""
 	Dirty hack to prevent OpenMDAO from taking the Euclidean norm of array
 	variables for the variable printout, since that makes no sense for this
@@ -36,14 +41,14 @@ def patch_variable_table():
 	orig_write = vt.write_var_table
 
 	def patched_write(
-		pathname,
-		var_list,
-		var_type,
-		var_dict,
-		hierarchical = True,
-		print_arrays = False,
-		out_stream   = None,
-	):
+		pathname     : str,
+		var_list     : list[str],
+		var_type     : str,
+		var_dict     : dict[str, Any],
+		hierarchical : bool = True,
+		print_arrays : bool = False,
+		out_stream   : Any  = None,
+	) -> Any:
 		patched = {}
 		for k, meta in var_dict.items():
 			meta_copy = dict(meta)
@@ -65,12 +70,12 @@ def patch_variable_table():
 #endregion
 
 #region Main
-def main():
+def main() -> None:
 	parser = argparse.ArgumentParser(description=__doc__)
 	parser.add_argument(
 		"--sweep",
 		action = "store_true",
-		help   = "re-optimize over the [sweep] airframe diameters after the solve",
+		help   = "re-optimize over [sweep] airframe diameters after solve",
 	)
 	args = parser.parse_args()
 
@@ -93,6 +98,9 @@ def main():
 	#endregion
 
 	#region Rocket optimization
+	thermo = create_pressurant_thermo(
+		models.pressurant_thermo, pr.mass_margin,
+	)
 	prob = RocketLaunchProblem(
 		cfg          = cfg,
 		limits       = lim,
@@ -101,7 +109,7 @@ def main():
 		ox_wall      = mat.wall(ox.wall),
 		press_wall   = mat.wall(pr.wall),
 		press_gas    = mat.gas(pr.gas),
-		press_thermo = create_pressurant_thermo(models.pressurant_thermo, pr.mass_margin),
+		press_thermo = thermo,
 		reports      = True,
 		work_dir     = work_dir,
 	)
@@ -118,4 +126,5 @@ def main():
 	#endregion
 #endregion
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+	main()

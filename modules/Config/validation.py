@@ -43,11 +43,11 @@ def check_keys(
 	require(not problems, f"[{section}]: {'; '.join(problems)}")
 
 def build(
-	cls,
+	cls       : type[T],
 	table     : dict[str, Any],
 	section   : str,
 	**derived : Any,
-):
+) -> T:
 	"""Construct `cls` from a TOML table whose keys match its fields"""
 	req = {f.name for f in fields(cast(Any, cls))} - set(derived)
 	check_keys(table, section, req)

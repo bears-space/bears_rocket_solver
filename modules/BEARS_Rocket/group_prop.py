@@ -12,14 +12,19 @@ from .group_engine    import HybridEngineGroup
 #endregion
 
 class PropulsionGroup(Group):
-	"""Propulsion system: propellant split, oxidizer tank, pressurant bottle and engine"""
+	"""Propulsion system: split, ox tank, pressurant bottle, engine"""
 
 	def initialize(self):
-		self.options.declare("chem",         types=BEARS_Chem)             # Chemistry of the propellant combination
-		self.options.declare("ox_wall",      types=Wall)                   # Oxidizer tank wall layup
-		self.options.declare("press_wall",   types=Wall)                   # Pressurant bottle wall layup
-		self.options.declare("press_gas",    types=Gas)                    # Pressurant gas
-		self.options.declare("press_thermo", types=PressurantThermoModel)  # Pressurant blowdown model
+		# Chemistry of the propellant combination
+		self.options.declare("chem",         types=BEARS_Chem)
+		# Oxidizer tank wall layup
+		self.options.declare("ox_wall",      types=Wall)
+		# Pressurant bottle wall layup
+		self.options.declare("press_wall",   types=Wall)
+		# Pressurant gas
+		self.options.declare("press_gas",    types=Gas)
+		# Pressurant blowdown model
+		self.options.declare("press_thermo", types=PressurantThermoModel)
 
 	def setup(self):
 		chem = self.options["chem"]
@@ -38,7 +43,10 @@ class PropulsionGroup(Group):
 		# itself to the oxidizer volume
 		self.add_subsystem(
 			"OxidizerTank",
-			OxidizerTankComponent(rho_ox=chem.rho_ox, wall=self.options["ox_wall"]),
+			OxidizerTankComponent(
+				rho_ox = chem.rho_ox,
+				wall   = self.options["ox_wall"],
+			),
 			promotes_inputs=[
 				("p_tank_max",    "tank_pressure"),
 				("diam_out",      "tank_diam"),

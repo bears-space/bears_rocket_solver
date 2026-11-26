@@ -21,7 +21,8 @@ class HybridEngineGroup(Group):
 	"""
 
 	def initialize(self):
-		self.options.declare("chem", types=BEARS_Chem)  # Chemistry of the propellant combination
+		# Chemistry of the propellant combination
+		self.options.declare("chem", types=BEARS_Chem)
 
 	def setup(self):
 		chem = self.options["chem"]
@@ -61,7 +62,7 @@ class HybridEngineGroup(Group):
 			],
 		)
 
-		# Nozzle geometry: the fixed exit and free throat set the expansion ratio
+		# Nozzle geometry: fixed exit and free throat set expansion ratio
 		self.add_subsystem(
 			"NozzleGeometry",
 			NozzleGeometryComponent(),

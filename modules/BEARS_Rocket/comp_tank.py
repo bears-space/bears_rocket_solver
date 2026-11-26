@@ -1,10 +1,11 @@
 #region Imports
-import numpy as np
+from math   import pi
+from typing import Any
 
-from math         import pi
+import numpy as np
 from openmdao.api import ExplicitComponent
 
-from ..Config        import Wall, clamp_nonneg
+from ..Config        import DiffFloat, Wall, clamp_nonneg
 from ..BEARS_Vessels import (
 	domes_internal_volume,
 	domes_length,
@@ -24,44 +25,72 @@ class TankComponent(ExplicitComponent):
 	"""
 
 	def initialize(self):
-		self.options.declare("wall", types=Wall)  # Wall layup, from the inside out
+		# Wall layup, from the inside out
+		self.options.declare("wall", types=Wall)
 
 	def setup(self):
 		n_layers = len(self.options["wall"].layers)
 
-		self.add_input("p_tank_max",    val=70e5,  units="Pa")  # Maximum tank pressure
-		self.add_input("diam_out",      val=0.15,  units="m")   # Outer tank diameter
-		self.add_input("safety_factor", val=1.5)                # Burst over maximum pressure [-]
-		self.add_input("boss_len_fwd",  val=0.015, units="m")   # Forward boss fitting length
-		self.add_input("boss_len_aft",  val=0.015, units="m")   # Aft boss fitting length
+		# Maximum tank pressure [Pa]
+		self.add_input("p_tank_max",    val=70e5,  units="Pa")
+		# Outer tank diameter [m]
+		self.add_input("diam_out",      val=0.15,  units="m")
+		# Burst over maximum pressure [-]
+		self.add_input("safety_factor", val=1.5)
+		# Forward boss fitting length [m]
+		self.add_input("boss_len_fwd",  val=0.015, units="m")
+		# Aft boss fitting length [m]
+		self.add_input("boss_len_aft",  val=0.015, units="m")
 
-		self.add_output("t_layers",   units="m",  shape=n_layers)  # Thickness of each wall layer, inside out
-		self.add_output("m_layers",   units="kg", shape=n_layers)  # Mass of each wall layer, inside out
-		self.add_output("t_wall",     val=0.002, units="m")        # Total wall thickness
-		self.add_output("l_tank",     val=0.5,   units="m")        # Overall length, domes and bosses included
-		self.add_output("v_internal", val=0.01,  units="m**3")     # Internal volume
-		self.add_output("v_fluid",    val=0.009, units="m**3")     # Volume of the stored fluid
-		self.add_output("m_tank_dry", val=2.0,   units="kg")       # Empty tank mass
+		# Thickness of each wall layer, inside out [m]
+		self.add_output("t_layers",   units="m",  shape=n_layers)
+		# Mass of each wall layer, inside out [kg]
+		self.add_output("m_layers",   units="kg", shape=n_layers)
+		# Total wall thickness [m]
+		self.add_output("t_wall",     val=0.002, units="m")
+		# Overall length, domes and bosses included [m]
+		self.add_output("l_tank",     val=0.5,   units="m")
+		# Internal volume [m^3]
+		self.add_output("v_internal", val=0.01,  units="m**3")
+		# Volume of the stored fluid [m^3]
+		self.add_output("v_fluid",    val=0.009, units="m**3")
+		# Empty tank mass [kg]
+		self.add_output("m_tank_dry", val=2.0,   units="kg")
 
 	def setup_partials(self):
 		self.declare_partials("*", "*", method="cs")
 
-	def size_tank(self, inputs, outputs, m_fluid, rho_fluid, ullage_frac):
-		"""Size the wall and geometry around `m_fluid` [kg] of fluid of density `rho_fluid` [kg/m^3]"""
+	def size_tank(
+		self,
+		inputs      : Any,
+		outputs     : Any,
+		m_fluid     : DiffFloat,
+		rho_fluid   : DiffFloat,
+		ullage_frac : DiffFloat,
+	) -> None:
+		"""Size wall and geometry around `m_fluid` [kg] at `rho_fluid`"""
 		wall  = self.options["wall"]
 		r_out = inputs["diam_out"][0] / 2.0
 
-		ts     = size_layers(wall, inputs["p_tank_max"][0], r_out, inputs["safety_factor"][0])
+		ts = size_layers(
+			wall,
+			inputs["p_tank_max"][0],
+			r_out,
+			inputs["safety_factor"][0],
+		)
 		t_wall = sum(ts)
 		r_in   = r_out - t_wall
 
-		# The cylinder holds whatever the domes do not, never a negative volume
+		# Cylinder holds whatever the domes do not, never a negative volume
 		v_fluid = m_fluid / rho_fluid
 		v_int   = tank_internal_volume(v_fluid, ullage_frac)
 		v_cyl   = clamp_nonneg(v_int - domes_internal_volume(r_in))
 
 		l_cyl = v_cyl / (pi * r_in**2)
-		l_tot = l_cyl + domes_length(r_in) + inputs["boss_len_fwd"][0] + inputs["boss_len_aft"][0]
+		l_tot = (
+			l_cyl + domes_length(r_in)
+			+ inputs["boss_len_fwd"][0] + inputs["boss_len_aft"][0]
+		)
 
 		masses = layer_masses(wall, ts, r_in, l_cyl)
 

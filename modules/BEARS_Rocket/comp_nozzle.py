@@ -25,13 +25,19 @@ class NozzleGeometryComponent(ExplicitComponent):
 	"""
 
 	def setup(self):
-		self.add_input("d_exit",     val=0.065,  units="m")     # Exit diameter
-		self.add_input("a_throat",   val=7.0e-4, units="m**2")  # Throat area
-		self.add_input("half_angle", val=0.26,   units="rad")   # Half angle of the divergent cone
+		# Exit diameter [m]
+		self.add_input("d_exit",     val=0.065,  units="m")
+		# Throat area [m^2]
+		self.add_input("a_throat",   val=7.0e-4, units="m**2")
+		# Half angle of the divergent cone [rad]
+		self.add_input("half_angle", val=0.26,   units="rad")
 
-		self.add_output("a_exit",          val=3.3e-3, units="m**2")  # Exit area
-		self.add_output("expansion_ratio", val=4.7)                   # Exit over throat area [-]
-		self.add_output("length",          val=0.05,   units="m")     # Divergent section length, throat to exit
+		# Exit area [m^2]
+		self.add_output("a_exit",          val=3.3e-3, units="m**2")
+		# Exit over throat area [-]
+		self.add_output("expansion_ratio", val=4.7)
+		# Divergent section length, throat to exit [m]
+		self.add_output("length",          val=0.05,   units="m")
 
 	def setup_partials(self):
 		self.declare_partials("*", "*", method="cs")
@@ -58,35 +64,56 @@ class NozzleComponent(ExplicitComponent):
 
 	  mdot = A_t * p_c / sqrt(R * T_c) * MFP(M = 1, gamma)
 
-	which defines the characteristic velocity c* = sqrt(R * T_c) / MFP(1, gamma)
+	defining characteristic velocity c* = sqrt(R * T_c) / MFP(1, gamma)
 
 	The delivered Isp is the ideal one less the divergence loss of the cone,
 	lambda = (1 + cos(theta)) / 2, and the wall friction loss
 	"""
 
 	def setup(self):
-		self.add_input("mdot_ox",         val=1.0,    units="kg/s")    # Oxidizer mass flow
-		self.add_input("mixture_ratio",   val=6.0)                     # Oxidizer over fuel mass flow [-]
-		self.add_input("t_chamber",       val=3000.0, units="K")       # Chamber temperature
-		self.add_input("gamma",           val=1.2)                     # Ratio of specific heats of the chamber gas [-]
-		self.add_input("molar_mass",      val=0.025,  units="kg/mol")  # Molar mass of the chamber gas
-		self.add_input("isp",             val=300.0,  units="s")       # Sea-level Isp before nozzle losses
-		self.add_input("eta_cstar",       val=1.0)                     # Combustion efficiency on c* [-]
-		self.add_input("a_throat",        val=7.0e-4, units="m**2")    # Throat area
-		self.add_input("expansion_ratio", val=4.7)                     # Exit over throat area [-]
-		self.add_input("half_angle",      val=0.26,   units="rad")     # Half angle of the divergent cone
-		self.add_input("eta_friction",    val=0.95)                    # Thrust left after wall friction [-]
+		# Oxidizer mass flow [kg/s]
+		self.add_input("mdot_ox",         val=1.0,    units="kg/s")
+		# Oxidizer over fuel mass flow [-]
+		self.add_input("mixture_ratio",   val=6.0)
+		# Chamber temperature [K]
+		self.add_input("t_chamber",       val=3000.0, units="K")
+		# Ratio of specific heats of the chamber gas [-]
+		self.add_input("gamma",           val=1.2)
+		# Molar mass of the chamber gas [kg/mol]
+		self.add_input("molar_mass",      val=0.025,  units="kg/mol")
+		# Sea-level Isp before nozzle losses [s]
+		self.add_input("isp",             val=300.0,  units="s")
+		# Combustion efficiency on c* [-]
+		self.add_input("eta_cstar",       val=1.0)
+		# Throat area [m^2]
+		self.add_input("a_throat",        val=7.0e-4, units="m**2")
+		# Exit over throat area [-]
+		self.add_input("expansion_ratio", val=4.7)
+		# Half angle of the divergent cone [rad]
+		self.add_input("half_angle",      val=0.26,   units="rad")
+		# Thrust left after wall friction [-]
+		self.add_input("eta_friction",    val=0.95)
 
-		self.add_output("mach_exit",     val=3.0)                   # Exit Mach number [-]
-		self.add_output("cstar",         val=1500.0, units="m/s")   # Characteristic velocity, combustion losses included
-		self.add_output("p_chamber",     val=30e5,   units="Pa")    # Chamber pressure
-		self.add_output("p_throat",      val=17e5,   units="Pa")    # Static pressure at the throat
-		self.add_output("t_throat",      val=2700.0, units="K")     # Static temperature at the throat
-		self.add_output("p_exit",        val=1e5,    units="Pa")    # Static pressure at the exit
-		self.add_output("mdot_prop",     val=1.5,    units="kg/s")  # Propellant mass flow, oxidizer and fuel
-		self.add_output("thrust",        val=3000.0, units="N")     # Delivered thrust
-		self.add_output("isp_delivered", val=200.0,  units="s")     # Delivered sea-level Isp
-		self.add_output("eta_nozzle",    val=0.96)                  # Divergence times friction efficiency [-]
+		# Exit Mach number [-]
+		self.add_output("mach_exit",     val=3.0)
+		# Characteristic velocity, combustion losses included [m/s]
+		self.add_output("cstar",         val=1500.0, units="m/s")
+		# Chamber pressure [Pa]
+		self.add_output("p_chamber",     val=30e5,   units="Pa")
+		# Static pressure at the throat [Pa]
+		self.add_output("p_throat",      val=17e5,   units="Pa")
+		# Static temperature at the throat [K]
+		self.add_output("t_throat",      val=2700.0, units="K")
+		# Static pressure at the exit [Pa]
+		self.add_output("p_exit",        val=1e5,    units="Pa")
+		# Propellant mass flow, oxidizer and fuel [kg/s]
+		self.add_output("mdot_prop",     val=1.5,    units="kg/s")
+		# Delivered thrust [N]
+		self.add_output("thrust",        val=3000.0, units="N")
+		# Delivered sea-level Isp [s]
+		self.add_output("isp_delivered", val=200.0,  units="s")
+		# Divergence times friction efficiency [-]
+		self.add_output("eta_nozzle",    val=0.96)
 
 	def setup_partials(self):
 		self.declare_partials("*", "*", method="cs")
@@ -98,7 +125,8 @@ class NozzleComponent(ExplicitComponent):
 		a_t   = inputs["a_throat"]
 
 		# Conical divergence loss and wall friction
-		eta_nozzle    = 0.5 * (1.0 + np.cos(inputs["half_angle"])) * inputs["eta_friction"]
+		div_loss      = 0.5 * (1.0 + np.cos(inputs["half_angle"]))
+		eta_nozzle    = div_loss * inputs["eta_friction"]
 		isp_delivered = inputs["isp"] * eta_nozzle
 
 		# Choked flow at the sonic throat sets the chamber pressure
@@ -120,6 +148,7 @@ class NozzleComponent(ExplicitComponent):
 		outputs["t_throat"]      = t_c * throat.t_ratio
 		outputs["p_exit"]        = p_c * exit_flow.p_ratio
 		outputs["mdot_prop"]     = mdot_prop
-		outputs["thrust"]        = mdot_prop * isp_delivered * g  # F = mdot * Isp * g0
+		# F = mdot * Isp * g0
+		outputs["thrust"]        = mdot_prop * isp_delivered * g
 		outputs["isp_delivered"] = isp_delivered
 		outputs["eta_nozzle"]    = eta_nozzle

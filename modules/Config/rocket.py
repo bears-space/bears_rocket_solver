@@ -26,9 +26,12 @@ class GlobalConfig:
 	non_propulsion_mass_kg      : float
 	# Engine hardware without propellant: injector, chamber, nozzle [kg]
 	engine_dry_mass_kg          : float
-	target_altitude_m           : float  # Target apogee [m]
-	target_thrust_N             : float  # Target liftoff thrust [N]
-	target_chamber_pressure_bar : float  # Target chamber pressure [bar]
+	# Target apogee [m]
+	target_altitude_m           : float
+	# Target liftoff thrust [N]
+	target_thrust_N             : float
+	# Target chamber pressure [bar]
+	target_chamber_pressure_bar : float
 	# Airframe bore; the engine must fit inside it [m]
 	inner_rocket_diameter_m     : float
 	# Airframe skin: tank outer diameter and drag reference [m]
@@ -154,7 +157,8 @@ class InjectorConfig:
 
 @dataclass(frozen=True)
 class FuelConfig:
-	port_diam_m             : float  # Initial fuel grain port diameter [m]
+	# Initial fuel grain port diameter [m]
+	port_diam_m             : float
 	# Exponent n of the regression law r = a * (G_ox / G_ref)^n [-]
 	reg_exponent            : float
 	# Regression rate a at the reference oxidizer flux [m/s]

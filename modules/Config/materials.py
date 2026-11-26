@@ -77,14 +77,14 @@ class Gas:
 		return CONSTANTS.universal.molar_gas_constant / self.molar_mass
 #endregion
 
-#region Structural materials and walls
+#region Materials and walls
 @dataclass(frozen=True)
 class Material:
 	"""Structural material"""
-	name              : str   # Display name
-	density           : float # [kg/m^3]
-	yield_strength    : float # Stress at onset of plastic flow [Pa]
-	ultimate_strength : float # Stress at failure [Pa]
+	name              : str    # Display name
+	density           : float  # [kg/m^3]
+	yield_strength    : float  # Stress at onset of plastic flow [Pa]
+	ultimate_strength : float  # Stress at failure [Pa]
 
 	def __post_init__(self) -> None:
 		require_positive(
@@ -131,7 +131,7 @@ class CompositeLayer:
 	# Fiber share of the layer volume [-]
 	fiber_volume_frac : float
 
-	def __post_init__(self):
+	def __post_init__(self) -> None:
 		name = f"Composite layer '{self.material.name}'"
 		_check_thickness(self.thickness, name)
 		require(
@@ -177,7 +177,7 @@ class Species:
 	vapor_pressure : float | None      # Saturation pressure at storage
 	                                   # temperature [Pa], oxidizer only
 
-	def __post_init__(self):
+	def __post_init__(self) -> None:
 		name = f"Species '{self.name}'"
 		require(
 			self.role in ("fuel", "oxid"),
@@ -201,7 +201,7 @@ class Propellants:
 	fuels    : tuple[Species, ...]  # Fuel species, blended by mass_fraction
 	oxidizer : Species              # Liquid oxidizer at saturation pressure
 
-	def __post_init__(self):
+	def __post_init__(self) -> None:
 		require(len(self.fuels) > 0, "At least one [[fuel]] is needed")
 		for fuel in self.fuels:
 			require(

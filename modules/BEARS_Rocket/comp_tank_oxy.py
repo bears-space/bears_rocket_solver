@@ -7,12 +7,15 @@ class OxidizerTankComponent(TankComponent):
 
 	def initialize(self):
 		super().initialize()
-		self.options.declare("rho_ox", types=float)  # Liquid oxidizer density [kg/m^3]
+		# Liquid oxidizer density [kg/m^3]
+		self.options.declare("rho_ox", types=float)
 
 	def setup(self):
 		super().setup()
-		self.add_input("m_oxy",       val=10.0, units="kg")  # Oxidizer mass to store
-		self.add_input("ullage_frac", val=0.1)               # Gas-filled share of the tank volume at loading [-]
+		# Oxidizer mass to store [kg]
+		self.add_input("m_oxy",       val=10.0, units="kg")
+		# Gas-filled share of the tank volume at loading [-]
+		self.add_input("ullage_frac", val=0.1)
 
 	def compute(self, inputs, outputs):
 		self.size_tank(
@@ -20,5 +23,5 @@ class OxidizerTankComponent(TankComponent):
 			outputs,
 			inputs["m_oxy"][0],
 			self.options["rho_ox"],
-			inputs["ullage_frac"][0]
+			inputs["ullage_frac"][0],
 		)

@@ -39,7 +39,7 @@ class StandardAtmosphere:
 	lapse_rate             : float  # ISA temperature lapse rate [K/m]
 	tropopause_temperature : float  # ISA temperature at tropopause [K]
 
-	def __post_init__(self):
+	def __post_init__(self) -> None:
 		require_positive(
 			self,
 			"sea_level_pressure",
