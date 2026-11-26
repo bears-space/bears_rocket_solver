@@ -9,6 +9,8 @@ Ordered by priority:
 - [ ] Fix: Units deriving from different sources, replace `to_si`
 - [ ] Fix: Generic system for parameter sweeps
 - [ ] Fix: Restructure from relative imports to a module-oriented system
+- [ ] Fix: Human rewrite of the horrendous AI slop in
+           [Design principles](README.md#design-principles) section in Readme
 - [ ] Impl: Proper mass model for the subcomponent assemblies
 - [ ] Impl: RocketPal integration
 - [ ] Impl: Useful graphs for all optimized values

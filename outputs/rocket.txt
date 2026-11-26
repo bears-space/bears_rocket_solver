@@ -1,4 +1,4 @@
-88 Explicit Output(s) in 'model'
+90 Explicit Output(s) in 'model'
 
 varname                      val                   units      prom_name                                     
 ---------------------------  --------------------  ---------  ----------------------------------------------
@@ -73,8 +73,10 @@ Propulsion
     Fuel
       r_dot                  [0.00160884]          m/s        Propulsion.fuel_regression_rate               
       length                 [0.73688599]          m          Propulsion.fuel_length                        
-      grain_diam             [0.05719236]          m          Propulsion.fuel_grain_diam                    
+      grain_diam             [0.05673831]          m          Propulsion.fuel_grain_diam                    
       mdot_fuel              [0.17168884]          kg/s       Propulsion.HybridEngine.engine_mdot_fuel      
+      mixture_ratio_init     [8.22267664]          None       Propulsion.prop_mixture_ratio_init            
+      mixture_ratio_final    [8.22267664]          None       Propulsion.prop_mixture_ratio_final           
     NozzleGeometry
       a_exit                 [0.00636173]          m**2       Propulsion.nozzle_exit_area                   
       expansion_ratio        [8.65355841]          None       Propulsion.nozzle_expansion_ratio             
@@ -102,7 +104,7 @@ Mass
   dry_mass                   [15.26777959]         kg         Mass.dry_mass                                 
   initial_mass               [20.11414005]         kg         Mass.initial_mass                             
 EngineFit
-  grain_margin               [0.06280764]          m          EngineFit.grain_margin                        
+  grain_margin               [0.06326169]          m          EngineFit.grain_margin                        
 Trajectory
   apogee                     [3260.86946398]       m          apogee                                        
   burn_time                  [2.23525684]          s          burn_time                                     

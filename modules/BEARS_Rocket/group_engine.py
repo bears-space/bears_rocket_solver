@@ -55,10 +55,12 @@ class HybridEngineGroup(Group):
 				("eta_reg",       "fuel_eta_reg"),
 			],
 			promotes_outputs=[
-				("length",     "fuel_length"),
-				("grain_diam", "fuel_grain_diam"),
-				("r_dot",      "fuel_regression_rate"),
-				("mdot_fuel",  "engine_mdot_fuel"),
+				("length",              "fuel_length"),
+				("grain_diam",          "fuel_grain_diam"),
+				("r_dot",               "fuel_regression_rate"),
+				("mdot_fuel",           "engine_mdot_fuel"),
+				("mixture_ratio_init",  "engine_mixture_ratio_init"),
+				("mixture_ratio_final", "engine_mixture_ratio_final"),
 			],
 		)
 
